@@ -1,0 +1,38 @@
+{
+    "name":"User Module",
+    "description":"Module User management & User Auth",
+    "package_namespace":"User",
+    "package_dir":"mod-user",
+    "is_package": 1,
+    "is_lib":0,
+    "git":"https://gitlab.com/hp-synapse/mod-user.git",
+    "has_frontend":1,
+    "has_api":1,
+    "has_admin":1,
+    "endpoint": {
+        "dev":{
+            "frontend": "user",
+            "api": "user",
+            "admin": "user"
+        },
+        "prod":{
+            "frontend": "user",
+            "api": "user",
+            "admin": "user"
+        }
+    },
+    "enable": 1,
+    "mode":"prod",
+    "auth_endpoint": {
+        "dev":{
+            "frontend": "auth",
+            "api": "auth",
+            "admin": "auth"
+        },
+        "prod":{
+            "frontend": "auth",
+            "api": "auth",
+            "admin": "auth"
+        }
+    }
+}
