@@ -1,38 +1,118 @@
 {
-    "name":"User Module",
-    "description":"Module User management & User Auth",
-    "package_namespace":"User",
-    "package_dir":"mod-user",
-    "is_package": 1,
-    "is_lib":0,
-    "git":"https://gitlab.com/hp-synapse/mod-user.git",
-    "has_frontend":1,
-    "has_api":1,
-    "has_admin":1,
-    "endpoint": {
-        "dev":{
-            "frontend": "user",
-            "api": "user",
-            "admin": "user"
-        },
-        "prod":{
-            "frontend": "user",
-            "api": "user",
-            "admin": "user"
-        }
+  "name": "User Module",
+  "description": "Module User management & User Auth",
+  "package_namespace": "moduser",
+  "package_dir": "mod-user",
+  "is_package": 1,
+  "is_lib": 0,
+  "git": "https://gitlab.com/hp-synapse/mod-user.git",
+  "has_frontend": 1,
+  "has_api": 1,
+  "has_admin": 1,
+  "endpoint": {
+    "dev": {
+      "frontend": "user",
+      "api": "user",
+      "admin": "user"
     },
-    "enable": 1,
-    "mode":"prod",
-    "auth_endpoint": {
-        "dev":{
-            "frontend": "auth",
-            "api": "auth",
-            "admin": "auth"
-        },
-        "prod":{
-            "frontend": "auth",
-            "api": "auth",
-            "admin": "auth"
-        }
+    "prod": {
+      "frontend": "user",
+      "api": "user",
+      "admin": "user"
     }
+  },
+  "enable": 1,
+  "mode": "prod",
+  "access": {
+    "caption": "User Management",
+    "icon": "ion-ios-checkmark-circle",
+    "children": {
+      "mod_user_1": {
+        "caption": "List User",
+        "route": { "name": "user.list" },
+        "class": "",
+        "adds": null,
+        "is_navbar": 1,
+        "enable": 1,
+        "active_acl": {
+          "has_access": 1,
+          "crud": {
+            "c": 1,
+            "r": 1,
+            "u": 1,
+            "d": 1
+          }
+        },
+        "acl_config": {
+          "show": 1,
+          "crud": {
+            "c": 1,
+            "r": 1,
+            "u": 1,
+            "d": 1
+          }
+        }
+      },
+      "mod_user_2": {
+        "caption": "List Role",
+        "route": { "name": "role.list" },
+        "class": "",
+        "adds": null,
+        "is_navbar": 1,
+        "enable": 1,
+        "active_acl": {
+          "has_access": 1,
+          "crud": {
+            "c": 1,
+            "r": 1,
+            "u": 1,
+            "d": 1
+          }
+        },
+        "acl_config": {
+          "show": 1,
+          "crud": {
+            "c": 1,
+            "r": 1,
+            "u": 1,
+            "d": 1
+          }
+        }
+      }
+    }
+  },
+  "auth_endpoint": {
+    "dev": "auth",
+    "prod": "auth"
+  },
+  "has_registration": 0,
+  "has_rememberme": 0,
+  "has_forgotpassword": 0,
+  "session_lifetime" : 24,
+  "notification": {
+    "firebase_config_path": "app/MainApp/config/firebase.json",
+    "firebase": {
+      "server_key": "AAAAL_s8VSI:APA91bHLUgF6Vc2mQPwk-bbjuvzT18VhOt9XMFcBk691cmt6YYbpKhGuF49VPvnbW_l0emKPBPDN9u-1kuF1eGR-uPk_tIWSaUoxptQnvBP0AP8QTukUlGuldrlRfNI_PkQN-UOVqsx9",
+      "sender_id": "206078498082",
+      "database_url": "https://api-project-206078498082.firebaseio.com"
+    },
+    "use_jobs": 1,
+    "channels_service": {
+      "1": "firebase",
+      "2": "pusher",
+      "3": "aws_sns"
+    },
+    "channels": {
+      "all": {
+        "firebase": "all",
+        "pusher": "",
+        "aws_sns": ""
+      },
+      "errorlog": {
+        "firebase": "errorlog",
+        "pusher": "",
+        "aws_sns": ""
+      }
+    }
+  }
 }
