@@ -25,15 +25,20 @@
   "mode": "prod",
   "access": {
     "caption": "User Management",
+    "description": "",
     "icon": "ion-ios-checkmark-circle",
+    "has_acl": 1,
+    "tenant_group_id": 0,
+    "has_access":1,
     "children": {
-      "mod_user_1": {
-        "caption": "List User",
+      "moduser_user": {
+        "caption": "Manage User",
         "route": { "name": "user.list" },
         "class": "",
         "adds": null,
         "is_navbar": 1,
         "enable": 1,
+        "tenant_group_id": 0,
         "active_acl": {
           "has_access": 1,
           "crud": {
@@ -53,13 +58,14 @@
           }
         }
       },
-      "mod_user_2": {
-        "caption": "List Role",
+      "moduser_role": {
+        "caption": "Manage Role",
         "route": { "name": "role.list" },
         "class": "",
         "adds": null,
         "is_navbar": 1,
         "enable": 1,
+        "tenant_group_id": [1],
         "active_acl": {
           "has_access": 1,
           "crud": {
@@ -76,6 +82,29 @@
             "r": 1,
             "u": 1,
             "d": 1
+          }
+        }
+      },
+      "moduser_manage_all_tenant": {
+        "caption": "Can Manage All Tenant",
+        "is_navbar": 0,
+        "enable": 1,
+        "active_acl": {
+          "has_access": 1,
+          "crud": {
+            "c": 0,
+            "r": 0,
+            "u": 0,
+            "d": 0
+          }
+        },
+        "acl_config": {
+          "show": 1,
+          "crud": {
+            "c": 0,
+            "r": 0,
+            "u": 0,
+            "d": 0
           }
         }
       }
