@@ -32,7 +32,7 @@
         "tenant_group_id": 0,
         "has_access": 1,
         "children": {
-            "moduser_user": {
+            "user": {
                 "caption": "Manage User",
                 "route": { "name": "user.list" },
                 "class": "",
@@ -59,7 +59,7 @@
                     }
                 }
             },
-            "moduser_role": {
+            "role": {
                 "caption": "Manage Role",
                 "route": { "name": "role.list" },
                 "class": "",
@@ -86,7 +86,7 @@
                     }
                 }
             },
-            "moduser_manage_all_tenant": {
+            "manage_all_tenant": {
                 "caption": "Can Manage All Tenant",
                 "is_navbar": 0,
                 "enable": 1,
