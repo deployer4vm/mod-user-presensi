@@ -116,6 +116,13 @@
         "dev": "auth",
         "prod": "auth"
     },
+    "auth_template": {
+        "type": 0,
+        "custom": {
+            "register": "",
+            "login": ""
+        }
+    },
     "registration": {
         "enable": 1,
         "default_role_code": "admin",
