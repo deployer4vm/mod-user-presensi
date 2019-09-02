@@ -116,6 +116,7 @@
     "session_lifetime": 24,
     "users_hidden_field": [],
     "user_profiles": {
+        "hide_all": 0,
         "hide": [],
         "adds": {}
     },
