@@ -134,6 +134,9 @@
         },
         "adds":[]
     },
+    "role_list": {
+        "hide_field": []
+    },
     "notification": {
         "enable":1,
         "show":1,
