@@ -134,8 +134,10 @@
         },
         "adds":[]
     },
-    "role_list": {
-        "hide_field": []
+    "role_hidden_field": [],
+    "user_level": {
+        "min":1,
+        "max":99
     },
     "notification": {
         "enable":1,
