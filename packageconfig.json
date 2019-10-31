@@ -122,6 +122,7 @@
     },
     "user_form_tab": {
         "profile" : {
+            "show":1,
             "caption" : "Profile",
             "component" : "./userform/profile"
         },
@@ -129,6 +130,7 @@
     },
     "user_profile_tab": {
         "profile" : {
+            "show":1,
             "caption" : "Profile",
             "component" : "./userprofile/profile"
         },
