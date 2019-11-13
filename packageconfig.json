@@ -24,9 +24,9 @@
     "enable": 1,
     "mode": "prod",
     "access": {
-        "caption": "User Management",
-        "description": "",
-        "acl_caption": "Module User",
+        "caption": {"en":"User Management","id":"User Management"},
+        "description": {"en":"","id":""},
+        "acl_caption": {"en":"Module User","id":"Module User"},
         "acl_description": "",
         "icon": "ion ion-md-person",
         "has_acl": 1,
@@ -35,9 +35,9 @@
         "has_access": 1,
         "children": {
             "user": {
-                "caption": "Manage User",
-                "acl_caption": "Manger User Data",
-                "acl_description": "",
+                "caption": {"en":"Manage User","id":"Manage User"},
+                "acl_caption": {"en":"Manger User Data","id":"Manger User Data"},
+                "acl_description": {"en":"","id":""},
                 "route": { "name": "user.list" },
                 "class": "",
                 "is_navbar": 1,
@@ -63,9 +63,9 @@
                 }
             },
             "role": {
-                "caption": "Manage Role",
-                "acl_caption": "Manager User Role Data",
-                "acl_description": "",
+                "caption": {"en":"Manage Role","id":"Manage Role"},
+                "acl_caption": {"en":"Manager User Role Data","id":"Manager User Role Data"},
+                "acl_description": {"en":"","id":""},
                 "route": { "name": "role.list" },
                 "class": "",
                 "is_navbar": 1,
