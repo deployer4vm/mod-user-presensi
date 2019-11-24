@@ -113,7 +113,7 @@
         "forgotpassword": 1
     },
     "has_auth_grant" : 1,
-    "session_lifetime": 24,
+    "session_lifetime": 60,
     "users_hidden_field": [],
     "user_profiles": {
         "hide_all": 0,
