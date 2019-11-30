@@ -29,6 +29,7 @@
         "acl_caption": {"en":"Module User","id":"Module User"},
         "acl_description": "",
         "icon": "ion ion-md-person",
+        "no":1,
         "has_acl": 1,
         "is_navbar": 1,
         "tenant_group_id": 0,
@@ -137,9 +138,12 @@
         "adds":[]
     },
     "role_hidden_field": [],
-    "user_level": {
-        "min":1,
-        "max":99
+    "user_role": {
+        "multi_role": 1,
+        "user_level": {
+            "min":1,
+            "max":99
+        }
     },
     "notification": {
         "enable":1,
