@@ -93,13 +93,15 @@
             },
             "broadcast": {
                 "caption": {"en":"Broadcast Message","id":"Broadcast Message"},
-                "acl_caption": {"en":"","id":""},
+                "acl_caption": {"en":"Broadcast Message","id":"Broadcast Message"},
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "broadcast.form" },
                 "class": "",
                 "is_navbar": 1,
                 "enable": 1,
-                "tenant_group_id": 0,
+                "tenant_group_id": [
+                    1
+                ],
                 "active_acl": {
                     "has_access": 1,
                     "crud": {
