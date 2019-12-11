@@ -92,8 +92,8 @@
                 }
             },
             "broadcast": {
-                "caption": {"en":"Broadcast Message","id":"Broadcast Message"},
-                "acl_caption": {"en":"Broadcast Message","id":"Broadcast Message"},
+                "caption": {"en":"Notification Broadcast","id":"Notification Broadcast"},
+                "acl_caption": {"en":"Notification Broadcast","id":"Notification Broadcast"},
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "broadcast.form" },
                 "class": "",
@@ -107,8 +107,8 @@
                     "crud": {
                         "c": 1,
                         "r": 1,
-                        "u": 1,
-                        "d": 1
+                        "u": 0,
+                        "d": 0
                     }
                 },
                 "acl_config": {
@@ -116,8 +116,8 @@
                     "crud": {
                         "c": 1,
                         "r": 1,
-                        "u": 1,
-                        "d": 1
+                        "u": 0,
+                        "d": 0
                     }
                 }
             }
