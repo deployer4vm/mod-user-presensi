@@ -23,6 +23,19 @@
     },
     "enable": 1,
     "mode": "prod",
+    "binding":{
+        "interface": {
+            "hpsynapse\\moduser\\Contracts\\UserRepo":"hpsynapse\\moduser\\Repositories\\UserRepo",
+            "hpsynapse\\moduser\\Contracts\\UserAuth":"hpsynapse\\moduser\\Services\\UserAuth",
+            "hpsynapse\\moduser\\Contracts\\FirebaseApi":"hpsynapse\\moduser\\Services\\FirebaseApi",
+            "hpsynapse\\moduser\\Contracts\\SocialAuthSrv":"hpsynapse\\moduser\\Services\\SocialAuthSrv",
+            "hpsynapse\\moduser\\Contracts\\UserNotifSrv":"hpsynapse\\moduser\\Services\\UserNotifSrv",
+            "hpsynapse\\moduser\\Contracts\\ZendzivaApi":"hpsynapse\\moduser\\Services\\ZendzivaApi",
+            "hpsynapse\\moduser\\Contracts\\UserNotifRepo":"hpsynapse\\moduser\\Repositories\\UserNotifRepo",
+            "hpsynapse\\moduser\\Contracts\\UserLogRepo":"hpsynapse\\moduser\\Repositories\\UserLogRepo",
+            "hpsynapse\\moduser\\Contracts\\RoleRepo":"hpsynapse\\moduser\\Repositories\\RoleRepo"
+        }
+    },
     "access": {
         "caption": {"en":"User Management","id":"User Management"},
         "description": {"en":"","id":""},
