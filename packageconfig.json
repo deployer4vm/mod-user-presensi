@@ -191,28 +191,17 @@
     "notification": {
         "enable":1,
         "show":1,
-        "firebase_config_path": "app/MainApp/config/firebase.json",
-        "firebase": {
-            "server_key": "AAAAL_s8VSI:APA91bHLUgF6Vc2mQPwk-bbjuvzT18VhOt9XMFcBk691cmt6YYbpKhGuF49VPvnbW_l0emKPBPDN9u-1kuF1eGR-uPk_tIWSaUoxptQnvBP0AP8QTukUlGuldrlRfNI_PkQN-UOVqsx9",
-            "sender_id": "206078498082",
-            "database_url": "https://api-project-206078498082.firebaseio.com"
+        "services_enabled": {
+            "firebase": 0,
+            "pusher": 1,
+            "aws_sns": 0
         },
         "use_jobs": 1,
-        "channels_service": {
-            "1": "firebase",
-            "2": "pusher",
-            "3": "aws_sns"
-        },
         "channels": {
-            "all": {
-                "firebase": "all",
-                "pusher": "",
-                "aws_sns": ""
-            },
-            "errorlog": {
-                "firebase": "errorlog",
-                "pusher": "",
-                "aws_sns": ""
+            "notifAll": {
+                "firebase": "notifAll",
+                "pusher": "notifAll",
+                "aws_sns": "notifAll"
             }
         }
     }
