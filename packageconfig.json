@@ -148,7 +148,7 @@
         }
     },
     "registration": {
-        "enable": 1,
+        "enable": 0,
         "default_role_code": "admin",
         "field": ["email","password"]
     },
