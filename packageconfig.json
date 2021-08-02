@@ -168,7 +168,7 @@
         "profile" : {
             "show":1,
             "caption" : "Profile",
-            "component" : "./userform/profile"
+            "is_custom" : 0
         },
         "adds":[]
     },
@@ -176,7 +176,7 @@
         "profile" : {
             "show":1,
             "caption" : "Profile",
-            "component" : "./userprofile/profile"
+            "is_custom" : 0
         },
         "adds":[]
     },
