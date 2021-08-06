@@ -50,7 +50,7 @@
         "children": {
             "user": {
                 "caption": {"en":"Manage User","id":"Manage User"},
-                "acl_caption": {"en":"Manger User Data","id":"Manger User Data"},
+                "acl_caption": {"en":"Manage User Data","id":"Manage User Data"},
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "user.list" },
                 "class": "",
@@ -101,6 +101,58 @@
                         "r": 1,
                         "u": 1,
                         "d": 1
+                    }
+                },
+                "children": {                    
+                    "can_edit_role_code": {
+                        "acl_caption": {"en":"Can Edit 'role_code'","id":"Bisa edit 'role_code'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },                 
+                    "can_edit_level": {
+                        "acl_caption": {"en":"Can Edit 'level'","id":"Bisa edit 'level'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
                     }
                 }
             },
