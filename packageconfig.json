@@ -32,7 +32,7 @@
             "hpsynapse\\moduser\\Contracts\\UserNotifSrv":"hpsynapse\\moduser\\Services\\UserNotifSrv",
             "hpsynapse\\moduser\\Contracts\\ZendzivaApi":"hpsynapse\\moduser\\Services\\ZendzivaApi",
             "hpsynapse\\moduser\\Contracts\\UserNotifRepo":"hpsynapse\\moduser\\Repositories\\UserNotifRepo",
-            "hpsynapse\\moduser\\Contracts\\UserLogRepo":"hpsynapse\\moduser\\Repositories\\UserLogRepo",
+            "hpsynapse\\moduser\\Contracts\\UserLog":"hpsynapse\\moduser\\Repositories\\UserLog",
             "hpsynapse\\moduser\\Contracts\\RoleRepo":"hpsynapse\\moduser\\Repositories\\RoleRepo",
             "hpsynapse\\moduser\\Contracts\\UserSystemRepo":"hpsynapse\\moduser\\Repositories\\UserSystemRepo",
             "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo"
@@ -43,7 +43,7 @@
         "caption": {"en":"User Management","id":"User Management"},
         "description": {"en":"","id":""},
         "acl_caption": {"en":"Module User","id":"Module User"},
-        "acl_description": "",
+        "acl_description": {"en":"","id":""},
         "icon": "ion ion-md-person",
         "no":1,
         "has_acl": 1,
