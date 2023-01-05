@@ -7,9 +7,9 @@
         }
     },
     "require": {
-        "php":"~7.1",
-        "kreait/firebase-php": "^4.0",
-        "pusher/pusher-php-server": "~4.0",
+        "php":"~7.3|^8.0",
+        "kreait/firebase-php": "^5.19",
+        "pusher/pusher-php-server": "~5.0",
         "laravel/socialite": "^5.2"
     },
     "require-dev": {
