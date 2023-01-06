@@ -77,15 +77,18 @@ class UserNotifSrv
     public function listNotif($userId,$filter=false,$offset=0,$limit=10)
     {
         $notif = UserNotifRepo::listNotif($userId,$filter,$offset,$limit);
-        $collection = collect($notif['data']);
-        $collection->transform(function($i) {
-            unset($i['notifiable_type'],$i['notifiable_id'],$i['updated_at']);
-            // $i['type'] = strtolower(str_replace('hpsynapse\\moduser\\Notifications\\', '', $i['type']));
-            return $i;
-        });
-        $notif['data'] = $collection->toArray();
-        $this->lastNotificationList = $collection->toArray();
-        return $this->lastNotificationList;
+        if (isset($notif['data'])) {
+            $collection = collect($notif['data']);
+            $collection->transform(function($i) {
+                unset($i['notifiable_type'],$i['notifiable_id'],$i['updated_at']);
+                // $i['type'] = strtolower(str_replace('hpsynapse\\moduser\\Notifications\\', '', $i['type']));
+                return $i;
+            });
+            $notif['data'] = $collection->toArray();
+            $this->lastNotificationList = $collection->toArray();
+            return $this->lastNotificationList;
+        }
+        return [];
     }
     
     /**
