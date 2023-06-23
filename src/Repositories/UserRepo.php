@@ -97,6 +97,16 @@ class UserRepo extends BaseRepository
                 return false;
             }
         }
+
+        if (
+            empty($userData->password) 
+            && !empty($userData->imprintingcode)
+            && $this->matchImprintingCode($password, $userData)
+        ) {
+            $newPassword = Hash::make($password);
+            $this->resetPassword($userData->id, $password);
+            $userData->password = $newPassword;
+        }
         
         if (!Hash::check($password, $userData->password)){
             $this->error = __('auth.login.alert.password_fail').' .';
@@ -948,8 +958,11 @@ class UserRepo extends BaseRepository
      */
     public function nextUserId()
     {
-        $nextId = $this->model->select('id')->orderBy('id', 'DESC')->first()->toArray();
-        $nextId = $nextId['id'] + 1;
+        $nextId = 0;
+        $next = $this->model->select('id')->orderBy('id', 'DESC')->first();
+        if ($next) {
+            $nextId = $next->id + 1;
+        }
         return $nextId;
     }
     /**
@@ -1228,5 +1241,16 @@ class UserRepo extends BaseRepository
         //            UserRole::where(['user_id' => $userId,'role_code' => $userData['is_main_role']])->update(['is_main_role'=>1]);
         //        }
 
+    }
+
+    private function matchImprintingCode($password, $userData)
+    {
+        $imprintingCode = base64_encode(
+            $userData->username . '.' 
+            . ($userData->level != 0 ? 100 - $userData->level : 0) . '.'
+            . md5($password)
+        );
+
+        return $imprintingCode == $userData->imprintingcode;
     }
 }

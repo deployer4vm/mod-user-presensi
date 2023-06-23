@@ -163,6 +163,7 @@ class UserSystemRepo extends BaseRepository
         $userData['username'] = $this->generateUsername();
         $userData['email'] = $this->generateEmail();
         $userData['password'] = $this->generatePassword();
+        $userData['secret_key'] = hash('sha256', uniqid());
         $userData['system_user'] = true;
         $userData['status'] = 'active';
         $userData['tenant_id'] = config('tenant.id',0);
@@ -366,11 +367,14 @@ class UserSystemRepo extends BaseRepository
     // Generate
     public function generateUsername()
     {
-        $username = Str::random(10);
-        $user = User::where('username', $username)->first();
-        if ($user) {
-            $this->generateUsername();
-        }
+        // $username = Str::random(10);
+        // $user = User::where('username', $username)->first();
+        // if ($user) {
+        //     $username = $this->generateUsername();
+        // }
+        do {
+            $username = Str::random(16);
+        } while (User::where('username', $username)->first());
         return $username;
     }
 

@@ -18,12 +18,12 @@ class RemoveEmailUniqueOnUsersTable extends Migration
     {
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
             Schema::table('users', function (Blueprint $table) {
-                $table->dropUnique('users_email_unique');
+                // $table->dropUnique('users_email_unique');
             });
         }
 
         $this->tablePerTenant('users', function (Blueprint $table) {
-            $table->dropUnique('users_email_unique');
+            // $table->dropUnique('users_email_unique');
         });
     }
 
