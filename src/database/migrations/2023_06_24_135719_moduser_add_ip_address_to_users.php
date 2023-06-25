@@ -14,18 +14,16 @@ return new class extends Migration
     public function up(): void
     {
         if (config('AppConfig.system.multitenant.active', false) && $this->tenantMigrateMode() == false) {
-            if (!Schema::hasColumn('moduser_users', 'pin')) {
+            if (!Schema::hasColumn('moduser_users', 'ip_address')) {
                 Schema::table('moduser_users', function (Blueprint $table) {
-                    $table->unsignedInteger('pin')->nullable()->comment('PIN User')->after('password');
-                    $table->string('secret_key')->nullable()->comment('API Secret Key')->after('pin');
+                    $table->json('ip_address')->nullable()->comment('Whitelist IP Address for H2H')->after('secret_key');
                 });
             }
         }
 
         $this->tablePerTenant('moduser_users', function (Blueprint $table) {
-            $table->unsignedInteger('pin')->nullable()->comment('PUN User')->after('password');
-            $table->string('secret_key')->nullable()->comment('API Secret Key')->after('pin');
-        }, 'pin');
+            $table->json('ip_address')->nullable()->comment('Whitelist IP Address for H2H')->after('secret_key');
+        }, 'ip_address');
     }
 
     /**
@@ -33,16 +31,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasColumn('moduser_users', 'pin')) {
+        if (Schema::hasColumn('moduser_users', 'ip_address')) {
             Schema::table('moduser_users', function (Blueprint $table) {
-                $table->dropColumn('pin');
-                $table->dropColumn('secret_key');
+                $table->dropColumn('ip_address');
             });
         }
 
         $this->tablePerTenant('moduser_users', function (Blueprint $table) {
-            $table->dropColumn('pin');
-            $table->dropColumn('secret_key');
+            $table->dropColumn('ip_address');
         });
     }
 };

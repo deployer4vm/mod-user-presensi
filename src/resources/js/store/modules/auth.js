@@ -1,6 +1,11 @@
 import globals from "@/globals";
+import CryptoJS from "node_modules/crypto-js";
+import {Encryptor} from "node_modules/node-laravel-encryptor";
 
 var authPath = globals().AppConfig.endpoint.api.auth;
+var encryptor = new Encryptor({
+    key: globals().AppConfig.client.secret_key
+});
 
 const state = {
     token: null, //token akses API
@@ -81,7 +86,7 @@ const actions = {
         return globals().LocalApi
             .post(authPath + "/login", {
                 username: authData.username,
-                password: authData.password
+                password: encryptor.encryptSync(authData.password)
             })
             .then(res => {
                 // const now = new Date();
