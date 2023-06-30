@@ -354,7 +354,7 @@
             this.loadData(1);
 
             //load data role
-            this.$store.dispatch("role/roleList").then(res => {
+            this.$store.dispatch("rolesystem/roleList").then(res => {
                 let tmpRoleItems = { "all": this.Trans.get("lang.view_all") };
                 _.forEach(res.data, (v, i) => {
                     tmpRoleItems[v.role_code] = "[" + v.role_code + "] " + v.name;

@@ -17,6 +17,10 @@ return [
             'banned' => 'Banned'
         ],
         'generate_token' => 'Generate Token',
+        'h2h_key' => 'API H2H Key',
+        'client_key' => 'API Client Key',
+        'client_secret' => 'API Client Secret',
+        'copy_key' => 'Copy :key'
     ],
     'userlist' => [
         'add_new_user' => 'Tambah User'

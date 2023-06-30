@@ -6,6 +6,7 @@ use App\Facades\Tenant;
 use hpsynapse\moduser\Facades\RoleRepo;
 use hpsynapse\moduser\Facades\UserSystemRepo;
 use hpsynapse\moduser\Models\User;
+use hpsynapse\moduser\Models\UserRole;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -96,6 +97,7 @@ class DefaultSysUser extends Command
                 $userTenant = UserSystemRepo::getUser([
                     ['username', $user['username']]
                 ]);
+                $userId = $userTenant['id'] ?? null;
                 if (!$userTenant) {
                     $tmpUser = $user;
                     unset($tmpUser['id']);
@@ -107,6 +109,18 @@ class DefaultSysUser extends Command
                     $newUserTenant->tenant_id = $data['id'];
                     $newUserTenant->secret_key = $user['secret_key'];
                     $newUserTenant->save();
+                    $userId = $newUserTenant->id;
+                }
+                if (!UserRole::where('user_id', $userId)
+                    ->where('role_id', $role['id'])
+                    ->count()) {
+                    UserRole::create([
+                        'tenant_id' => $data['id'],
+                        'user_id' => $userId,
+                        'role_id' => $role['id'],
+                        'has_auth_grant' => 0,
+                        'is_main_role' => 1
+                    ]);
                 }
                 $this->info('Copied to Tenant: '.$data['id']);
             }

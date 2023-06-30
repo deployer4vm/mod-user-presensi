@@ -26,17 +26,41 @@
                     <hr class="border-light m-0" v-if="!isAdd"/>
                 
                     <b-card-body class="pb-2" v-if="!isAdd">
-                        <b-form-group :label="Trans.get('user.field_caption.generate_token')" class="col position-relative">
+                        <b-form-group :label="Trans.get('user.field_caption.client_key')" class="col position-relative">
                             <div class="input-group mb-3">
-                              <input type="text" class="form-control" v-model="form.api_token.api_token" placeholder="Generate Token" readonly>
+                              <input type="text" class="form-control" v-model="form.username" :placeholder="Trans.get('user.field_caption.client_key')" readonly>
                               <div class="input-group-append">
-                                <button class="btn btn-outline-warning" type="button" @click="generateTokenSystem(form.id)">Generate Token</button>
+                                <button class="btn btn-outline-info" type="button" v-if="form.username"
+                                    v-clipboard:copy="form.username" v-clipboard:success="copySuccess"
+                                    v-clipboard:error="copyFail">
+                                    {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.client_key')}) }}
+                                </button>
+                              </div>
+                            </div>
+                        </b-form-group>
+                        <b-form-group :label="Trans.get('user.field_caption.client_secret')" class="col position-relative">
+                            <div class="input-group mb-3">
+                              <input type="text" class="form-control" v-model="form.secret_key" :placeholder="Trans.get('user.field_caption.client_key')" readonly>
+                              <div class="input-group-append">
+                                <button class="btn btn-outline-info" type="button" v-if="form.secret_key"
+                                    v-clipboard:copy="form.secret_key" v-clipboard:success="copySuccess"
+                                    v-clipboard:error="copyFail">
+                                    {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.client_secret')}) }}
+                                </button>
+                              </div>
+                            </div>
+                        </b-form-group>
+                        <b-form-group :label="Trans.get('user.field_caption.h2h_key')" class="col position-relative">
+                            <div class="input-group mb-3">
+                              <input type="text" class="form-control" v-model="form.api_token.api_token" :placeholder="Trans.get('user.field_caption.h2h_key')" readonly>
+                              <div class="input-group-append">
+                                <button class="btn btn-outline-warning" type="button" @click="generateTokenSystem(form.id)">{{ Trans.get('user.field_caption.generate_token') }}</button>
                               </div>
                               <div class="input-group-append">
                                 <button class="btn btn-outline-info" type="button" v-if="form.api_token.api_token"
                                     v-clipboard:copy="form.api_token.api_token" v-clipboard:success="copySuccess"
                                     v-clipboard:error="copyFail">
-                                    Copy Token
+                                    {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.h2h_key')}) }}
                                 </button>
                               </div>
                             </div>
@@ -196,6 +220,7 @@
                         .dispatch("usersystem/getUser", this.$route.params.userId)
                         .then(res => {
                             this.checkSystemUser(res)
+                            console.log(this.oneData);
                             this.form = this.oneData;
                             if (this.AppConfig.packageLocal.moduser.user_role.multi_role) this.form.role_code = [];
                             _.forEach(this.form.user_role, (v, i) => {
