@@ -27,9 +27,9 @@ class ChangeIsMobileappsTokenAtApiTokensTable extends Migration
         }
 
         // update data di database/table per-tenant
-        $this->tablePerTenant('moduser_api_tokens', function (Blueprint $table) {
+        $this->tableRenameColumnPerTenant('moduser_api_tokens', function (Blueprint $table) {
             $table->renameColumn('is_mobileapps_token', 'is_permanent');
-        }, 'is_mobileapps_token', true);
+        }, 'is_mobileapps_token', 'is_permanent');
     }
 
     /**
@@ -42,5 +42,9 @@ class ChangeIsMobileappsTokenAtApiTokensTable extends Migration
         Schema::table('moduser_api_tokens', function (Blueprint $table) {
             $table->renameColumn('is_permanent', 'is_mobileapps_token');
         });
+
+        $this->tableRenameColumnPerTenant('moduser_api_tokens', function (Blueprint $table) {
+            $table->renameColumn('is_permanent', 'is_mobileapps_token');
+        }, 'is_permanent', 'is_mobileapps_token');
     }
 }
