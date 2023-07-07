@@ -36,8 +36,6 @@ class UserSystemController extends BaseController
         //jika menyertakan status
         if($request->input('status', false))
             $filter[] = ['status', $request->input('status')];
-
-        $filter[] = ['system_user', true];
         
         if(UserAuth::isLogin()){
             $filter[] = ['id','!=',UserAuth::user('id')];
@@ -132,6 +130,7 @@ class UserSystemController extends BaseController
         }
 
         $userData = $request->all();//$request->only(['name', 'email', 'password']);
+        $userData['tenant_id'] = config('tenant.id',0);
         
         //jika berhasil
         if ($user = UserSystemRepo::register($userData,false)) {

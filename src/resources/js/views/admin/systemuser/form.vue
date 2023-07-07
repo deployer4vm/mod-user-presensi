@@ -6,6 +6,7 @@
             <b-tabs class="nav-tabs-top nav-responsive-sm">
                 <b-tab :title="Trans.get('user.userform.tab_account_caption')" active>
                     <b-card-body class="pb-2">
+                        <!-- Nama -->
                         <b-form-group :label="Trans.get('user.field_caption.name')" class="col position-relative">
                             <b-input :state="$v.form.name.$error ? 'invalid' : ''" @blur="$v.form.name.$touch()" v-model="form.name" placeholder="Name" />
                             <invalid-tooltip :inputItem="$v.form.name" :fieldName="'Name'" />

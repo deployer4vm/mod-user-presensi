@@ -23,7 +23,7 @@ class RoleSystemRepo extends BaseRepository
     {
         if(isset($data['rule']) && is_array($data['rule']))$data['rule'] = json_encode($data['rule'],JSON_PRETTY_PRINT);
         $data['level'] = 2;
-        $data['system_role'] = true;
+        $data['system_role'] = 1;
         if(!isset($data['tenant_id']))
             $data['tenant_id'] = config('tenant.id',0);
 

@@ -491,7 +491,7 @@ class UserRepo extends BaseRepository
         if (isset($userData['password'])) {
             $validatorRule['password'] = 'required|min:5|max:255';
         }
-        if (isset($userData['email']) && $userData['email']!='') {
+        if (!empty($userData['email'])) {
             $validatorRule['email'] = 'required|email|min:5|max:255';
         }else{
             $userData['email'] = '';
@@ -503,7 +503,7 @@ class UserRepo extends BaseRepository
             $userData['username'] = '';
         }
         
-        if(!isset($userData['username']) && !isset($userData['email'])){
+        if(empty($userData['username']) && empty($userData['email'])){
             $this->error = 'Username atau email harus diisi';
             return false;
         }
@@ -520,12 +520,12 @@ class UserRepo extends BaseRepository
             return false;
         }
 
-        if (isset($userData['phone'])) {
+        if (!empty($userData['phone'])) {
             $userData['phone'] = $this->phoneFormat($userData['phone']);
         }
 
         //jika tidak menyertakan role_id maka set default
-        if (!isset($userData['role_code'])) {
+        if (empty($userData['role_code'])) {
             if(config('AppConfig.system.web_admin.registration.default_role_code')){
                 $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
             }else{
@@ -553,16 +553,16 @@ class UserRepo extends BaseRepository
 
         $userData['level'] = $userData['main_role']['level'];
 
-        if (isset($userData['email']) && $userData['email']!='' && $this->isEmailRegistered($userData['email'])) {
+        if (!empty($userData['email']) && $this->isEmailRegistered($userData['email'])) {
             $this->error = 'Email already registered.';
             return false;
         }
 
-        if (isset($userData['phone']) && $userData['phone']!='' && $this->isPhoneRegistered($userData['phone'])) {
+        if (!empty($userData['phone']) && $this->isPhoneRegistered($userData['phone'])) {
             $this->error = 'Phone already registered.';
             return false;
         }
-        if (isset($userData['username']) && $userData['username']!='' && $this->isUsernameRegistered($userData['username'])) {
+        if (!empty($userData['username']) && $this->isUsernameRegistered($userData['username'])) {
             $this->error = 'Username already registered.';
             return false;
         }
@@ -572,10 +572,10 @@ class UserRepo extends BaseRepository
             if(empty($value))unset($userData[$key]);
         }
         
-        if (!isset($userData['username'])) {
+        if (empty($userData['username'])) {
             $userData['username'] = '';
         }
-        if (!isset($userData['email'])) {
+        if (empty($userData['email'])) {
             $userData['email'] = '';
         }
 

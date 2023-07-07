@@ -53,7 +53,8 @@ class UserSystemRepo extends BaseRepository
      */
     public function listUser($filter = false, int $offset = 0, int $limit = 0, array $orderBy = [])
     {
-        if (!$filter) $filter = [];
+        if (!$filter) $filter = [];        
+        $filter[] = ['system_user', 1];
         $filter['searchField'] = ['name', 'email', 'username'];
         $filter['hiddenColumn'] = ['created_at', 'updated_at', 'cached_at'];
         $user = User::with(['profile', 'roles.role', 'mainRole', 'apiToken']);
