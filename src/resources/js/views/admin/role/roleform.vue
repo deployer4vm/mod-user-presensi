@@ -475,7 +475,7 @@ export default {
             this.loadRole();
         }
 
-        var startI = parseInt(this.UserAuth.getUser("level")) + 1;
+        var startI = parseInt(this.UserAuth.getUser('level')) + 1;
 
         var endI = parseInt(this.AppConfig.packageLocal.moduser.user_role.user_level.max) + 1;
         if (startI < parseInt(this.AppConfig.packageLocal.moduser.user_role.user_level.min)) startI = parseInt(this.AppConfig.packageLocal.moduser.user_role.user_level.max);

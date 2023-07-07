@@ -200,6 +200,7 @@ class UserAuth
         }
         session()->save();
     }
+    
     public function logoutAllExeptMe()
     {
         //delete semua token kecuali yg loign

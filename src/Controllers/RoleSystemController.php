@@ -84,7 +84,7 @@ class RoleSystemController extends BaseController
         
         $limit['offset'] = $request->input('offset', 0);
         $limit['limit'] = $request->input('limit', 0);
-
+        
         $this->output['data'] = RoleRepo::listRole(            
             $filter,
             $limit['offset'],

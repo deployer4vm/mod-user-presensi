@@ -187,14 +187,13 @@ class LoginController extends BaseController
         $authParam = $request->only('username', 'password');
         // Log::debug($authParam);
 
-        $authParam['password'] = UserAuth::decryptCredential($authParam['password']);
-
-        // Log::debug($authParam);
-
         if (!isset($authParam['username']) || !isset($authParam['password'])) {
             $this->setError(__('alert.incorect_parameter'));
             return $this->done();
         }
+
+        $authParam['password'] = UserAuth::decryptCredential($authParam['password']);
+        // Log::debug($authParam);
 
         $tenantId = config('tenant.id');
         if (config('AppConfig.system.multitenant.autodetect_login') == 1)
@@ -230,7 +229,7 @@ class LoginController extends BaseController
             }
 
             $this->output['data']['role'] = UserRepo::getUserRole($user['id']);
-            $token = UserRepo::generateToken($user['id'], $this->output['data']['role_code'], 1, $request->input('deviceId', ''), $pushParam);
+            $token = UserRepo::generateToken($user['id'], $this->output['data']['role_code'], 0, $request->input('deviceId', ''), $pushParam);
             $this->output['data']['token'] = $token['api_token'];
 
             //subscribekan ke channel/topic berdasarkan user role nya

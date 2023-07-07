@@ -156,7 +156,7 @@
         },
         created() {
             this.userForm = this.UserAuth.getUser();
-            this.getUser(this.UserAuth.getUser("id"));
+            this.getUser(this.UserAuth.getUser('id'));
             this.initView();
             var that = this;
             // setTimeout(() => {
