@@ -93,13 +93,13 @@ class UserRepo extends BaseRepository
         if ($userData == null) {
             $userData = User::where('email', $username)->first();
             if ($userData == null) {
-                $this->error = __('auth.login.alert.user_not_found').'.';
+                $this->error = __('auth.login.alert.user_not_found') . '.';
                 return false;
             }
         }
 
         if (
-            empty($userData->password) 
+            empty($userData->password)
             && !empty($userData->imprintingcode)
             && $this->matchImprintingCode($password, $userData)
         ) {
@@ -107,22 +107,22 @@ class UserRepo extends BaseRepository
             $this->resetPassword($userData->id, $password);
             $userData->password = $newPassword;
         }
-        
-        if (!Hash::check($password, $userData->password)){
-            $this->error = __('auth.login.alert.password_fail').' .';
+
+        if (!Hash::check($password, $userData->password)) {
+            $this->error = __('auth.login.alert.password_fail') . ' .';
             return false;
         }
 
         $user = $userData->toArray();
 
         //user system tidak bisa login
-        if ($user['system_user']){
+        if ($user['system_user']) {
             $this->error = __('auth.login.alert.system_user');
             return false;
         }
 
         //user banned
-        if($user['status']==2){
+        if ($user['status'] == 2) {
             $this->error = __('auth.login.alert.user_banned');
             return false;
         }
@@ -196,7 +196,7 @@ class UserRepo extends BaseRepository
 
         return false;
     }
-    
+
     /**
      * cek apakah username sudah terdaftar sebelumnya
      * 
@@ -229,17 +229,17 @@ class UserRepo extends BaseRepository
      * @param $filter array
      *      profile    
      */
-    public function listUser($filter = false,int $offset = 0,int $limit = 0,array $orderBy=[])
+    public function listUser($filter = false, int $offset = 0, int $limit = 0, array $orderBy = [])
     {
         if (!$filter) $filter = [];
-        $filter['searchField'] = ['name','email','username'];
+        $filter['searchField'] = ['name', 'email', 'username'];
         $filter['hiddenColumn'] = ['created_at', 'updated_at', 'cached_at'];
 
-        $user = User::with(['profile','roles.role','mainRole']);
+        $user = User::with(['profile', 'roles.role', 'mainRole']);
 
-        if(isset($filter['profile'])){
-            $user = $user->whereHas('profile', function($q) use ($filter){
-                $q = $this->_where($q,$filter['profile']);
+        if (isset($filter['profile'])) {
+            $user = $user->whereHas('profile', function ($q) use ($filter) {
+                $q = $this->_where($q, $filter['profile']);
             });
             unset($filter['profile']);
         }
@@ -251,7 +251,7 @@ class UserRepo extends BaseRepository
         //     // });
         //     unset($filter['tenant']);
         // }
-        
+
         $data = $this->_list(
             $user,
             $filter,
@@ -260,17 +260,17 @@ class UserRepo extends BaseRepository
             $orderBy
         );
         $this->dataUserPagination = $this->pagination;
-        $data['data'] = array_map([$this,'_formatUser'],$data['data']);
+        $data['data'] = array_map([$this, '_formatUser'], $data['data']);
 
         return $data;
     }
 
     public function getPaginationUser($path = '')
     {
-        if(!isset($this->dataUserPagination))$this->dataUserPagination = $this->pagination;
+        if (!isset($this->dataUserPagination)) $this->dataUserPagination = $this->pagination;
         return $this->_getPagination($path, $this->dataUserPagination);
     }
-    
+
     /**
      * get 1 record user beserta profile nya
      * 
@@ -279,8 +279,8 @@ class UserRepo extends BaseRepository
      */
     public function getUser($where)
     {
-        $user = $this->_getOne(User::with(['profile','mainRole']),$where);
-        if ($user) {          
+        $user = $this->_getOne(User::with(['profile', 'mainRole']), $where);
+        if ($user) {
             return $this->_formatUser($user);
         }
         return false;
@@ -311,7 +311,7 @@ class UserRepo extends BaseRepository
 
     public function getOneBySocnetIdOrEmail($id, $email, $provider)
     {
-        $userData = User::with(['profile','mainRole'])->where('email', $email)
+        $userData = User::with(['profile', 'mainRole'])->where('email', $email)
             ->orWhere('socialauth_' . $provider . '_id', $id)
             ->first();
 
@@ -325,7 +325,7 @@ class UserRepo extends BaseRepository
     private function _filterUserResult(array $result)
     {
         $hiddenField = array_merge(
-            config('AppConfig.packageLocal.moduser.users_hidden_field'), 
+            config('AppConfig.packageLocal.moduser.users_hidden_field'),
             config('AppConfig.packageLocal.moduser.user_profiles.hide')
         );
 
@@ -336,7 +336,8 @@ class UserRepo extends BaseRepository
      * helper getter untuk get data user
      * format data user sesuai keperluan
      */
-    private function _formatUser(array $user) {
+    private function _formatUser(array $user)
+    {
         $user = $this->_filterField($user, config('AppConfig.packageLocal.moduser.users_hidden_field'));
 
         if (isset($user['avatar']) && $user['avatar'])
@@ -344,15 +345,19 @@ class UserRepo extends BaseRepository
 
         if (!empty($user['profile'])) {
             $user['profile'] = $this->_filterField($user['profile'], config('AppConfig.packageLocal.moduser.user_profiles.hide'));
-            unset($user['profile']['id'], $user['profile']['user_id'],
-                $user['profile']['created_at'], $user['profile']['updated_at']);
-                
+            unset(
+                $user['profile']['id'],
+                $user['profile']['user_id'],
+                $user['profile']['created_at'],
+                $user['profile']['updated_at']
+            );
+
             // $user = array_merge($user, $user['profile']); // splice in at position 3
         }
 
         if (!empty($user['main_role']) && !isset($user['main_role']['role_code'])) {
-            $role = Role::where('id',$user['main_role']['role_id'])->first()->toArray();
-            $user['main_role'] = array_merge($user['main_role'],$role);
+            $role = Role::where('id', $user['main_role']['role_id'])->first()->toArray();
+            $user['main_role'] = array_merge($user['main_role'], $role);
         }
 
         // unset($user['profile']);        
@@ -388,23 +393,23 @@ class UserRepo extends BaseRepository
         if (!$userData) {
             return false;
         }
-        $userData['tenant_id'] = config('tenant.id',0);
+        $userData['tenant_id'] = config('tenant.id', 0);
         $userData['password'] = isset($userData['password']) ? Hash::make($userData['password']) : '';
 
         $userData['user_idcode'] = $this->generateUserIdcode();
         // if(!isset($userData['tenant_id']))$userData['tenant_id'] = config('tenant.id',0);//jika 0 berarti tanpa tenant atau bisa akses semua tenant
 
         //role dikosongin dahulu karena insert role di proses selanjutnya
-        $roles = $userData['role_code'];//array list role_code (dari registerFilter)
-        $mainRole = $userData['main_role'];// dari registerFilter
-        unset($userData['role_code'],$userData['main_role']);
+        $roles = $userData['role_code']; //array list role_code (dari registerFilter)
+        $mainRole = $userData['main_role']; // dari registerFilter
+        unset($userData['role_code'], $userData['main_role']);
 
-        
+
         $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
-        if($dontHaveTransactionLevel)
+        if ($dontHaveTransactionLevel)
             Tenant::dbBeginTransaction();
-        
-        try{
+
+        try {
             $data = $this->model->create($userData);
             $data = $data->toArray();
 
@@ -420,7 +425,7 @@ class UserRepo extends BaseRepository
             // }
 
             if ($generateToken) {
-                $apiTokenData = $this->generateToken($data['id'],$mainRole['role_code']);
+                $apiTokenData = $this->generateToken($data['id'], $mainRole['role_code']);
                 $data['token'] = $apiTokenData['api_token'];;
                 $data['token_id'] = $apiTokenData['id'];
             }
@@ -429,13 +434,13 @@ class UserRepo extends BaseRepository
              * add profile
              */
             $userProfile = [];
-            if(isset($userData['profile'])) $userProfile = $userData['profile'];   
+            if (isset($userData['profile'])) $userProfile = $userData['profile'];
 
             $userProfile['user_id'] = $data['id'];
             $data['profile'] = $this->registerProfile($userProfile);
 
             //update role data          
-            $this->updateUserRole($data['id'],$roles);
+            $this->updateUserRole($data['id'], $roles);
             $data['main_role'] = $mainRole;
 
             // $this->addUserRole(
@@ -447,31 +452,30 @@ class UserRepo extends BaseRepository
             // );
 
             // dispatch event on register saat berhasil
-            event(new \hpsynapse\moduser\Events\OnUserRegisteredSuccess($data)); 
+            event(new \hpsynapse\moduser\Events\OnUserRegisteredSuccess($data));
 
-            if($dontHaveTransactionLevel)
+            if ($dontHaveTransactionLevel)
                 Tenant::dbCommit();
-        
         } catch (Exception  $e) {
-            if($dontHaveTransactionLevel)
+            if ($dontHaveTransactionLevel)
                 Tenant::dbRollback();
 
             $this->error = $e->getMessage();
-            
+
             Log::info('moduser UserRepo::register() ERROR');
             Log::error($e);
 
             // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
-            if(!$dontHaveTransactionLevel)
-                throw $e; 
+            if (!$dontHaveTransactionLevel)
+                throw $e;
 
             return false;
         }
 
         if (isset($userData['email']) && $userData['email'])
             $this->sendUserActivationEmail($data['id']);
-               
-            
+
+
         return $data;
     }
 
@@ -491,19 +495,19 @@ class UserRepo extends BaseRepository
         if (isset($userData['password'])) {
             $validatorRule['password'] = 'required|min:5|max:255';
         }
-        if (isset($userData['email']) && $userData['email']!='') {
+        if (isset($userData['email']) && $userData['email'] != '') {
             $validatorRule['email'] = 'required|email|min:5|max:255';
-        }else{
+        } else {
             $userData['email'] = '';
         }
-        if (isset($userData['username']) && $userData['username']!='') {
-            $userData['username'] = str_replace(' ','',$userData['username']);
+        if (isset($userData['username']) && $userData['username'] != '') {
+            $userData['username'] = str_replace(' ', '', $userData['username']);
             $validatorRule['username'] = 'required|min:5|max:255';
-        }else{
+        } else {
             $userData['username'] = '';
         }
-        
-        if(!isset($userData['username']) && !isset($userData['email'])){
+
+        if (!isset($userData['username']) && !isset($userData['email'])) {
             $this->error = 'Username atau email harus diisi';
             return false;
         }
@@ -520,58 +524,57 @@ class UserRepo extends BaseRepository
             return false;
         }
 
-        if (isset($userData['phone'])) {
+        if (isset($userData['phone']) && !empty($userData['phone'])) {
             $userData['phone'] = $this->phoneFormat($userData['phone']);
         }
 
         //jika tidak menyertakan role_id maka set default
         if (!isset($userData['role_code'])) {
-            if(config('AppConfig.system.web_admin.registration.default_role_code')){
+            if (config('AppConfig.system.web_admin.registration.default_role_code')) {
                 $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
-            }else{
+            } else {
                 $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
             }
-            
         }
 
-        if(!is_array($userData['role_code']))$userData['role_code'] = [$userData['role_code']];
+        if (!is_array($userData['role_code'])) $userData['role_code'] = [$userData['role_code']];
         //pastikan rule nya ada        
-        $roles = Role::whereIn('role_code', $userData['role_code'])->orderBy('level','ASC')->get();
-        if ($roles->count() <=0 ) {
+        $roles = Role::whereIn('role_code', $userData['role_code'])->orderBy('level', 'ASC')->get();
+        if ($roles->count() <= 0) {
             $this->error = 'Roles not defined.';
             return false;
         }
         $userData['role_code'] = [];
-        $isFirstRow=true;
-        foreach ($roles as $val) {  
+        $isFirstRow = true;
+        foreach ($roles as $val) {
             $userData['role_code'][] = $val->role_code;
-            if($isFirstRow){
-                $userData['main_role'] = ['role_code'=>$val->role_code,'level'=>$val->level];
-                $isFirstRow=false;
+            if ($isFirstRow) {
+                $userData['main_role'] = ['role_code' => $val->role_code, 'level' => $val->level];
+                $isFirstRow = false;
             }
         }
 
         $userData['level'] = $userData['main_role']['level'];
 
-        if (isset($userData['email']) && $userData['email']!='' && $this->isEmailRegistered($userData['email'])) {
+        if (isset($userData['email']) && $userData['email'] != '' && $this->isEmailRegistered($userData['email'])) {
             $this->error = 'Email already registered.';
             return false;
         }
 
-        if (isset($userData['phone']) && $userData['phone']!='' && $this->isPhoneRegistered($userData['phone'])) {
+        if (isset($userData['phone']) && $userData['phone'] != '' && $this->isPhoneRegistered($userData['phone'])) {
             $this->error = 'Phone already registered.';
             return false;
         }
-        if (isset($userData['username']) && $userData['username']!='' && $this->isUsernameRegistered($userData['username'])) {
+        if (isset($userData['username']) && $userData['username'] != '' && $this->isUsernameRegistered($userData['username'])) {
             $this->error = 'Username already registered.';
             return false;
         }
-        
+
         //pastikan tidak ada parameter yang ksosong
         foreach ($userData as $key => $value) {
-            if(empty($value))unset($userData[$key]);
+            if (empty($value)) unset($userData[$key]);
         }
-        
+
         if (!isset($userData['username'])) {
             $userData['username'] = '';
         }
@@ -592,7 +595,7 @@ class UserRepo extends BaseRepository
         if (!$userData) {
             return false;
         }
-        if(!isset($userData['tenant_id']))$userData['tenant_id'] = config('tenant.id',0);
+        if (!isset($userData['tenant_id'])) $userData['tenant_id'] = config('tenant.id', 0);
         return UserProfile::create($userData);
     }
 
@@ -603,7 +606,7 @@ class UserRepo extends BaseRepository
      */
     public function registerProfileFilter(array $userData)
     {
-        
+
         $validatorRule = [
             'user_id' => 'required',
         ];
@@ -619,16 +622,17 @@ class UserRepo extends BaseRepository
             $this->error = implode('', $err);
             return false;
         }
-        
+
         //pastikan tidak ada parameter yang ksosong
         foreach ($userData as $key => $value) {
-            if(empty($value) || is_null($value)) unset($userData[$key]);
+            if (empty($value) || is_null($value)) unset($userData[$key]);
         }
         return $userData;
     }
 
-    public function deleteUser($userId){
-        if(!$this->_exists(new User,[['id',$userId]])){
+    public function deleteUser($userId)
+    {
+        if (!$this->_exists(new User, [['id', $userId]])) {
             $this->error = 'user tidak ditemukan';
             return false;
         }
@@ -638,9 +642,9 @@ class UserRepo extends BaseRepository
             return false;
         }
 
-        $this->_delete(new User,[['id',$userId]]);
-        $this->_delete(new UserProfile,[['user_id',$userId]]);
-        $this->_delete(new UserRole,[['user_id',$userId]]);
+        $this->_delete(new User, [['id', $userId]]);
+        $this->_delete(new UserProfile, [['user_id', $userId]]);
+        $this->_delete(new UserRole, [['user_id', $userId]]);
         return true;
     }
     /**
@@ -651,18 +655,18 @@ class UserRepo extends BaseRepository
      * 
      * @return boolean
      */
-    public function updateUser($userId, $userData, $runEvent=true)
+    public function updateUser($userId, $userData, $runEvent = true)
     {
-        if(!($oldUser = $this->getUser($userId))){
-            $this->error = __('lang.data_attribute_not_found',['attribute'=>'User']);
+        if (!($oldUser = $this->getUser($userId))) {
+            $this->error = __('lang.data_attribute_not_found', ['attribute' => 'User']);
             return false;
         }
 
-        if(isset($userData['email']) && $oldUser['email'] == $userData['email']){
+        if (isset($userData['email']) && $oldUser['email'] == $userData['email']) {
             unset($userData['email']);
         }
-        
-        if(isset($userData['phone']) && $oldUser['phone'] == $userData['phone']){
+
+        if (isset($userData['phone']) && $oldUser['phone'] == $userData['phone']) {
             unset($userData['phone']);
         }
 
@@ -675,11 +679,11 @@ class UserRepo extends BaseRepository
         if (isset($userData['main_role'])) unset($userData['main_role']);
 
 
-        if (isset($userData['username']) && $this->isUsernameRegistered($userData['username'], $userId)){
+        if (isset($userData['username']) && $this->isUsernameRegistered($userData['username'], $userId)) {
             $this->error = 'Username already registered.';
             return false;
         }
-        
+
         if (isset($userData['email']) && $userData['email'] && $this->isEmailRegistered($userData['email'], $userId)) {
             $this->error = 'Email already registered.';
             return false;
@@ -689,72 +693,71 @@ class UserRepo extends BaseRepository
             $this->error = 'Phone already registered.';
             return false;
         }
-		
-        
+
+
         $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
-        if($dontHaveTransactionLevel)
+        if ($dontHaveTransactionLevel)
             Tenant::dbBeginTransaction();
-        
+
         $hasUploadAvatar = false;
 
-        try{
+        try {
 
             //jika menyertakan profile, maka proses update table profile
-            if(isset($userData['profile'])){
+            if (isset($userData['profile'])) {
                 $this->updateProfile($userId, $userData['profile']);
                 unset($userData['profile']);
             }
-            
+
             //pastikan tidak ada parameter yang ksosong
             foreach ($userData as $key => $value) {
-                if(empty($value))unset($userData[$key]);
+                if (empty($value)) unset($userData[$key]);
             }
-            
+
             //upload avatar jika menyertakan avatar
             if (isset($userData['avatar']) && !empty($userData['avatar']) && !is_string($userData['avatar'])) {
-                $userData['avatar'] = $userData['avatar']->store('images/avatar/'.$oldUser['id']);
+                $userData['avatar'] = $userData['avatar']->store('images/avatar/' . $oldUser['id']);
                 $hasUploadAvatar = true;
                 if (!empty($oldUser['avatar'])) {
                     Storage::delete($oldUser['avatar']);
                 }
             }
 
-            if(isset($userData['email']))$this->updateEmail($userId,$userData);
-            if(isset($userData['phone']))$this->updatePhone($userId,$userData);
-            
+            if (isset($userData['email'])) $this->updateEmail($userId, $userData);
+            if (isset($userData['phone'])) $this->updatePhone($userId, $userData);
+
             //jika update role data
-            if (isset($userData['role_code'])){            
-                $this->updateUserRole($userId,$userData['role_code']);
-                unset($userData['role_code'],$userData['role']);
+            if (isset($userData['role_code'])) {
+                $this->updateUserRole($userId, $userData['role_code']);
+                unset($userData['role_code'], $userData['role']);
             }
-            
+
             $this->_update(new User, $userId, $userData);
 
-            if (isset($userData['password']) && $userData['password']){
+            if (isset($userData['password']) && $userData['password']) {
                 $this->resetPassword($userId, $userData['password']);
             }
-            
-            if($runEvent)
-                event(new \hpsynapse\moduser\Events\OnUserUpdatedSuccess($oldUser,$this->getUser($userId))); 
-                        
-            if($dontHaveTransactionLevel)
+
+            if ($runEvent)
+                event(new \hpsynapse\moduser\Events\OnUserUpdatedSuccess($oldUser, $this->getUser($userId)));
+
+            if ($dontHaveTransactionLevel)
                 Tenant::dbCommit();
-            
+
             return true;
-
         } catch (Exception  $e) {
-            if($dontHaveTransactionLevel)
+            if ($dontHaveTransactionLevel)
                 Tenant::dbRollback();
-            if($hasUploadAvatar)
+            if ($hasUploadAvatar)
 
-            $this->error = $e->getMessage();
-            
+                $this->error = $e->getMessage();
+
             Log::info('moduser UserRepo::updateUser() ERROR');
             Log::error($e);
 
             // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
-            if(!$dontHaveTransactionLevel)
-                throw $e; 
+            if (!$dontHaveTransactionLevel)
+                throw $e;
 
             return false;
         }
@@ -763,9 +766,9 @@ class UserRepo extends BaseRepository
     /**
      * banned user
      */
-    public function banUser($id,$banNote='')
+    public function banUser($id, $banNote = '')
     {
-        return User::find($id)->update(['status' => 2,'banned_note'=>$banNote,'banned_at'=>now()]);
+        return User::find($id)->update(['status' => 2, 'banned_note' => $banNote, 'banned_at' => now()]);
     }
 
     /**
@@ -778,7 +781,7 @@ class UserRepo extends BaseRepository
 
     public function updateProfile($userId, $userData)
     {
-        $userProfile = $this->_getOne(new UserProfile, ['user_id',$userId]);
+        $userProfile = $this->_getOne(new UserProfile, ['user_id', $userId]);
         if (!$userProfile) {
             $this->error = 'User tidak ditemukan';
             return false;
@@ -787,20 +790,20 @@ class UserRepo extends BaseRepository
         $model = new UserProfile;
         $input = [];
         $userProfileField = Schema::getColumnListing($model->getTable());
-        
+
         foreach ($userProfileField as $value) {
-            if (!in_array($value,['id','created_at','updated_at','user_id']) && isset($userData[$value]))
+            if (!in_array($value, ['id', 'created_at', 'updated_at', 'user_id']) && isset($userData[$value]))
                 $input[$value] = $userData[$value];
         }
-        
-        if($input!=[]){
-            if($this->_exists($model, ['user_id',$userId])){
-                $this->_update($model, ['user_id',$userId], $input);
-            }else{
+
+        if ($input != []) {
+            if ($this->_exists($model, ['user_id', $userId])) {
+                $this->_update($model, ['user_id', $userId], $input);
+            } else {
                 $input['user_id'] = $userId;
-                $input['tenant_id'] = config('tenant.id',0);
+                $input['tenant_id'] = config('tenant.id', 0);
                 $this->_create($model, $input);
-            }            
+            }
         }
     }
 
@@ -879,7 +882,7 @@ class UserRepo extends BaseRepository
                 $userId = $user->id;
                 $user->{'email_verified_at'} = now()->toDateTimeString();
                 $user->save();
-                event(new \hpsynapse\moduser\Events\OnEmailVerifiedSuccess($this->getUser($userId))); 
+                event(new \hpsynapse\moduser\Events\OnEmailVerifiedSuccess($this->getUser($userId)));
             }
 
             return true;
@@ -936,7 +939,7 @@ class UserRepo extends BaseRepository
      * =======================================================================
      */
 
-    
+
     /**
      * update format nomor telepon menja
      * @param String $phone
@@ -945,6 +948,7 @@ class UserRepo extends BaseRepository
     public function phoneFormat($phone)
     {
         $phone = ltrim($phone, '0');
+        if (empty($phone)) return '';
         //jika belum memasukan kode negara maka set indonesia
         if (strpos($phone, '+') === false) {
             $phone = '+62' . $phone;
@@ -982,36 +986,36 @@ class UserRepo extends BaseRepository
         return $idcode;
     }
 
-    
+
     /**
      * Manage USER ROLE
      * -------------------------------------------------------------------------
      */
-        
+
     /**
      * 
      * @param String $userId
      * @return boolean|array list role user, format mirip data role di APPSSession
      */
-    public function getUserRole($userId,$withoutTime=true)
+    public function getUserRole($userId, $withoutTime = true)
     {
         $response = [];
-        $userRoleData = UserRole::where('user_id',$userId)->get();
-        if(!$userRoleData)return false;
+        $userRoleData = UserRole::where('user_id', $userId)->get();
+        if (!$userRoleData) return false;
         foreach ($userRoleData as $key => $value) {
-            $roleData = Role::where('id',$value->role_id)->first();
-            if($roleData){
+            $roleData = Role::where('id', $value->role_id)->first();
+            if ($roleData) {
                 $roleData = $roleData->toArray();
                 $roleData['is_main_role'] = $value->is_main_role;
-                $roleData['has_auth_grant'] = $value->has_auth_grant;            
+                $roleData['has_auth_grant'] = $value->has_auth_grant;
 
-                if($withoutTime){
-                    unset($roleData['created_at'],$roleData['updated_at']);
+                if ($withoutTime) {
+                    unset($roleData['created_at'], $roleData['updated_at']);
                 }
                 $response[$roleData['role_code']] = $roleData;
             }
         }
-        
+
         return $response;
     }
     /**
@@ -1021,33 +1025,33 @@ class UserRepo extends BaseRepository
     public function generateUserRole($userId)
     {
         $dataRole = UserRole::with(['role'])->where('user_id', $userId)->get()->toArray();
-        if(!$dataRole) return '';
+        if (!$dataRole) return '';
         foreach ($dataRole as $value) {
             $data[] = $value['role']['role_code'];
-        }        
-        return ';'.implode(';', $data).';';
+        }
+        return ';' . implode(';', $data) . ';';
     }
-    
-    
-    public function addUserRole($userId,$roleCode,$isMainRole=0,$hasAuthGrant=0)
+
+
+    public function addUserRole($userId, $roleCode, $isMainRole = 0, $hasAuthGrant = 0)
     {
-        $role = $this->_getOne(new Role,['role_code',$roleCode]);
-        if(!$role)return false;
-                
+        $role = $this->_getOne(new Role, ['role_code', $roleCode]);
+        if (!$role) return false;
+
         //cek pastikan user role belum terdaftar
-        $userRole = $this->_getOne(new UserRole,[['user_id',$userId],['role_id',$role['id']]]);
-        if($userRole)return false;
+        $userRole = $this->_getOne(new UserRole, [['user_id', $userId], ['role_id', $role['id']]]);
+        if ($userRole) return false;
         $this->_create(new UserRole, [
             'tenant_id' => $role['tenant_id'],
             'user_id' => $userId,
             'role_id' => $role['id'],
-            'is_main_role' =>$isMainRole,
-            'has_auth_grant'=>$hasAuthGrant,
+            'is_main_role' => $isMainRole,
+            'has_auth_grant' => $hasAuthGrant,
         ]);
-                        
+
         //update role di table user
         $this->updateUser($userId, [
-            'role'=> $this->generateUserRole($userId)
+            'role' => $this->generateUserRole($userId)
         ]);
         return $role;
     }
@@ -1055,59 +1059,61 @@ class UserRepo extends BaseRepository
     /**
      * untuk update role user
      */
-    public function updateUserRole($userId,$newRoleCode,$hasAuthGrant=0){
-        if(!is_array($newRoleCode))$newRoleCode = [$newRoleCode];
+    public function updateUserRole($userId, $newRoleCode, $hasAuthGrant = 0)
+    {
+        if (!is_array($newRoleCode)) $newRoleCode = [$newRoleCode];
 
-        $roleIds = Role::whereIn('role_code', $newRoleCode)->orderBy('level','ASC')->get()->pluck('id');
-        
-        if (count($roleIds)<=0) {
+        $roleIds = Role::whereIn('role_code', $newRoleCode)->orderBy('level', 'ASC')->get()->pluck('id');
+
+        if (count($roleIds) <= 0) {
             $this->error = 'Role not defined.';
             return false;
         }
 
         //delete semua role yang tidak terpilih
-        UserRole::where('user_id',$userId)->whereNotIn('role_id', $roleIds)->delete();
+        UserRole::where('user_id', $userId)->whereNotIn('role_id', $roleIds)->delete();
 
-        $roles = Role::whereIn('role_code', $newRoleCode)->orderBy('level','ASC')->get();        
+        $roles = Role::whereIn('role_code', $newRoleCode)->orderBy('level', 'ASC')->get();
         $first = true;
         $isMainRole = 1;
         foreach ($roles as $role) {
 
-            if(UserRole::where('user_id',$userId)->where('role_id',$role->id)->exists()){
-                $this->_update(new UserRole,[['user_id',$userId],['role_id',$role->id]], [
-                    'has_auth_grant'=>$hasAuthGrant,
-                    'is_main_role'=>$isMainRole,
+            if (UserRole::where('user_id', $userId)->where('role_id', $role->id)->exists()) {
+                $this->_update(new UserRole, [['user_id', $userId], ['role_id', $role->id]], [
+                    'has_auth_grant' => $hasAuthGrant,
+                    'is_main_role' => $isMainRole,
                 ]);
-            }else{
+            } else {
                 $this->_create(new UserRole, [
-                    'tenant_id' => config('tenant.id',0),
-                    'user_id'=>$userId,
-                    'role_id'=>$role->id,
-                    'has_auth_grant'=>$hasAuthGrant,
-                    'is_main_role'=>$isMainRole,
+                    'tenant_id' => config('tenant.id', 0),
+                    'user_id' => $userId,
+                    'role_id' => $role->id,
+                    'has_auth_grant' => $hasAuthGrant,
+                    'is_main_role' => $isMainRole,
                 ]);
-            } 
-            
-            if($first){
+            }
+
+            if ($first) {
                 $first = false;
                 $isMainRole = 0;
-            }     
+            }
         }
-                           
+
         $roleUser = $this->generateUserRole($userId);
         //update role di table user
         // $this->updateUser($userId, [
         //     'role'=> $roleUser,
         //     'level'=>$role->level
         // ],false);
-        User::where('id',$userId)->update([
-            'role'=> $roleUser,
-            'level'=>$role->level
+        User::where('id', $userId)->update([
+            'role' => $roleUser,
+            'level' => $role->level
         ]);
     }
 
-    public function checkSystemUser($id){
-        $user = $this->_getOne(new User,['id',$id]);
+    public function checkSystemUser($id)
+    {
+        $user = $this->_getOne(new User, ['id', $id]);
         if ($user['system_user']) {
             return true;
         }
@@ -1125,38 +1131,38 @@ class UserRepo extends BaseRepository
     //     if(!isset($data['role_code'])){
     //         $data['role_code'] = $userRole['role_code'];
     //     }
-           
+
     //     $roleData = $this->_update(new UserRole,['user_id'=>$userRole['user_id'],'role_code'=>$userRole['role_code']], [
     //         'role_code' => $data['role_code'],
     //         'is_main_role' =>isset($data['is_main_role'])&&$data['is_main_role']?1:0,
     //         'has_auth_grant'=>isset($data['has_auth_grant'])&&$data['has_auth_grant']?1:0,
     //     ]);       
-                        
+
     //     //update role di table user
     //     $this->updateUser($userRole['user_id'], ['role'=> $this->generateUserRole($userRole['user_id'])]);
     //     return $roleData;
     // }
-    
-    public function deleteUserRole($userId,$roleCode)
+
+    public function deleteUserRole($userId, $roleCode)
     {
-        $role = $this->getOne(['role_code',$roleCode]);
-        if(!$role)return false;
-        
+        $role = $this->getOne(['role_code', $roleCode]);
+        if (!$role) return false;
+
         //delete role dari user role
-        $roleData = $this->_delete(new UserRole,[
+        $roleData = $this->_delete(new UserRole, [
             'user_id' => $userId,
             'role_code' => $role['role_code']
         ]);
-        
+
         //delete role di table user
-        $this->updateUser($userId, ['role'=> $this->generateUserRole($userId)]);
-        
+        $this->updateUser($userId, ['role' => $this->generateUserRole($userId)]);
+
         return $roleData;
-    }        
+    }
     /**
      * Belum selesai
      */
-    public function setAuthGrant($userId,$roleCode)
+    public function setAuthGrant($userId, $roleCode)
     {
         $user = User::find($userId);
         $user->roles()->where('has_auth_grant');
@@ -1168,7 +1174,7 @@ class UserRepo extends BaseRepository
      */
     public function updateRole($userId, $userData = null)
     {
-        
+
         if (isset($userData['role']) && is_array($userData['role'])) {
             $userRole = UserRole::where('user_id', $userId)->pluck('role_code')->toArray();
 
@@ -1246,9 +1252,9 @@ class UserRepo extends BaseRepository
     private function matchImprintingCode($password, $userData)
     {
         $imprintingCode = base64_encode(
-            $userData->username . '.' 
-            . ($userData->level != 0 ? 100 - $userData->level : 0) . '.'
-            . md5($password)
+            $userData->username . '.'
+                . ($userData->level != 0 ? 100 - $userData->level : 0) . '.'
+                . md5($password)
         );
 
         return $imprintingCode == $userData->imprintingcode;

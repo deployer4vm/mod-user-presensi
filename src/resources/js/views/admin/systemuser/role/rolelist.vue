@@ -18,7 +18,7 @@
       </div>
     </div> -->
         <!-- / Filters -->
-        <header-breadcrumb :pageTitle="pageTitle" :showBack="false" />
+        <header-breadcrumb :pageTitle="pageTitle" :backPath="{name: 'systemuser.list'}" />
 
         <b-card class="m-3" no-body>
             <b-card-body>
@@ -60,13 +60,8 @@
                         </b-form-group>
                     </div> -->
                     <div>
-                        <span v-if="this.$route.fullPath === '/user/systemuserrole'">
+                        <span>
                             <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'systemuser.role.add' }">
-                                <span class="ion ion-md-add"></span>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
-                            </router-link>
-                        </span>
-                        <span v-if="this.$route.fullPath !== '/user/systemuserrole'">
-                            <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'role.add' }">
                                 <span class="ion ion-md-add"></span>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
                             </router-link>
                         </span>

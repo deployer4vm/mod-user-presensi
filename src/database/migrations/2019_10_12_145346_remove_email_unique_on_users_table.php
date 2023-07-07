@@ -25,10 +25,20 @@ class RemoveEmailUniqueOnUsersTable extends Migration
                     $table->dropUnique('users_email_unique');
                 });
             }
+            $indexesFound  = $schemaManager->listTableIndexes('moduser_users');
+            if (array_key_exists('moduser_users_email_unique', $indexesFound)) {
+                Schema::table('moduser_users', function (Blueprint $table) {
+                    $table->dropUnique('moduser_users_email_unique');
+                });
+            }
         }
 
         $this->tableIndexPerTenant('users', function (Blueprint $table) {
             $table->dropUnique('users_email_unique');
+        }, 'email', true, true);
+
+        $this->tableIndexPerTenant('moduser_users', function (Blueprint $table) {
+            $table->dropUnique('moduser_users_email_unique');
         }, 'email', true, true);
     }
 

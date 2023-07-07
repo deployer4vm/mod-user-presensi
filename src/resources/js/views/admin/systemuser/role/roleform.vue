@@ -265,7 +265,7 @@ export default {
         //load data role yang akan diedit
         loadRole() {
             this.$store.dispatch(
-                    'role/getRole',this.$route.params.roleId
+                    'rolesystem/getRole',this.$route.params.roleId
                 ).then((res)=>{
                     this.checkSystemRole(res)
 

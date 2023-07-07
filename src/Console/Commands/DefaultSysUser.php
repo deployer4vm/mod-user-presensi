@@ -126,7 +126,7 @@ class DefaultSysUser extends Command
             }
         }
 
-        Log::debug($user);
+        // Log::debug($user);
 
         $this->line('Client Key: ' . $user['username']);
         $this->line('Secret Key: ' . $user['secret_key']);

@@ -167,6 +167,7 @@ class UserSystemRepo extends BaseRepository
         $userData['system_user'] = true;
         $userData['status'] = 'active';
         $userData['tenant_id'] = config('tenant.id', 0);
+        // Log::debug('Tenant ID: ' . config('tenant.id'));
 
         // if(!isset($userData['tenant_id']))$userData['tenant_id'] = config('tenant.id',0);//jika 0 berarti tanpa tenant atau bisa akses semua tenant
 

@@ -185,11 +185,11 @@ class LoginController extends BaseController
         $this->forceApiOutput();
 
         $authParam = $request->only('username', 'password');
-        Log::debug($authParam);
+        // Log::debug($authParam);
 
         $authParam['password'] = UserAuth::decryptCredential($authParam['password']);
 
-        Log::debug($authParam);
+        // Log::debug($authParam);
 
         if (!isset($authParam['username']) || !isset($authParam['password'])) {
             $this->setError(__('alert.incorect_parameter'));

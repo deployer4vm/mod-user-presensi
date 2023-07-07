@@ -408,9 +408,9 @@ class UserAuth
         $encrypter = new Encrypter(base64_decode($clientData['secret_key']), 'aes-256-cbc');
         $decrypted = $encrypter->decrypt($encrypted, false);
 
-        Log::debug([
-            $encrypted, $decrypted, $clientData
-        ]);
+        // Log::debug([
+        //     $encrypted, $decrypted, $clientData
+        // ]);
 
         return $decrypted;
     }
