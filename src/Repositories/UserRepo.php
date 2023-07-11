@@ -492,9 +492,8 @@ class UserRepo extends BaseRepository
         $validatorRule = [
             'name' => 'required|min:5|max:255',
         ];
-        if (isset($userData['password'])) {
-            $validatorRule['password'] = 'required|min:5|max:255';
-        }
+        
+
         if (!empty($userData['email'])) {
             $validatorRule['email'] = 'required|email|min:5|max:255';
         } else {
@@ -511,6 +510,12 @@ class UserRepo extends BaseRepository
             $this->error = 'Username atau email harus diisi';
             return false;
         }
+        
+        if (!isset($userData['password'])) {
+            $userData['password'] = empty($userData['username'])?$userData['email']:$userData['username'];
+        }
+        $validatorRule['password'] = 'required|min:5|max:255';
+
         $validator = Validator::make($userData, $validatorRule);
 
         if ($validator->fails()) {
