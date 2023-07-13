@@ -45,14 +45,19 @@
                         </b-form-group>
 
                         <b-form-group :label="Trans.get('user.field_caption.email')" class="col position-relative" v-if="showUserField('email')">
-                            <masked-input :class="{ 'form-control': true, 'is-invalid': $v.form.email.$error ? true : false }" type="text" :mask="emailMask" :aria-invalid="$v.form.email.$error" v-model.trim="form.email" placeholder="Email" />
-                            <invalid-tooltip :inputItem="$v.form.email" :fieldName="Trans.get('user.field_caption.email')" />
+                            <masked-input type="text" :mask="emailMask" :aria-invalid="$v.form.email.$error" v-model.trim="form.email" placeholder="Email" class="form-control" />
                             <a href="javascript:void(0)" class="small" v-if="false">Resend confirmation</a>
                         </b-form-group>
 
                         <b-form-group label="Phone" class="col position-relative" v-if="showUserField('phone')">
                             <b-input v-model="form.phone" />
                             <a href="javascript:void(0)" class="small" v-if="false">Resend confirmation</a>
+                        </b-form-group>
+
+                        <hr class="border-light m-0" v-if="!isAdd" />
+
+                        <b-form-group label="PIN (6 Digit)" v-if="!isAdd">
+                            <b-input type="password" maxlength="6" v-model="form.pin" />
                         </b-form-group>
                     </b-card-body>
 
@@ -129,6 +134,7 @@
     import MaskedInput, { conformToMask } from "node_modules/vue-text-mask";
     import { emailMask } from "node_modules/text-mask-addons/dist/textMaskAddons";
     import { required, requiredIf, email, sameAs, minLength } from "node_modules/vuelidate/lib/validators";
+    import {Encryptor} from "node_modules/node-laravel-encryptor";
 
     export default {
         name: "moduser-user-form",
@@ -188,6 +194,7 @@
                 role_code: [],
                 note: "",
                 status: 1,
+                pin: "",
                 profile: {
                     gender: 1,
                     date_of_birth: null,
@@ -297,6 +304,7 @@
                             this.form.status = this.form.status==2?2:1;
                             this.form.password = "";
                             this.form.repassword = "";
+                            this.form.pin = "";
                             this.isDataLoaded = true;
 
                             this.initView();
@@ -349,6 +357,17 @@
                             return false;
                         }
 
+                        var encryptor = new Encryptor({
+                            key: this.AppConfig.client.secret_key
+                        });
+
+                        var oldPin;
+
+                        if (this.form.pin != '') {
+                            oldPin = this.form.pin;
+                            this.form.pin = encryptor.encryptSync(this.form.pin);
+                        }
+
                         this.$store
                             .dispatch("user/update", { data: this.form, id: this.form.id })
                             .then(res => {
@@ -359,6 +378,7 @@
                                 console.log("update user error : ", err);
                                 this.Web.showAlert({ type: "danger", text: "Simpan data gagal : " + err.message });
                             });
+                        this.form.pin = oldPin;
                     }
                 }
             },

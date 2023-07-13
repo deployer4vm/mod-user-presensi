@@ -492,7 +492,7 @@ class UserRepo extends BaseRepository
         $validatorRule = [
             'name' => 'required|min:5|max:255',
         ];
-        
+
 
         if (!empty($userData['email'])) {
             $validatorRule['email'] = 'required|email|min:5|max:255';
@@ -505,14 +505,14 @@ class UserRepo extends BaseRepository
         } else {
             $userData['username'] = '';
         }
-        
-        if(empty($userData['username']) && empty($userData['email'])){
+
+        if (empty($userData['username']) && empty($userData['email'])) {
             $this->error = 'Username atau email harus diisi';
             return false;
         }
-        
+
         if (!isset($userData['password'])) {
-            $userData['password'] = empty($userData['username'])?$userData['email']:$userData['username'];
+            $userData['password'] = empty($userData['username']) ? $userData['email'] : $userData['username'];
         }
         $validatorRule['password'] = 'required|min:5|max:255';
 
@@ -535,7 +535,7 @@ class UserRepo extends BaseRepository
 
         //jika tidak menyertakan role_id maka set default
         if (empty($userData['role_code'])) {
-            if(config('AppConfig.system.web_admin.registration.default_role_code')){
+            if (config('AppConfig.system.web_admin.registration.default_role_code')) {
                 $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
             } else {
                 $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
@@ -579,7 +579,7 @@ class UserRepo extends BaseRepository
         foreach ($userData as $key => $value) {
             if (empty($value)) unset($userData[$key]);
         }
-        
+
         if (empty($userData['username'])) {
             $userData['username'] = '';
         }
@@ -699,6 +699,9 @@ class UserRepo extends BaseRepository
             return false;
         }
 
+        if (!empty($userData['pin'])) {
+            $userData['pin'] = Hash::make($userData['pin']);
+        }
 
         $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
         if ($dontHaveTransactionLevel)

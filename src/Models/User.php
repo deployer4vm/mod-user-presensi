@@ -28,7 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'all_tenant', 'user_idcode', 'name', 'username', 'email', 'phone', 'password', 'auth_password',
         'socialauth_facebook_id', 'socialauth_facebook_token', 'socialauth_facebook_data',
         'socialauth_google_id', 'socialauth_google_token', 'socialauth_google_data', 'level',
-        'note', 'role',  'status', 'banned_note', 'system_user', 'secret_key', 'tenant_id'
+        'note', 'role',  'status', 'banned_note', 'system_user', 'secret_key', 'tenant_id', 'pin'
     ];
 
     /**
@@ -37,7 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'auth_password'
+        'password', 'remember_token', 'auth_password', 'pin'
     ];
 
     /**

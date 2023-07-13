@@ -69,6 +69,12 @@
                                 </b-alert>
                             </b-form-group>
 
+                            <hr class="border-light m-0" />
+
+                            <b-form-group label="PIN (6 Digit)">
+                                <b-input type="password" :class="{ 'form-control': true, 'is-invalid': $v.userForm.pin.$error ? true : false }" maxlength="6" v-model="userForm.pin" />
+                            </b-form-group>
+
                             <div class="text-right mt-3">
                                 <b-btn @click="saveUser" variant="primary">Save changes</b-btn>
                             </div>
@@ -112,7 +118,8 @@
 <script>
     import globals from "@/globals";
     import Multiselect from "node_modules/vue-multiselect";
-    import { required, minLength, email } from "node_modules/vuelidate/lib/validators";
+    import { required, minLength, maxLength, email } from "node_modules/vuelidate/lib/validators";
+    import {Encryptor} from "node_modules/node-laravel-encryptor";
     
     export default {
         name: "page-myprofile",
@@ -120,6 +127,36 @@
             Multiselect,
         },
         computed: {},
+        validations() {
+            let data = {
+                userForm: {
+                    name: {
+                        required
+                    },
+                    email: {
+                        email
+                    },
+                    pin: {
+                        minLength: minLength(6),
+                        maxLength: maxLength(6)
+                    }
+                }
+            };
+
+            // if(this.form.password != '') {
+            //     data.form.password = {
+            //             required: requiredIf(function(n) {
+            //                 return this.isAdd;
+            //             }),
+            //             minLength: minLength(6)
+            //         };
+            //     data.form.repassword = {
+            //             sameAsPassword: sameAs('password')
+            //         };
+            // }
+
+            return data;
+        },
         data: () => ({
             curTab: "general",
             passwordForm: {
@@ -137,6 +174,7 @@
                 role: null,
                 status: 1,
                 profile: {},
+                pin: ""
             },
             oldEmail:'',//data email sebelum diedit
             profileTabAdds:[]
@@ -178,16 +216,21 @@
             getUser(id) {
                 this.LocalApi.get(this.AppConfig.endpoint.api.moduser + "/" + id).then((res) => {
                     this.userForm = res.data.data;
+                    this.userForm.pin = "";
                     this.oldEmail = this.userForm.email;
                     return res.data.data;
                 });
             },
-            saveUser() {
+            saveUser(evt) {
+                var encryptor = new Encryptor({
+                    key: globals().AppConfig.client.secret_key
+                });
                 let data = {
                     id: this.userForm.id,
                     username: this.userForm.username,
                     name: this.userForm.name,
                     email: this.userForm.email,
+                    pin: this.userForm.pin != '' ? encryptor.encryptSync(this.userForm.pin) : ''
                 };
 
                 if(this.showUserField('phone'))
