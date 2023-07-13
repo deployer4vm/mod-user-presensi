@@ -202,7 +202,7 @@ class UserController extends BaseController
         if(!empty($validator)){
             $validator = Validator::make($input, $validator); 
             if ($validator->fails()) {
-                $this->setError('Input Error :',$validator->messages(),400,true);
+                $this->setError('Input Error :',$validator->messages(),400,400,true);
                 return $this->done();
             }
         }
@@ -290,7 +290,7 @@ class UserController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            $this->setError('Input Error :',$validator->messages(),400,true);
+            $this->setError('Input Error :',$validator->messages(),400,400,true);
             return $this->done();
         }
 
@@ -435,7 +435,7 @@ class UserController extends BaseController
         if(!empty($validator)){
             $validator = Validator::make($input, $validator); 
             if ($validator->fails()) {
-                $this->setError('Input Error :',$validator->messages(),400,true);
+                $this->setError('Input Error :',$validator->messages(),400,400,true);
                 return $this->done();
             }
         }
