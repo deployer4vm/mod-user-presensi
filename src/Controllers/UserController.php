@@ -198,6 +198,10 @@ class UserController extends BaseController
         if(isset($input['phone'])){
             $validator['phone'] = 'required|min:3|max:255';
         }
+        if (!empty($input['pin'])) {
+            $input['pin'] = UserAuth::decryptCredential($input['pin']);
+            $validator['pin'] = 'digits:6';
+        }
 
         if(!empty($validator)){
             $validator = Validator::make($input, $validator); 
@@ -430,6 +434,10 @@ class UserController extends BaseController
         }
         if(isset($input['phone'])){
             $validator['phone'] = 'required|min:3|max:255';
+        }
+        if (!empty($input['pin'])) {
+            $input['pin'] = UserAuth::decryptCredential($input['pin']);
+            $validator['pin'] = 'digits:6';
         }
 
         if(!empty($validator)){
