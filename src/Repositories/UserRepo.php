@@ -515,6 +515,11 @@ class UserRepo extends BaseRepository
             $userData['password'] = empty($userData['username']) ? $userData['email'] : $userData['username'];
         }
         $validatorRule['password'] = 'required|min:5|max:255';
+        if (isset($userData['repassword'])) {
+            $validatorRule['password'] .= '|same:repassword';
+        } else {
+            $validatorRule['password'] .= '|confirmed';
+        }
 
         $validator = Validator::make($userData, $validatorRule);
 
@@ -585,6 +590,12 @@ class UserRepo extends BaseRepository
         }
         if (empty($userData['email'])) {
             $userData['email'] = '';
+        }
+
+        if (isset($userData['repassword'])) {
+            unset($userData['repassword']);
+        } elseif (isset($userData['password_confirmation'])) {
+            unset($userData['password_confirmation']);
         }
 
         return $userData;

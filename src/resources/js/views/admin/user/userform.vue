@@ -331,6 +331,16 @@
                         text: this.Trans.get("alert.form_must_complete_text")
                     });
                 } else {
+                    var oldPassword = "";
+                    var encryptor = new Encryptor({
+                        key: this.AppConfig.client.secret_key
+                    });
+
+                    if (this.form.password != "") {
+                        oldPassword = this.form.password;
+                        this.form.password = encryptor.encryptSync(this.form.password);
+                        this.form.repassword = encryptor.encryptSync(this.form.repassword);
+                    }
                     if (this.isAdd) {
                         if (!this.UserAuth.hasAccess(this.accessRuleKey, "c")) {
                             //goto dashboard current tenant
@@ -357,11 +367,7 @@
                             return false;
                         }
 
-                        var encryptor = new Encryptor({
-                            key: this.AppConfig.client.secret_key
-                        });
-
-                        var oldPin;
+                        var oldPin = "";
 
                         if (this.form.pin != '') {
                             oldPin = this.form.pin;
@@ -380,6 +386,7 @@
                             });
                         this.form.pin = oldPin;
                     }
+                    this.form.password = this.form.repassword = oldPassword;
                 }
             },
             onReset(evt) {

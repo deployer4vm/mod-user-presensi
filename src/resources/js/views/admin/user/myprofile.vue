@@ -223,7 +223,7 @@
             },
             saveUser(evt) {
                 var encryptor = new Encryptor({
-                    key: globals().AppConfig.client.secret_key
+                    key: this.AppConfig.client.secret_key
                 });
                 let data = {
                     id: this.userForm.id,
@@ -257,10 +257,13 @@
                     });
             },
             savePassword() {
+                var encryptor = new Encryptor({
+                    key: this.AppConfig.client.secret_key
+                });
                 this.LocalApi.put(this.AppConfig.endpoint.api.moduser + "/" + this.userForm.id + "/updatepassword", {
                         id: this.userForm.id,
-                        password: this.passwordForm.password,
-                        password_confirmation: this.passwordForm.password_confirmation,
+                        password: encryptor.encryptSync(this.passwordForm.password),
+                        password_confirmation: encryptor.encryptSync(this.passwordForm.password_confirmation),
                     })
                     .then((res) => {
                         this.Web.showAlert({ text: "Password berhasil diganti" });
