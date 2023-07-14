@@ -24,9 +24,4 @@ class ApiToken extends Authenticatable
      * @var array
      */
     protected $guarded = ['id','created_at'];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
 }
