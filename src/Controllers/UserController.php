@@ -194,10 +194,10 @@ class UserController extends BaseController
         if (isset($input['name'])) {
             $validator['name'] = 'required|min:3|max:255';
         }
-        if (isset($input['email'])) {
+        if (!empty($input['email'])) {
             $validator['email'] = 'required|email|min:3|max:255';
         }
-        if (isset($input['phone'])) {
+        if (!empty($input['phone'])) {
             $validator['phone'] = 'required|min:3|max:255';
         }
         if (!empty($input['pin'])) {

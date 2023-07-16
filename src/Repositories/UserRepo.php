@@ -27,6 +27,7 @@ use hpsynapse\moduser\Models\UserTenant;
 use App\Facades\Tenant;
 
 use App\Base\BaseRepository;
+use hpsynapse\moduser\Facades\UserAuth;
 
 class UserRepo extends BaseRepository
 {
@@ -1016,15 +1017,23 @@ class UserRepo extends BaseRepository
      * @param String $userId
      * @return boolean|array list role user, format mirip data role di APPSSession
      */
-    public function getUserRole($userId, $withoutTime = true)
+    public function getUserRole($userId, $withoutTime = true, $mainRoleOnly = false, $filterByClient = true)
     {
         $response = [];
-        $userRoleData = UserRole::where('user_id', $userId)->get();
+        $userRoleData = UserRole::where('user_id', $userId);
+        if ($mainRoleOnly) {
+            $userRoleData->where('is_main_role', 1);
+        }
+        $userRoleData = $userRoleData->get();
         if (!$userRoleData) return false;
         foreach ($userRoleData as $key => $value) {
             $roleData = Role::where('id', $value->role_id)->first();
             if ($roleData) {
                 $roleData = $roleData->toArray();
+                // dd($roleData);
+                if (!UserAuth::isH2H() && $filterByClient) {
+                    $roleData = $this->filterByClient($roleData);
+                }
                 $roleData['is_main_role'] = $value->is_main_role;
                 $roleData['has_auth_grant'] = $value->has_auth_grant;
 
@@ -1037,6 +1046,22 @@ class UserRepo extends BaseRepository
 
         return $response;
     }
+
+    private function filterByClient($roleData)
+    {
+        $clientData = UserAuth::getClient();
+        $clientRoles = $this->getUserRole($clientData['id'], true, true, false);
+        $firstRole = reset($clientRoles);
+        if (!is_array($firstRole['rule'])) {
+            $firstRole['rule'] = json_decode($firstRole['rule'], true);
+        }
+        if (!empty($firstRole['rule'])) {
+            $newRule = array_intersect_key($firstRole['rule'], $roleData['rule']);
+            $roleData['rule'] = $newRule;
+        }
+        return $roleData;
+    }
+
     /**
      * 
      * @param type $userId
