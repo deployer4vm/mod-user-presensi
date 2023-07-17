@@ -376,7 +376,8 @@ class UserRepo extends BaseRepository
      * @param Array $userData : seluruh field di table user (kecuali role) dan :
      *      email : wajib
      *      role_code : * optional    string role_code, jika tidak dicantumkan akan menggunakan default role_code
-     * 
+     *      password        *unencryted password
+     *      repassword      *unencryted password
      * @param Boolean $generateToken 1 jika generate token, 0 jika tidak
      * 
      * @return Array seluruh field di table user dan :
@@ -669,7 +670,8 @@ class UserRepo extends BaseRepository
      * @param integer           $userId user id user yang akan diupdate
      * @param array             $userData
      *      role_code *optional string role_code, jika disertakan maka akan mengubah role utama
-     * 
+     *      password        *unencrypted password
+     *      pin             *unencrypted pin
      * @return boolean
      */
     public function updateUser($userId, $userData, $runEvent = true)
@@ -1056,7 +1058,7 @@ class UserRepo extends BaseRepository
             $firstRole['rule'] = json_decode($firstRole['rule'], true);
         }
         if (!empty($firstRole['rule'])) {
-            $newRule = array_intersect_key($firstRole['rule'], $roleData['rule']);
+            $newRule = $roleData['rule']?array_intersect_key($firstRole['rule'], $roleData['rule']):$firstRole['rule'];
             $roleData['rule'] = $newRule;
         }
         return $roleData;
