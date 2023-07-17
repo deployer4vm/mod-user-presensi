@@ -1,7 +1,7 @@
 <template>
     <b-nav-item-dropdown no-caret :right="!isRTL" class="demo-navbar-notifications mr-lg-3">
         <template slot="button-content">
-            <i class="ion ion-md-notifications-outline navbar-icon align-middle"></i>
+            <i class="fi fi-rr-bell navbar-icon align-middle"></i>
             <span class="badge badge-danger badge-dot indicator" v-if="notif.summary.unread_count != 0"></span>
             <span class="d-lg-none align-middle">&nbsp; {{Trans.get('notif.notification_title')}}</span>
         </template>
