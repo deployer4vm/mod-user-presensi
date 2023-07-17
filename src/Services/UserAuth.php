@@ -396,21 +396,29 @@ class UserAuth
         return $this->isHost2Host;
     }
 
-    public function decryptCredential($encrypted)
+    private function getEncrypter($customKey=false)
     {
         $clientData = $this->getClient();
-        // $decrypted = openssl_decrypt(
-        //     $encrypted,
-        //     'aes-256-cbc',
-        //     pack('H*', $clientData['secret_key'])//,
-        //     // OPENSSL_ZERO_PADDING,
-        //     // pack('H*', $clientData['username'])
-        // );
-        $encrypter = new Encrypter(base64_decode($clientData['secret_key']), 'aes-256-cbc');
-        $decrypted = $encrypter->decrypt($encrypted, false);
+        $customKey = $customKey?$customKey:$clientData['secret_key'];
+        return new Encrypter(base64_decode($customKey), 'aes-256-cbc');
+    }
+
+    public function encryptCredential($baseString, $customKey=false)
+    {
+        $encrypter = $this->getEncrypter($customKey);
+        $encrypted = $encrypter->encryptString($baseString);
+
+        return $encrypted;
+    }
+
+    public function decryptCredential($encrypted, $customKey=false)
+    {
+        
+        $encrypter = $this->getEncrypter($customKey);
+        $decrypted = $encrypter->decryptString($encrypted);
 
         // Log::debug([
-        //     $encrypted, $decrypted, $clientData
+        //     $encrypted, $decrypted
         // ]);
 
         return $decrypted;

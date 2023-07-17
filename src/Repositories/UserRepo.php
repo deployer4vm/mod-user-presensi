@@ -27,6 +27,7 @@ use hpsynapse\moduser\Models\UserTenant;
 use App\Facades\Tenant;
 
 use App\Base\BaseRepository;
+use hpsynapse\moduser\Facades\UserAuth;
 
 class UserRepo extends BaseRepository
 {
@@ -375,7 +376,8 @@ class UserRepo extends BaseRepository
      * @param Array $userData : seluruh field di table user (kecuali role) dan :
      *      email : wajib
      *      role_code : * optional    string role_code, jika tidak dicantumkan akan menggunakan default role_code
-     * 
+     *      password        *unencryted password
+     *      repassword      *unencryted password
      * @param Boolean $generateToken 1 jika generate token, 0 jika tidak
      * 
      * @return Array seluruh field di table user dan :
@@ -492,9 +494,8 @@ class UserRepo extends BaseRepository
         $validatorRule = [
             'name' => 'required|min:5|max:255',
         ];
-        if (isset($userData['password'])) {
-            $validatorRule['password'] = 'required|min:5|max:255';
-        }
+
+
         if (!empty($userData['email'])) {
             $validatorRule['email'] = 'required|email|min:5|max:255';
         } else {
@@ -506,11 +507,22 @@ class UserRepo extends BaseRepository
         } else {
             $userData['username'] = '';
         }
-        
-        if(empty($userData['username']) && empty($userData['email'])){
+
+        if (empty($userData['username']) && empty($userData['email'])) {
             $this->error = 'Username atau email harus diisi';
             return false;
         }
+
+        if (!isset($userData['password'])) {
+            $userData['password'] = empty($userData['username']) ? $userData['email'] : $userData['username'];
+        }
+        $validatorRule['password'] = 'required|min:5|max:255';
+        if (isset($userData['repassword'])) {
+            $validatorRule['password'] .= '|same:repassword';
+        } else {
+            $validatorRule['password'] .= '|confirmed';
+        }
+
         $validator = Validator::make($userData, $validatorRule);
 
         if ($validator->fails()) {
@@ -530,7 +542,7 @@ class UserRepo extends BaseRepository
 
         //jika tidak menyertakan role_id maka set default
         if (empty($userData['role_code'])) {
-            if(config('AppConfig.system.web_admin.registration.default_role_code')){
+            if (config('AppConfig.system.web_admin.registration.default_role_code')) {
                 $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
             } else {
                 $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
@@ -574,12 +586,18 @@ class UserRepo extends BaseRepository
         foreach ($userData as $key => $value) {
             if (empty($value)) unset($userData[$key]);
         }
-        
+
         if (empty($userData['username'])) {
             $userData['username'] = '';
         }
         if (empty($userData['email'])) {
             $userData['email'] = '';
+        }
+
+        if (isset($userData['repassword'])) {
+            unset($userData['repassword']);
+        } elseif (isset($userData['password_confirmation'])) {
+            unset($userData['password_confirmation']);
         }
 
         return $userData;
@@ -652,7 +670,8 @@ class UserRepo extends BaseRepository
      * @param integer           $userId user id user yang akan diupdate
      * @param array             $userData
      *      role_code *optional string role_code, jika disertakan maka akan mengubah role utama
-     * 
+     *      password        *unencrypted password
+     *      pin             *unencrypted pin
      * @return boolean
      */
     public function updateUser($userId, $userData, $runEvent = true)
@@ -694,6 +713,9 @@ class UserRepo extends BaseRepository
             return false;
         }
 
+        if (!empty($userData['pin'])) {
+            $userData['pin'] = Hash::make($userData['pin']);
+        }
 
         $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
         if ($dontHaveTransactionLevel)
@@ -997,15 +1019,23 @@ class UserRepo extends BaseRepository
      * @param String $userId
      * @return boolean|array list role user, format mirip data role di APPSSession
      */
-    public function getUserRole($userId, $withoutTime = true)
+    public function getUserRole($userId, $withoutTime = true, $mainRoleOnly = false, $filterByClient = true)
     {
         $response = [];
-        $userRoleData = UserRole::where('user_id', $userId)->get();
+        $userRoleData = UserRole::where('user_id', $userId);
+        if ($mainRoleOnly) {
+            $userRoleData->where('is_main_role', 1);
+        }
+        $userRoleData = $userRoleData->get();
         if (!$userRoleData) return false;
         foreach ($userRoleData as $key => $value) {
             $roleData = Role::where('id', $value->role_id)->first();
             if ($roleData) {
                 $roleData = $roleData->toArray();
+                // dd($roleData);
+                if (!UserAuth::isH2H() && $filterByClient) {
+                    $roleData = $this->filterByClient($roleData);
+                }
                 $roleData['is_main_role'] = $value->is_main_role;
                 $roleData['has_auth_grant'] = $value->has_auth_grant;
 
@@ -1018,6 +1048,22 @@ class UserRepo extends BaseRepository
 
         return $response;
     }
+
+    private function filterByClient($roleData)
+    {
+        $clientData = UserAuth::getClient();
+        $clientRoles = $this->getUserRole($clientData['id'], true, true, false);
+        $firstRole = reset($clientRoles);
+        if (!is_array($firstRole['rule'])) {
+            $firstRole['rule'] = json_decode($firstRole['rule'], true);
+        }
+        if (!empty($firstRole['rule'])) {
+            $newRule = $roleData['rule']?array_intersect_key($firstRole['rule'], $roleData['rule']):$firstRole['rule'];
+            $roleData['rule'] = $newRule;
+        }
+        return $roleData;
+    }
+
     /**
      * 
      * @param type $userId

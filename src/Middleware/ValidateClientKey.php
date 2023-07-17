@@ -6,7 +6,9 @@ use Closure;
 use hpsynapse\moduser\Facades\UserAuth;
 // use Illuminate\Support\Facades\Auth;
 use hpsynapse\moduser\Facades\UserRepo;
+use hpsynapse\moduser\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 
@@ -42,7 +44,9 @@ class ValidateClientKey
             }
 
             if (Auth::check()) {
-                $authUser = Auth::user();
+                $authToken = Auth::user();
+                $authUser = User::find($authToken->user_id);
+                
                 // Check if the request is a H2H request, the username of current user should match with the client key
                 if ($authUser->system_user) {
                     if ($client['username'] == $authUser->username) {
