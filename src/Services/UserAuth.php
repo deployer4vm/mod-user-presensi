@@ -312,7 +312,7 @@ class UserAuth
     public function isPinValid($pin)
     {
         $tmpUser = User::select('pin')->where('id',$this->userData['id'])->first();
-        if(Hash::check($pin,$mpUser->pin)){
+        if(Hash::check($pin,$tmpUser->pin)){
             return true;
         }
         return false;
