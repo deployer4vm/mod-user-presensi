@@ -2,13 +2,19 @@
 
 namespace hpsynapse\moduser\Services;
 
-use hpsynapse\moduser\Facades\UserRepo;
-use hpsynapse\moduser\Facades\RoleRepo;
 use Illuminate\Support\Facades\Auth;
-use hpsynapse\moduser\Models\ApiToken;
-use App\Base\Traits\ResCacheTrait;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\Log;
+
+use App\Base\Traits\ResCacheTrait;
+
+use hpsynapse\moduser\Facades\UserRepo;
+use hpsynapse\moduser\Facades\RoleRepo;
+
+use hpsynapse\moduser\Models\ApiToken;
+use hpsynapse\moduser\Models\User;
+
 
 /**
  * Library untuk akses SSO service
@@ -295,6 +301,18 @@ class UserAuth
     public function isBanned()
     {
         if ($this->localUser['status'] == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param String $pin unencrypted pin
+     */
+    public function isPinValid($pin)
+    {
+        $tmpUser = User::select('pin')->where('id',$this->userData['id'])->first();
+        if(Hash::check($pin,$tmpUser->pin)){
             return true;
         }
         return false;
