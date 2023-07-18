@@ -200,7 +200,7 @@ class UserAuth
         }
         session()->save();
     }
-    
+
     public function logoutAllExeptMe()
     {
         //delete semua token kecuali yg loign
@@ -388,22 +388,24 @@ class UserAuth
         return $this->clientData;
     }
 
-    public function setH2H() {
+    public function setH2H()
+    {
         $this->isHost2Host = true;
     }
 
-    public function isH2H() {
+    public function isH2H()
+    {
         return $this->isHost2Host;
     }
 
-    private function getEncrypter($customKey=false)
+    private function getEncrypter($customKey = false)
     {
         $clientData = $this->getClient();
-        $customKey = $customKey?$customKey:$clientData['secret_key'];
+        $customKey = $customKey ?: $clientData['secret_key'];
         return new Encrypter(base64_decode($customKey), 'aes-256-cbc');
     }
 
-    public function encryptCredential($baseString, $customKey=false)
+    public function encryptCredential($baseString, $customKey = false)
     {
         $encrypter = $this->getEncrypter($customKey);
         $encrypted = $encrypter->encryptString($baseString);
@@ -411,9 +413,9 @@ class UserAuth
         return $encrypted;
     }
 
-    public function decryptCredential($encrypted, $customKey=false)
+    public function decryptCredential($encrypted, $customKey = false)
     {
-        
+
         $encrypter = $this->getEncrypter($customKey);
         $decrypted = $encrypter->decryptString($encrypted);
 
