@@ -26,41 +26,41 @@ class TokenApiController extends BaseController
      */
     public function validateToken(Request $request)
     {
-        $apiToken = $request->user()->toArray();        
-        $isTokenValid = UserRepo::isTokenValid($apiToken['api_token']);
+        $apiToken = UserRepo::getToken($request->route('token'));        
+        if($apiToken==false){
+            $this->setError(__('lang.data_attribute_not_found',['attribute'=>'Token']));
+            return $this->done();
+        }
                                 
-        $response['status'] = 200;
-        //jika token sudah tidak valid
-        if(!$isTokenValid){
-            $response['message'] = 'Token Invalid';
-            $response['data'] = null;
-            $response['errors'] = [true];
-        }else{
-            $response['message'] = 'Token Valid';
-            $response['data'] = UserAuth::getCurTimeStamp();
-            
-            $response['data']['user'] = UserRepo::getUser($apiToken['user_id']);
-            $response['data']['role'] = UserRepo::getUserRole($apiToken['user_id']);
-            $notifToken = $request->input('pushNotifToken',false);
-            //jika menyertakan update token notif
-            if($notifToken){
-                //jika token berubah maka subscribe ulang
-                if($apiToken['push_token'] = $notifToken){
-                    $notifChannel[] = 'all';
-                    // if(isset($response['data']['role'][9]))$notifChannel[] = 'member';         
-                    
-                    UserNotifRepo::subscribeToChannel($notifChannel,$notifToken);
-                    UserNotifRepo::unsubscribeFromChannel($apiToken['push_token'],$notifToken);
-                    
-                    UserNotifRepo::changePushToken($apiToken['push_token'],$notifToken);
-                }
+        $this->output['message'] = 'Token Valid';
+        $this->output['data'] = UserAuth::getCurTimeStamp();
+        
+        $this->output['data']['user'] = UserRepo::getUser($apiToken['user_id']);
+        $this->output['data']['role'] = UserRepo::getUserRole($apiToken['user_id']);
+        foreach ($this->output['data']['role'] as $key => $val) {
+            if ($val['is_main_role']) {
+                $this->output['data']['role_code'] = $key;
             }
-            
-            $response['errors'] = null;
-            UserRepo::setSingleTokenLastUpdate($apiToken['api_token'],$response['data']['lastUpdate']);
+        }
+        $this->output['data']['token'] = $apiToken['api_token'];
+        $notifToken = $request->input('pushNotifToken',false);
+        //jika menyertakan update token notif
+        if($notifToken){
+            //jika token berubah maka subscribe ulang
+            if($apiToken['push_token'] = $notifToken){
+                $notifChannel[] = 'all';
+                // if(isset($response['data']['role'][9]))$notifChannel[] = 'member';         
+                
+                UserNotifRepo::subscribeToChannel($notifChannel,$notifToken);
+                UserNotifRepo::unsubscribeFromChannel($apiToken['push_token'],$notifToken);
+                
+                UserNotifRepo::changePushToken($apiToken['push_token'],$notifToken);
+            }
         }
         
-        return response()->json($response, 200);
+        UserRepo::setSingleTokenLastUpdate($apiToken['api_token'],$this->output['data']['lastUpdate']);
+                
+        return $this->done();
     }
     
     
