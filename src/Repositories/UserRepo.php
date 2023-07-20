@@ -1058,7 +1058,7 @@ class UserRepo extends BaseRepository
             $firstRole['rule'] = json_decode($firstRole['rule'], true);
         }
         if (!empty($firstRole['rule'])) {
-            $newRule = $roleData['rule']?array_intersect_key($firstRole['rule'], $roleData['rule']):$firstRole['rule'];
+            $newRule = $roleData['rule'] ? array_intersect_key($firstRole['rule'], $roleData['rule']) : $firstRole['rule'];
             $roleData['rule'] = $newRule;
         }
         return $roleData;
