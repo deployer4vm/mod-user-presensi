@@ -44,7 +44,7 @@
         "description": {"en":"","id":""},
         "acl_caption": {"en":"Module User","id":"Module User"},
         "acl_description": {"en":"","id":""},
-        "icon": "ion ion-md-person",
+        "icon": "fi fi-rs-users-alt",
         "no":1,
         "has_acl": 1,
         "is_navbar": 1,
