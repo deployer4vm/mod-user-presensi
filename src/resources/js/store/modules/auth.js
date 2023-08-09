@@ -1,6 +1,6 @@
 import globals from "@/globals";
 import CryptoJS from "node_modules/crypto-js";
-import {Encryptor} from "node_modules/node-laravel-encryptor";
+import { Encryptor } from "node_modules/node-laravel-encryptor";
 
 var authPath = globals().AppConfig.endpoint.api.auth;
 var encryptor = new Encryptor({
@@ -25,16 +25,16 @@ const getters = {
         return state.token !== null;
     },
     getAuthRole(state) {
-        return state.role?state.role[state.role_code]:false;
+        return state.role ? state.role[state.role_code] : false;
     },
     getAuthRoleCode(state) {
         return state.role_code;
     },
     getAuthRoleList(state) {
-        return state.role?state.role:false;
+        return state.role ? state.role : false;
     },
     roleCount(state) {
-        return state.role?Object.keys(state.role).length:0;
+        return state.role ? Object.keys(state.role).length : 0;
     },
     getAuthToken(state) {
         return state.token;
@@ -76,7 +76,7 @@ const mutations = {
         state.role_code = null;
         state.group_app = null;
     },
-    setGroupApp(state, groupApp) {        
+    setGroupApp(state, groupApp) {
         state.group_app = groupApp;
     }
 };
@@ -100,76 +100,76 @@ const actions = {
                     tenant: res.data.data.tenant,
                     role_code: res.data.data.role_code
                 });
-                
-                //set token di LocalApi
-                globals().LocalApi.defaults.headers.common['Authorization'] = 'Bearer ' + state.token; 
-                globals().LocalApi.defaults.headers.common['Syn-Api-Token'] = state.token; 
 
-                EventBus.$emit('onLogin',JSON.parse(JSON.stringify(res.data.data)));
-                
+                //set token di LocalApi
+                globals().LocalApi.defaults.headers.common['Authorization'] = 'Bearer ' + state.token;
+                globals().LocalApi.defaults.headers.common['Syn-Api-Token'] = state.token;
+
+                EventBus.$emit('onLogin', JSON.parse(JSON.stringify(res.data.data)));
+
                 //jika auto detek login
-                if(
+                if (
                     globals().AppConfig.system.multitenant.autodetect_login == 1 &&
                     res.data.data.tenant &&
-                    res.data.data.tenant.group_app != authData.group_app){ 
+                    res.data.data.tenant.group_app != authData.group_app) {
 
                     //load ulang tenant nya
-                    return globals().Web.loadTenant(res.data.data.tenant.group_app).then((val)=>{
+                    return globals().Web.loadTenant(res.data.data.tenant.group_app).then((val) => {
                         //jika tenant tidak ditemukan
-                        if(!val){                    
+                        if (!val) {
                             //jika tenant yang tidak ditemukan adalah default tenant maka error
-                            if(to.params.group_app == globals().Web.getDefaultTenantRoute().params.group_app){
-                                alert('Tenant Api Error');                    
-                            }else{                        
+                            if (to.params.group_app == globals().Web.getDefaultTenantRoute().params.group_app) {
+                                alert('Tenant Api Error');
+                            } else {
                                 globals().Web.goToDefaultTenant();
                             }
 
-                        //jika tenant ada maka redirect ke tenant
-                        }else{
-                            commit("setGroupApp",res.data.data.tenant.group_app);
+                            //jika tenant ada maka redirect ke tenant
+                        } else {
+                            commit("setGroupApp", res.data.data.tenant.group_app);
                             dispatch("implementAcl");
-                            EventBus.$emit('onTenantChange',res.data.data.tenant);
+                            EventBus.$emit('onTenantChange', res.data.data.tenant);
                             globals().Web.goToTenant(res.data.data.tenant.group_app);
                         }
 
-                    });                    
-                    
+                    });
+
                 }
 
-                commit("setGroupApp",authData.group_app);
-                EventBus.$emit('onTenantChange',authData);
+                commit("setGroupApp", authData.group_app);
+                EventBus.$emit('onTenantChange', authData);
                 return dispatch("implementAcl");
             });
     },
     register({ commit, dispatch, state }, authData) {
         var newAuthData = {};
 
-        if(authData.name)
+        if (authData.name)
             newAuthData.name = authData.name;
 
-        if(authData.username)
+        if (authData.username)
             newAuthData.username = authData.username;
 
-        if(authData.email)
+        if (authData.email)
             newAuthData.email = authData.email;
 
-        if(authData.phone)
+        if (authData.phone)
             newAuthData.phone = authData.phone;
 
-        if(authData.password)
+        if (authData.password)
             newAuthData.password = authData.password;
 
-        if(authData.role_code)
+        if (authData.role_code)
             newAuthData.role_code = authData.role_code;
 
-        if(authData.tos_confirm)
+        if (authData.tos_confirm)
             newAuthData.tos_confirm = authData.tos_confirm;
-            
+
         return globals().LocalApi
             .post(authPath + "/register", newAuthData)
             .then(res => {
-                EventBus.$emit('onRegister',JSON.parse(JSON.stringify(res.data)));
-                
+                EventBus.$emit('onRegister', JSON.parse(JSON.stringify(res.data)));
+
                 return JSON.parse(JSON.stringify(res.data));
             });
     },
@@ -177,16 +177,16 @@ const actions = {
         return globals().LocalApi
             .post(authPath + "/forgotpassword", email)
             .then(res => {
-                EventBus.$emit('onForgotPassword',JSON.parse(JSON.stringify(res.data)));
-                
+                EventBus.$emit('onForgotPassword', JSON.parse(JSON.stringify(res.data)));
+
                 return JSON.parse(JSON.stringify(res.data));
             });
     },
-    changeRole({ commit, state, dispatch },roleCode) {
+    changeRole({ commit, state, dispatch }, roleCode) {
         return globals().LocalApi
             .get(authPath + "/change_role/" + roleCode).then(res => {
-                commit("setActiveRoleCode",roleCode);
-                EventBus.$emit('onChangeRole',roleCode);
+                commit("setActiveRoleCode", roleCode);
+                EventBus.$emit('onChangeRole', roleCode);
                 return dispatch("implementAcl");
             });
     },
@@ -204,10 +204,10 @@ const actions = {
             tenant: state.tenant,
             role_code: state.role_code
         }
-        EventBus.$emit('onLogout',JSON.parse(JSON.stringify(userData)));
+        EventBus.$emit('onLogout', JSON.parse(JSON.stringify(userData)));
     },
     //---------------------------------------
-    initAuth({ commit, state, dispatch }) {},
+    initAuth({ commit, state, dispatch }) { },
     /*
     implement acl user yang online sekarang ke sidebar, baru bisa 3 level
     un-elegan way, nanti ubah agar lebih efisien
@@ -216,92 +216,119 @@ const actions = {
         var aclItem, aclItemLv2, aclItemLv3, curAclId;
 
         globals().AppConfig.sidenav = JSON.parse(JSON.stringify(globals().AppConfig.sidenavOri));
-        
+
         _.forEach(globals().AppConfig.sidenav, (vPackage, packageNamespace) => {
 
-            //jika tidak punya akses acl maka tolak (menu akan ditampilkan sesuai default ACL nya)
-            if( !state.role[state.role_code] 
-                || !state.role[state.role_code]['rule']
-                || state.role[state.role_code]['rule'][packageNamespace]==undefined)return true;
+            // Jika Rolenya ada tapi rulenya null berarti diberi akses
+            if (!state.role[state.role_code]['rule']) {
+                vPackage.has_access = 1;
+            } else {
+                if (!state.role[state.role_code]) {
+                    // Jika Rolenya tidak terdefinisi, gunakan default
+                    return true;
+                } else if (state.role[state.role_code]['rule'][packageNamespace] == undefined) {
+                    //jika tidak punya akses acl maka tolak
+                    vPackage.has_access = 0;
+                } else {
+                    vPackage.has_access = state.role[state.role_code]['rule'][packageNamespace]['has_access'] == 1 ? 1 : 0;
+                }
+            }
 
-            vPackage.has_access = state.role[state.role_code]['rule'][packageNamespace]['has_access']==1?1:0;
+            //jika tidak punya specific rule maka lanjut
+            if (vPackage.children == undefined) return true;
 
-            //jika tidak punya specific rule maka tolak (menu akan ditampilkan sesuai default ACL nya)
-            if(vPackage.children==undefined)return true;
-            
             //----cek hak akses level 1
             _.forEach(vPackage.children, (accessItem, aclId) => {
+                if (!state.role[state.role_code]['rule']) return true;
+
                 curAclId = packageNamespace + '.' + aclId;
-                
-                //jika tidak punya akses acl maka tolak (menu akan ditampilkan sesuai default active_acl di packageConfig nya)
-                if(state.role[state.role_code]['rule'][curAclId]==undefined)return true;
-                
-                aclItem = state.role[state.role_code]['rule'][curAclId];
-                
-                if (aclItem.has_access) {
-                    accessItem.active_acl = {
-                        has_access: aclItem.has_access,
-                        crud: { c: aclItem.c, r: aclItem.r, u: aclItem.u, d: aclItem.d }
-                    };
-                } else {
+
+                //jika tidak punya akses acl maka tolak
+                if (state.role[state.role_code]['rule'][curAclId] == undefined) {
                     accessItem.active_acl = {
                         has_access: 0,
                         crud: { c: 0, r: 0, u: 0, d: 0 }
                     };
+                } else {
+                    aclItem = state.role[state.role_code]['rule'][curAclId];
+
+                    if (aclItem.has_access) {
+                        accessItem.active_acl = {
+                            has_access: aclItem.has_access,
+                            crud: { c: aclItem.c, r: aclItem.r, u: aclItem.u, d: aclItem.d }
+                        };
+                    } else {
+                        accessItem.active_acl = {
+                            has_access: 0,
+                            crud: { c: 0, r: 0, u: 0, d: 0 }
+                        };
+                    }
                 }
-                
+
                 //----cek hak askses level 2 jika ada
                 if (accessItem.children != undefined) {
                     _.forEach(accessItem.children, (accessItemLv2, aclIdLv2) => {
+                        if (!state.role[state.role_code]['rule']) return true;
 
-                        curAclId = packageNamespace + '.' + aclId + '.' +aclIdLv2;
+                        curAclId = packageNamespace + '.' + aclId + '.' + aclIdLv2;
 
-                        if(state.role[state.role_code]['rule'][curAclId]==undefined)return true;
-
-                        aclItemLv2 = state.role[state.role_code]['rule'][curAclId];
-
-                        if (aclItemLv2.has_access) {
-                            accessItemLv2.active_acl = {
-                                has_access: aclItemLv2.has_access,
-                                crud: {
-                                    c: aclItemLv2.c,
-                                    r: aclItemLv2.r,
-                                    u: aclItemLv2.u,
-                                    d: aclItemLv2.d
-                                }
-                            };
-                        } else {
+                        if (state.role[state.role_code]['rule'][curAclId] == undefined) {
                             accessItemLv2.active_acl = {
                                 has_access: 0,
                                 crud: { c: 0, r: 0, u: 0, d: 0 }
                             };
+                        } else {
+                            aclItemLv2 = state.role[state.role_code]['rule'][curAclId];
+
+                            if (aclItemLv2.has_access) {
+                                accessItemLv2.active_acl = {
+                                    has_access: aclItemLv2.has_access,
+                                    crud: {
+                                        c: aclItemLv2.c,
+                                        r: aclItemLv2.r,
+                                        u: aclItemLv2.u,
+                                        d: aclItemLv2.d
+                                    }
+                                };
+                            } else {
+                                accessItemLv2.active_acl = {
+                                    has_access: 0,
+                                    crud: { c: 0, r: 0, u: 0, d: 0 }
+                                };
+                            }
                         }
 
                         //----cek hak askses level 3 jika ada
                         if (accessItemLv2.children != undefined) {
                             _.forEach(accessItemLv2.children, (accessItemLv3, aclIdLv3) => {
+                                if (!state.role[state.role_code]['rule']) return true;
 
                                 curAclId = packageNamespace + '.' + aclId + '.' + aclIdLv2 + '.' + aclIdLv3;
 
-                                if(state.role[state.role_code]['rule'][curAclId]==undefined)return true;
-
-                                aclItemLv3 = state.role[state.role_code]['rule'][curAclId];
-
-                                if (aclItemLv3.has_access) {
-                                    accessItemLv3.active_acl = {
-                                        has_access: aclItemLv3.has_access,
-                                        crud: {
-                                        c: aclItemLv3.c,
-                                        r: aclItemLv3.r,
-                                        u: aclItemLv3.u,
-                                        d: aclItemLv3.d
-                                        }
-                                    };
-                                } else {
+                                if (state.role[state.role_code]['rule'][curAclId] == undefined) {
                                     accessItemLv3.active_acl = {
                                         has_access: 0,
                                         crud: { c: 0, r: 0, u: 0, d: 0 }
                                     };
+                                } else {
+                                    aclItemLv3 = state.role[state.role_code]['rule'][curAclId];
+
+                                    if (aclItemLv3.has_access) {
+                                        accessItemLv3.active_acl = {
+                                            has_access: aclItemLv3.has_access,
+                                            crud: {
+                                                c: aclItemLv3.c,
+                                                r: aclItemLv3.r,
+                                                u: aclItemLv3.u,
+                                                d: aclItemLv3.d
+                                            }
+                                        };
+                                    } else {
+                                        accessItemLv3.active_acl = {
+                                            has_access: 0,
+                                            crud: { c: 0, r: 0, u: 0, d: 0 }
+                                        };
+                                    }
                                 }
                             });
                         }
@@ -309,6 +336,129 @@ const actions = {
                 }
             });
         });
+
+        globals().AppConfig.customSidenav = JSON.parse(JSON.stringify(globals().AppConfig.customSidenavOri));
+
+        if (globals().AppConfig.system.web_admin.custom_sidenav && Object.keys(globals().AppConfig.customSidenav).length > 0) {
+            _.forEach(globals().AppConfig.customSidenav, (vPackage, key) => {
+                if (!state.role[state.role_code]['rule']) {
+                    vPackage.has_access = 1;
+                } else {
+                    if (!state.role[state.role_code]) {
+                        // Jika Rolenya tidak terdefinisi, gunakan default
+                        return true;
+                    } else if (state.role[state.role_code]['rule'][vPackage.acl_key] == undefined) {
+                        //jika tidak punya akses acl maka tolak
+                        vPackage.has_access = 0;
+                    } else {
+                        vPackage.has_access = state.role[state.role_code]['rule'][vPackage.acl_key]['has_access'] == 1 ? 1 : 0;
+                    }
+                }
+    
+                //jika tidak punya specific rule maka lanjut
+                if (vPackage.children == undefined) return true;
+
+                _.forEach(vPackage.children, (accessItem, aclId) => {
+                    if (!state.role[state.role_code]['rule']) return true;
+
+                    curAclId = accessItem.acl_key;
+
+                    //jika tidak punya akses acl maka tolak
+                    if (state.role[state.role_code]['rule'][curAclId] == undefined) {
+                        accessItem.active_acl = {
+                            has_access: 0,
+                            crud: { c: 0, r: 0, u: 0, d: 0 }
+                        };
+                    } else {
+                        aclItem = state.role[state.role_code]['rule'][curAclId];
+
+                        if (aclItem.has_access) {
+                            accessItem.active_acl = {
+                                has_access: aclItem.has_access,
+                                crud: { c: aclItem.c, r: aclItem.r, u: aclItem.u, d: aclItem.d }
+                            };
+                        } else {
+                            accessItem.active_acl = {
+                                has_access: 0,
+                                crud: { c: 0, r: 0, u: 0, d: 0 }
+                            };
+                        }
+                    }
+
+                    //----cek hak askses level 2 jika ada
+                    if (accessItem.children != undefined) {
+                        _.forEach(accessItem.children, (accessItemLv2, aclIdLv2) => {
+                            if (!state.role[state.role_code]['rule']) return true;
+
+                            curAclId = accessItemLv2.acl_key;
+
+                            if (state.role[state.role_code]['rule'][curAclId] == undefined) {
+                                accessItemLv2.active_acl = {
+                                    has_access: 0,
+                                    crud: { c: 0, r: 0, u: 0, d: 0 }
+                                };
+                            } else {
+                                aclItemLv2 = state.role[state.role_code]['rule'][curAclId];
+
+                                if (aclItemLv2.has_access) {
+                                    accessItemLv2.active_acl = {
+                                        has_access: aclItemLv2.has_access,
+                                        crud: {
+                                            c: aclItemLv2.c,
+                                            r: aclItemLv2.r,
+                                            u: aclItemLv2.u,
+                                            d: aclItemLv2.d
+                                        }
+                                    };
+                                } else {
+                                    accessItemLv2.active_acl = {
+                                        has_access: 0,
+                                        crud: { c: 0, r: 0, u: 0, d: 0 }
+                                    };
+                                }
+                            }
+
+                            if (accessItemLv2.children != undefined) {
+                                _.forEach(accessItemLv2.children, (accessItemLv3, aclIdLv3) => {
+                                    if (!state.role[state.role_code]['rule']) return true;
+    
+                                    curAclId = accessItemLv3.acl_key;
+    
+                                    if (state.role[state.role_code]['rule'][curAclId] == undefined) {
+                                        accessItemLv3.active_acl = {
+                                            has_access: 0,
+                                            crud: { c: 0, r: 0, u: 0, d: 0 }
+                                        };
+                                    } else {
+                                        aclItemLv3 = state.role[state.role_code]['rule'][curAclId];
+    
+                                        if (aclItemLv3.has_access) {
+                                            accessItemLv3.active_acl = {
+                                                has_access: aclItemLv3.has_access,
+                                                crud: {
+                                                    c: aclItemLv3.c,
+                                                    r: aclItemLv3.r,
+                                                    u: aclItemLv3.u,
+                                                    d: aclItemLv3.d
+                                                }
+                                            };
+                                        } else {
+                                            accessItemLv3.active_acl = {
+                                                has_access: 0,
+                                                crud: { c: 0, r: 0, u: 0, d: 0 }
+                                            };
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });                
+            });
+        }
+
+        console.log(globals().AppConfig.customSidenav);
+        
         commit("setSidenavMenu");
     }
 };
@@ -316,8 +466,8 @@ const actions = {
 //format role
 var role = {
     role_code_1: {
-        is_main_role:1,
-        has_auth_grant:1,
+        is_main_role: 1,
+        has_auth_grant: 1,
         rule: {
             moduleNameSpace: {
                 has_access: 1, //apakah punya akses secara keseluruhan terhadap module ini       
