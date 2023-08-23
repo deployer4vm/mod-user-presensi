@@ -457,7 +457,7 @@ const actions = {
             });
         }
 
-        console.log(globals().AppConfig.customSidenav);
+        // console.log(globals().AppConfig.customSidenav);
         
         commit("setSidenavMenu");
     }
