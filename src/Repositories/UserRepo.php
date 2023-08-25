@@ -694,6 +694,7 @@ class UserRepo extends BaseRepository
         if (isset($userData['created_at'])) unset($userData['created_at']);
         if (isset($userData['updated_at'])) unset($userData['updated_at']);
         if (isset($userData['repassword'])) unset($userData['repassword']);
+        if (isset($userData['password_confirmation'])) unset($userData['password_confirmation']);
         if (isset($userData['user_role'])) unset($userData['user_role']);
         if (isset($userData['main_role'])) unset($userData['main_role']);
 
