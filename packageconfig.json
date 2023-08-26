@@ -39,6 +39,7 @@
 
         }
     },
+    "load_priority": 0,
     "access": {
         "caption": {"en":"User Management","id":"User Management"},
         "description": {"en":"","id":""},
