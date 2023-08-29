@@ -426,20 +426,27 @@ class UserAuth
     public function encryptCredential($baseString, $customKey = false)
     {
         $encrypter = $this->getEncrypter($customKey);
-        $encrypted = $encrypter->encryptString($baseString);
+
+        try {
+            $encrypted = $encrypter->encryptString($baseString);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return false;
+        }
 
         return $encrypted;
     }
 
     public function decryptCredential($encrypted, $customKey = false)
     {
-
         $encrypter = $this->getEncrypter($customKey);
-        $decrypted = $encrypter->decryptString($encrypted);
 
-        // Log::debug([
-        //     $encrypted, $decrypted
-        // ]);
+        try {
+            $decrypted = $encrypter->decryptString($encrypted);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return false;
+        }
 
         return $decrypted;
     }
