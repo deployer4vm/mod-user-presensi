@@ -474,8 +474,9 @@ class UserRepo extends BaseRepository
             return false;
         }
 
-        if (isset($userData['email']) && $userData['email'])
+        if (isset($userData['email']) && !empty($userData['email'])) {
             $this->sendUserActivationEmail($data['id']);
+        }
 
 
         return $data;
