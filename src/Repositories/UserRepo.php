@@ -464,7 +464,8 @@ class UserRepo extends BaseRepository
 
             $this->error = $e->getMessage();
 
-            Log::info('moduser UserRepo::register() ERROR');
+            Log::error('moduser UserRepo::register() ERROR');
+            Log::error($userData);
             Log::error($e);
 
             // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
@@ -534,6 +535,7 @@ class UserRepo extends BaseRepository
             }
             $err[] = '</ul>';
             $this->error = implode('', $err);
+            Log::error($userData);
             return false;
         }
 
