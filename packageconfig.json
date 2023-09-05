@@ -236,7 +236,8 @@
         "enable": 0,
         "default_role_code": "admin",
         "default_system_role_code": "system",
-        "field": ["email","password"]
+        "field": ["email","password"],
+        "admin_send_activation_email": 1
     },
     "login" :{
         "rememberme": 1,

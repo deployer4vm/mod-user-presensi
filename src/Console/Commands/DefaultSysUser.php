@@ -63,7 +63,7 @@ class DefaultSysUser extends Command
                 'name' => 'System',
                 'role_code' => $role['role_code']
             ];
-            $user = UserSystemRepo::register($newUser);
+            $user = UserSystemRepo::register($newUser, true, true);
             $this->info('Registering New User');
             $this->newLine();
         } else {

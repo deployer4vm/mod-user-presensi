@@ -388,7 +388,7 @@ class UserRepo extends BaseRepository
      *      profile         Array       record user profile
      *      
      */
-    public function register(array $userData, $generateToken = true)
+    public function register(array $userData, $generateToken = true, $registerBySystem = false)
     {
         $userData = $this->registerFilter($userData);
 
@@ -475,7 +475,11 @@ class UserRepo extends BaseRepository
             return false;
         }
 
-        if (isset($userData['email']) && !empty($userData['email'])) {
+        if ($registerBySystem
+            && config('AppConfig.packageLocal.moduser.registration.admin_send_activation_email')
+            && isset($userData['email']) 
+            && !empty($userData['email'])
+        ) {
             $this->sendUserActivationEmail($data['id']);
         }
 

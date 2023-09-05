@@ -163,7 +163,7 @@ class UserController extends BaseController
         }
 
         //jika berhasil
-        if ($user = UserRepo::register($userData, false)) {
+        if ($user = UserRepo::register($userData, false, true)) {
             $this->setAlert('Data Inserted successfully', 'success');
         } else {
             $this->setError(UserRepo::error());

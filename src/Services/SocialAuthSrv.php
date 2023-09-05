@@ -81,7 +81,7 @@ class SocialAuthSrv
             $regUserData['status'] = 1;
             $regUserData['registration_reff'] = 3;//registration by oauth socmend
             
-            $data = UserRepo::register($regUserData);
+            $data = UserRepo::register($regUserData, true, true);
             return $data;
         }
     }
