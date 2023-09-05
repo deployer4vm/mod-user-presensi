@@ -1,5 +1,5 @@
 <template>
-    <b-nav-item-dropdown no-caret :right="!isRTL" class="demo-navbar-notifications mr-lg-3">
+    <b-nav-item-dropdown no-caret :right="!isRTL" class="demo-navbar-notifications mr-lg-2">
         <template slot="button-content">
             <i class="fi fi-rr-bell navbar-icon align-middle"></i>
             <span class="badge badge-danger badge-dot indicator" v-if="notif.summary.unread_count != 0"></span>
