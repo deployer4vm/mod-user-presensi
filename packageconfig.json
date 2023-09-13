@@ -35,8 +35,9 @@
             "hpsynapse\\moduser\\Contracts\\UserLog":"hpsynapse\\moduser\\Repositories\\UserLog",
             "hpsynapse\\moduser\\Contracts\\RoleRepo":"hpsynapse\\moduser\\Repositories\\RoleRepo",
             "hpsynapse\\moduser\\Contracts\\UserSystemRepo":"hpsynapse\\moduser\\Repositories\\UserSystemRepo",
-            "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo"
+            "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo",
 
+            "hpsynapse\\moduser\\Contracts\\ExportUserFormater":"hpsynapse\\moduser\\Services\\ExportUserFormater"
         }
     },
     "access": {
@@ -106,7 +107,7 @@
                         "d": 1
                     }
                 },
-                "children": {                    
+                "children": {
                     "can_edit_role_code": {
                         "acl_caption": {"en":"Can Edit 'role_code'","id":"Bisa edit 'role_code'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -131,7 +132,7 @@
                                 "d": 0
                             }
                         }
-                    },                 
+                    },
                     "can_edit_level": {
                         "acl_caption": {"en":"Can Edit 'level'","id":"Bisa edit 'level'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -218,6 +219,9 @@
         }
     },
     "system_user": {
+        "enable": 0
+    },
+    "export_user": {
         "enable": 0
     },
     "auth_endpoint": {
