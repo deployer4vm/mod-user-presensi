@@ -12,6 +12,7 @@ Route::group($groupAuth,function(){
     //Auth/LoginController
     Route::post('/login', 'Auth\LoginController@apiLogin')->name('auth.api.login');
 
+
     //Auth/RegisterController
     Route::post('/register', 'Auth\RegisterController@apiRegister')->name('auth.api.register');
 
@@ -25,7 +26,7 @@ Route::group($groupAuth,function(){
         //Auth/LoginController
         Route::get('/logout', 'Auth\LoginController@apiLogout')->name('auth.api.logout');
         //TokenApiController
-        Route::post('/token/validate', 'Auth\TokenApiController@validateToken')->name('auth.api.validatetoken');
+        Route::post('/token/validate/{token}', 'Auth\TokenApiController@validateToken')->name('auth.api.validatetoken');
         //ubah role user yang sedang loign
         Route::get('/change_role/{role_code}', 'UserController@changeRole')->name('auth.api.changerole');
     });

@@ -166,7 +166,7 @@
                     <select class="form-control d-inline-block w-auto" v-model="perPage">
                         <option v-for="option in perPageOption" :value="option">@{{option}}</option>
                     </select>         
-                    <input v-model="searchString" type="text" class="form-control d-inline-block w-auto" placeholder="Search...">
+                    <input v-model="searchString" @keyup.enter="goSearch()" type="text" class="form-control d-inline-block w-auto" placeholder="Search...">
                     <button class="btn btn-success" @click="goSearch()">Go</button>
                 </div>
                 <div class="col">    

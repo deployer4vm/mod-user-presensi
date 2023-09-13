@@ -2,11 +2,19 @@
 
 namespace hpsynapse\moduser\Services;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Log;
+
+use App\Base\Traits\ResCacheTrait;
+
 use hpsynapse\moduser\Facades\UserRepo;
 use hpsynapse\moduser\Facades\RoleRepo;
-use Illuminate\Support\Facades\Auth;
+
 use hpsynapse\moduser\Models\ApiToken;
-use App\Base\Traits\ResCacheTrait;
+use hpsynapse\moduser\Models\User;
+
 
 /**
  * Library untuk akses SSO service
@@ -15,38 +23,40 @@ use App\Base\Traits\ResCacheTrait;
  *      
  */
 class UserAuth
-{    
+{
     use ResCacheTrait;
-    protected $isLogin=false;
-    protected $isApiCall=false;
-    protected $token='';
+    protected $isLogin = false;
+    protected $isApiCall = false;
+    protected $isHost2Host = false;
+    protected $token = '';
+    protected $clientData;
     protected $userData;
     protected $userRoleList;
     protected $userRole;
     protected $userRoleCode;
-    
-    public function setInit($isApiCall=false,$userData=false,$userRole=false)
+
+    public function setInit($isApiCall = false, $userData = false, $userRole = false)
     {
         $this->cacheActive = true;
         $this->isApiCall = $isApiCall;
-        if($isApiCall){
-            if(Auth::check()){
+        if ($isApiCall) {
+            if (Auth::check()) {
                 $userId = Auth::user()->user_id;
-                if($userId){
+                if ($userId) {
                     $this->userData = UserRepo::getUser($userId);
                     $this->userRole = UserRepo::getUserRole($userId);
                     $this->userRoleCode = Auth::user()->active_role_code;
                     $this->token = Auth::user()->api_token;
                 }
             }
-        }else{
+        } else {
             $this->userData = $this->getUserSessionData();
             $this->userRole = $this->getUserSessionRole();
             $this->userRoleCode = $this->getActiveUserRoleCode();
             $this->token = $this->getSesionToken();
         }
     }
-    
+
     /**
      * generate current timestamps
      * 
@@ -59,12 +69,12 @@ class UserAuth
         $data['validUntil'] = $now->addMinutes(config('session.lifetime'))->toDateTimeString();
         return $data;
     }
-    
-    public function getToken($field=false)
+
+    public function getToken($field = false)
     {
-        if($field && session('APPSSession.token.'.$field)){
-            $data = session('APPSSession.token.'.$field);
-        }else{
+        if ($field && session('APPSSession.token.' . $field)) {
+            $data = session('APPSSession.token.' . $field);
+        } else {
             $data = session('APPSSession.token');
         }
         return $data;
@@ -75,21 +85,21 @@ class UserAuth
         return session('APPSSession.token');
     }
 
-    public function getUserSessionData($field=false)
+    public function getUserSessionData($field = false)
     {
-        if($field && session('APPSSession.user.'.$field)){
-            $data = session('APPSSession.user.'.$field);
-        }else{
+        if ($field && session('APPSSession.user.' . $field)) {
+            $data = session('APPSSession.user.' . $field);
+        } else {
             $data = session('APPSSession.user');
         }
         return $data;
     }
-    
-    public function getUserSessionRole($field=false)
+
+    public function getUserSessionRole($field = false)
     {
-        if($field && session('APPSSession.role.'.$field)){
-            $data = session('APPSSession.role.'.$field);
-        }else{
+        if ($field && session('APPSSession.role.' . $field)) {
+            $data = session('APPSSession.role.' . $field);
+        } else {
             $data = session('APPSSession.role');
         }
         return $data;
@@ -109,33 +119,33 @@ class UserAuth
     {
         return session('APPSSession.validUntil');
     }
-    
+
     /**
      * set session saat login
      * 
      * @param type $userId
      */
-    public function setUser($userId,$apiTokenData=false)
+    public function setUser($userId, $apiTokenData = false)
     {
-        
+
         $sessionData = $this->getCurTimeStamp();
         $userData = UserRepo::getUser($userId);
         $role = UserRepo::getUserRole($userData['id']);
-        
-        foreach($role as $key => $val) {
+
+        foreach ($role as $key => $val) {
             $roleCode = $key;
-            if($val['is_main_role']){
+            if ($val['is_main_role']) {
                 $roleCode = $key;
                 break;
             }
         }
 
-        if(!$apiTokenData){
-            $apiTokenData = UserRepo::generateToken($userId,$roleCode);
+        if (!$apiTokenData) {
+            $apiTokenData = UserRepo::generateToken($userId, $roleCode);
         }
-        
+
         $this->setSession([
-            'token' => $apiTokenData,            
+            'token' => $apiTokenData,
             'user' => $userData,
             'role' => $role,
             'role_code' => $roleCode,
@@ -149,10 +159,10 @@ class UserAuth
      */
     public function setActiveRole($roleCode)
     {
-        if($this->role($roleCode)){
-            if($this->isApiCall){
-                Auth::user()->update(['active_role_code'=>$roleCode]);
-            }else{
+        if ($this->role($roleCode)) {
+            if ($this->isApiCall) {
+                Auth::user()->update(['active_role_code' => $roleCode]);
+            } else {
                 $this->setSession([
                     'role_code' => $roleCode
                 ]);
@@ -161,10 +171,10 @@ class UserAuth
         }
         return false;
     }
-    
+
     public function updateSessionId()
     {
-        $this->setSession(['sessionId'=>session()->getId()]);
+        $this->setSession(['sessionId' => session()->getId()]);
     }
     /**
      * unset session saat logout
@@ -173,7 +183,7 @@ class UserAuth
      */
     public function unsetUser()
     {
-        $sessionData = $this->getCurTimeStamp();        
+        $sessionData = $this->getCurTimeStamp();
         $this->setSession([
             'token' => '',
             'lastUpdate' => $sessionData['lastUpdate'],
@@ -181,25 +191,26 @@ class UserAuth
             'user' => '',
             'role' => '',
             'role_code' => ''
-            ]);
+        ]);
     }
-    
+
     /**
      * set session saat pertama kali dapet dari account center
      * @param array $apiData variable session SSO yg akan diubah
      */
-    public function setSession(Array $data)
+    public function setSession(array $data)
     {
         //$availableKey = ['id', 'lastUpdate','validUntil','appsToken','userToken','userData'];
         foreach ($data as $key => $value) {
-            session()->put('APPSSession.'.$key,$value);
-        }        
+            session()->put('APPSSession.' . $key, $value);
+        }
         session()->save();
     }
+
     public function logoutAllExeptMe()
     {
         //delete semua token kecuali yg loign
-        if($this->getToken())ApiToken::where('api_token','!=',$this->getToken())->delete();
+        if ($this->getToken()) ApiToken::where('api_token', '!=', $this->getToken())->delete();
     }
 
     public function lockLoginExeptMe()
@@ -208,8 +219,8 @@ class UserAuth
             'allow_login' => 0,
             'allow_login_exept' => [],
             'allow_login_only' => [$this->user('id')]
-        ]; 
-        $this->_saveCache('generalconfig','accesss',$config); 
+        ];
+        $this->_saveCache('generalconfig', 'accesss', $config);
     }
 
     public function unlockLogin()
@@ -218,20 +229,20 @@ class UserAuth
             'allow_login' => 1,
             'allow_login_exept' => [],
             'allow_login_only' => []
-        ]; 
-        $this->_saveCache('generalconfig','accesss',$config); 
+        ];
+        $this->_saveCache('generalconfig', 'accesss', $config);
     }
 
     public function getAccessConfig()
     {
-        
-        if(!($config = $this->_getCache('generalconfig','accesss'))){
+
+        if (!($config = $this->_getCache('generalconfig', 'accesss'))) {
             $config = [
                 'allow_login' => 1,
                 'allow_login_exept' => [],
                 'allow_login_only' => []
-            ];           
-            $this->_saveCache('generalconfig','accesss',$config); 
+            ];
+            $this->_saveCache('generalconfig', 'accesss', $config);
         }
         return $config;
     }
@@ -242,46 +253,46 @@ class UserAuth
     {
         return Auth::check() && is_array($this->userData);
     }
-    
+
     /**
      * GET data user dari Account Center
      * @param type $field
      * @return type
      */
-    public function user($field=false,$default=false)
+    public function user($field = false, $default = false)
     {
-        if($field==false)return $this->userData;
-        return isset($this->userData[$field])?$this->userData[$field]:$default;
+        if ($field == false) return $this->userData;
+        return isset($this->userData[$field]) ? $this->userData[$field] : $default;
     }
-    
+
     /**
      * GET data list role user yang sedang login
      * @param type $field
      * @return type
      */
-    public function role($field=false,$default=false)
+    public function role($field = false, $default = false)
     {
-        if($field==false)return $this->userRole;
-        return isset($this->userRole[$field])?$this->userRole[$field]:$default;
+        if ($field == false) return $this->userRole;
+        return isset($this->userRole[$field]) ? $this->userRole[$field] : $default;
     }
-    
-    
+
+
     public function isPhoneVerified()
-    {        
-        if(isset($this->userData['phone_verified_at']) && $this->userData['phone_verified_at']){
+    {
+        if (isset($this->userData['phone_verified_at']) && $this->userData['phone_verified_at']) {
             return true;
         }
         return false;
     }
-    
+
     public function isEmailVerified()
-    {        
-        if(isset($this->userData['email_verified_at']) && $this->userData['email_verified_at']){
+    {
+        if (isset($this->userData['email_verified_at']) && $this->userData['email_verified_at']) {
             return true;
         }
         return false;
     }
-    
+
     /**
      * cek status user apakah posisi tidak aktif / banned
      * 
@@ -289,18 +300,30 @@ class UserAuth
      */
     public function isBanned()
     {
-        if($this->localUser['status'] == 0){
+        if ($this->localUser['status'] == 0) {
             return true;
         }
         return false;
     }
-    
+
+    /**
+     * @param String $pin unencrypted pin
+     */
+    public function isPinValid($pin)
+    {
+        $tmpUser = User::select('pin')->where('id',$this->userData['id'])->first();
+        if(Hash::check($pin,$tmpUser->pin)){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * ROLE CHECK
      * -------------------------------------------------------------------------
      */
-    
-    
+
+
     /**
      * cek apakah user yang online memiliki akses role "rolde_code"
      * 
@@ -309,12 +332,12 @@ class UserAuth
      */
     public function hasRole($roleCode)
     {
-        if(isset($this->userData['role']) && strpos($this->userData['role'],';'.$roleCode.';')!==false){
+        if (isset($this->userData['role']) && strpos($this->userData['role'], ';' . $roleCode . ';') !== false) {
             return true;
         }
         return false;
     }
-    
+
     /**
      * cek apakah user yang online adalah sebagai "role_code"
      * 
@@ -323,9 +346,9 @@ class UserAuth
      */
     public function is($roleCode)
     {
-        if(!empty($this->userRoleCode) && $this->userRoleCode == $roleCode){
+        if (!empty($this->userRoleCode) && $this->userRoleCode == $roleCode) {
             return true;
-        }        
+        }
         return false;
     }
 
@@ -336,21 +359,21 @@ class UserAuth
      */
     public function isWebDev()
     {
-        return $this->isLogin() && $this->is('webbdev');
+        return $this->isLogin() && $this->is('webdev');
     }
-    
+
     public function hasAccess(
-        $key, 
-        $subKey = 'has_access', 
+        $key,
+        $subKey = 'has_access',
         $defaultAccess = true,
         $checkWebDev = false
     ) {
         if ($checkWebDev === true && $this->isWebDev()) {
             return true;
         }
-        if(isset($this->userRole[$this->userRoleCode])){
-            if(isset($this->userRole[$this->userRoleCode]['rule'][$key][$subKey])){
-                return $this->userRole[$this->userRoleCode]['rule'][$key][$subKey] == 1?true:false;
+        if (isset($this->userRole[$this->userRoleCode])) {
+            if (isset($this->userRole[$this->userRoleCode]['rule'][$key][$subKey])) {
+                return $this->userRole[$this->userRoleCode]['rule'][$key][$subKey] == 1 ? true : false;
             }
         }
         return $defaultAccess;
@@ -361,16 +384,70 @@ class UserAuth
      * 
      * @param string $roleCode role_code yang dicek nya
      */
-    public function isGranted($roleCode=false)
+    public function isGranted($roleCode = false)
     {
         $data = UserRepo::getUserRole($this->userData['id']);
-        
-        if(!is_array($roleCode))$roleCode = [$roleCode];
-        foreach ($data as $role)
-        {
-            if(in_array($role['role_code'], $roleCode) && $role['has_auth_grant'] == 1)
+
+        if (!is_array($roleCode)) $roleCode = [$roleCode];
+        foreach ($data as $role) {
+            if (in_array($role['role_code'], $roleCode) && $role['has_auth_grant'] == 1)
                 return true;
         }
         return false;
+    }
+
+    public function setClient($clientData)
+    {
+        $this->clientData = $clientData;
+    }
+
+    public function getClient()
+    {
+        return $this->clientData;
+    }
+
+    public function setH2H()
+    {
+        $this->isHost2Host = true;
+    }
+
+    public function isH2H()
+    {
+        return $this->isHost2Host;
+    }
+
+    private function getEncrypter($customKey = false)
+    {
+        $clientData = $this->getClient();
+        $customKey = $customKey ?: $clientData['secret_key'];
+        return new Encrypter(base64_decode($customKey), 'aes-256-cbc');
+    }
+
+    public function encryptCredential($baseString, $customKey = false)
+    {
+        $encrypter = $this->getEncrypter($customKey);
+
+        try {
+            $encrypted = $encrypter->encryptString($baseString);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return false;
+        }
+
+        return $encrypted;
+    }
+
+    public function decryptCredential($encrypted, $customKey = false)
+    {
+        $encrypter = $this->getEncrypter($customKey);
+
+        try {
+            $decrypted = $encrypter->decryptString($encrypted);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return false;
+        }
+
+        return $decrypted;
     }
 }

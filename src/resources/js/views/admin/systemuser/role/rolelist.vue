@@ -18,7 +18,7 @@
       </div>
     </div> -->
         <!-- / Filters -->
-        <header-breadcrumb :pageTitle="pageTitle" :showBack="false" />
+        <header-breadcrumb :pageTitle="pageTitle" :backPath="{name: 'systemuser.list'}" />
 
         <b-card class="m-3" no-body>
             <b-card-body>
@@ -28,9 +28,9 @@
                     </b-form-group>
                     <b-form-group :label="Trans.get('lang.search')" class="d-inline-block col-md mt-1">
                         <b-input-group>
-                            <b-input placeholder="Search..." v-model="searchString" />
+                            <b-input placeholder="Search..." @keyup.enter="doSearch" v-model="searchString" />
                             <b-btn variant="secondary" @click="doSearch">
-                                <span class="ion ion-ios-search"></span>
+                                <i class="fi fi-rs-search"></i>
                             </b-btn>
                         </b-input-group>
                     </b-form-group>
@@ -51,22 +51,17 @@
                             <b-select v-model="perPage" :options="[10, 20, 30, 40, 50]"/>
                         </b-form-group>
                         <b-form-group :label="Trans.get('lang.search')" class="d-inline-block w-auto mt-1">
-                            <b-input placeholder="Search..." v-model="searchString" />
+                            <b-input placeholder="Search..." @keyup.enter="doSearch" v-model="searchString" />
                         </b-form-group>
                         <b-form-group :label="''" class="d-inline-block w-auto mt-1">
                             <b-btn variant="info" @click="doSearch" style="margin-top: -3px;">
-                                <span class="ion ion-ios-search"></span>
+                                <i class="fi fi-rs-search"></i>
                             </b-btn>
                         </b-form-group>
                     </div> -->
                     <div>
-                        <span v-if="this.$route.fullPath === '/user/systemuserrole'">
+                        <span>
                             <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'systemuser.role.add' }">
-                                <span class="ion ion-md-add"></span>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
-                            </router-link>
-                        </span>
-                        <span v-if="this.$route.fullPath !== '/user/systemuserrole'">
-                            <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'role.add' }">
                                 <span class="ion ion-md-add"></span>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
                             </router-link>
                         </span>

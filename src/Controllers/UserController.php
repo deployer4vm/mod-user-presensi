@@ -29,40 +29,40 @@ class UserController extends BaseController
      */
     public function readList(Request $request)
     {
-        if(!UserAuth::hasAccess($this->accessRuleKey,'r')){
-            $this->setError(__('alert.access_denied'),false,403);
+        if (!UserAuth::hasAccess($this->accessRuleKey, 'r')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
         $orderBy = [];
         $filter = [];
 
-        if($request->input('q', false))
+        if ($request->input('q', false))
             $filter['q'] = $request->input('q');
 
         //jika menyertakan status
-        if($request->input('status', false))
+        if ($request->input('status', false))
             $filter[] = ['status', $request->input('status')];
 
         $filter[] = ['system_user', false];
 
-        if(UserAuth::isLogin()){
-            $filter[] = ['id','!=',UserAuth::user('id')];
-            $filter[] = ['level','>',UserAuth::user('level')];
+        if (UserAuth::isLogin()) {
+            $filter[] = ['id', '!=', UserAuth::user('id')];
+            $filter[] = ['level', '>', UserAuth::user('level')];
         }
 
         //jika menyertakan status
-        if($request->input('role', false))
-            $filter[] = ['role', 'LIKE', '%;'.$request->input('role').';%'];
+        if ($request->input('role', false))
+            $filter[] = ['role', 'LIKE', '%;' . $request->input('role') . ';%'];
 
-        if($request->input('level', false)){
+        if ($request->input('level', false)) {
             $filter[] = ['level', '!=', $request->input('level')];
-        } else if($request->input('level_except', false)){
+        } else if ($request->input('level_except', false)) {
             $filter[] = ['level', '!=', $request->input('level_except')];
         }
 
         //jika multitenant aktif dan bukan dari aplikasi owner maka filter berdasarkan tenant nya
-        if (config('AppConfig.system.multitenant.active',false) && config('tenant.id',0) > 1) {
+        if (config('AppConfig.system.multitenant.active', false) && config('tenant.id', 0) > 1) {
             $filter[] = ['tenant_id', config('tenant.id')];
         }
 
@@ -103,15 +103,15 @@ class UserController extends BaseController
 
         $this->output['data'] = UserRepo::getUser($id);
 
-        if(!(UserAuth::hasAccess($this->accessRuleKey,'r') || $this->output['data']['id'] == UserAuth::user('id'))){
-            $this->setError(__('alert.access_denied'),false,403);
+        if (!(UserAuth::hasAccess($this->accessRuleKey, 'r') || $this->output['data']['id'] == UserAuth::user('id'))) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
         $this->output['data']['user_role'] = UserRepo::getUserRole($this->output['data']['id']);
 
-        foreach($this->output['data']['user_role'] as $key => $val) {
-            if($val['is_main_role']){
+        foreach ($this->output['data']['user_role'] as $key => $val) {
+            if ($val['is_main_role']) {
                 $this->output['data']['role_code'] = $key;
             }
         }
@@ -131,27 +131,29 @@ class UserController extends BaseController
      */
     public function create(Request $request)
     {
-        if(!UserAuth::hasAccess($this->accessRuleKey,'c')){
-            $this->setError(__('alert.access_denied'),false,403);
+        if (!UserAuth::hasAccess($this->accessRuleKey, 'c')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
-        $userData = $request->all();//$request->only(['name', 'email', 'password']);
+        $userData = $request->all(); //$request->only(['name', 'email', 'password']);
+        $userData['password'] = UserAuth::decryptCredential($userData['password']);
+        $userData['repassword'] = UserAuth::decryptCredential($userData['repassword']);
 
         $validator = [
             'name' => 'required|min:3|max:255',
-            'password' => 'required|min:5|max:255'
+            'password' => 'required|min:5|max:255|same:repassword',
         ];
 
-        if(isset($userData['username']) && $userData['username']!=''){
+        if (isset($userData['username']) && $userData['username'] != '') {
             $validator['username'] = 'required|min:3|max:255';
         }
 
-        if(isset($userData['email']) && $userData['email']!=''){
+        if (isset($userData['email']) && $userData['email'] != '') {
             $validator['email'] = 'required|email|max:255';
         }
 
-        if(!isset($validator['username']) && !isset($validator['email'])){
+        if (!isset($validator['username']) && !isset($validator['email'])) {
             $this->setError('Username atau email harus diisi');
             return $this->done();
         }
@@ -159,14 +161,14 @@ class UserController extends BaseController
         $validator = Validator::make($userData, $validator);
 
         if ($validator->fails()) {
-            $this->setError('Data keliru',$validator->messages());
+            $this->setError('Data keliru', $validator->messages());
             return $this->done();
         }
 
         //jika berhasil
-        if ($user = UserRepo::register($userData,false)) {
-            $this->setAlert('Data Inserted successfully','success');
-        }else{
+        if ($user = UserRepo::register($userData, false, true)) {
+            $this->setAlert('Data Inserted successfully', 'success');
+        } else {
             $this->setError(UserRepo::error());
         }
 
@@ -189,37 +191,58 @@ class UserController extends BaseController
 
         $validator = [];
 
-        if(isset($input['username'])){
+        if (isset($input['username'])) {
             $validator['username'] = 'required|min:3|max:255';
         }
-        if(isset($input['name'])){
+        if (isset($input['name'])) {
             $validator['name'] = 'required|min:3|max:255';
         }
-        if(isset($input['email'])){
+        if (!empty($input['email'])) {
             $validator['email'] = 'required|email|min:3|max:255';
         }
-        if(isset($input['phone'])){
+        if (!empty($input['phone'])) {
             $validator['phone'] = 'required|min:3|max:255';
         }
+        if (!empty($input['pin'])) {
+            $input['pin'] = UserAuth::decryptCredential($input['pin']);
+            $validator['pin'] = 'digits:6';
+        }
+        if (!empty($input['password'])) {
+            $input['password'] = UserAuth::decryptCredential($input['password']);
+            $validator['password'] = 'min:6';
+            if (isset($input['repassword'])) {
+                $input['repassword'] = UserAuth::decryptCredential($input['repassword']);
+                $validator['password'] .= '|same:repassword';
+            } else {
+                $input['password_confirmation'] = UserAuth::decryptCredential($input['password_confirmation']);
+                $validator['password'] .= '|confirmed';
+            }
+        }
 
-        if(!empty($validator)){
+        if (!empty($validator)) {
             $validator = Validator::make($input, $validator);
             if ($validator->fails()) {
-                $this->setError('Input Error :',$validator->messages(),400,true);
+                $this->setError('Input Error :', $validator->messages(), 400, 400, true);
                 return $this->done();
             }
         }
 
-        if(empty($input['banned_note'])){
+        if (empty($input['banned_note'])) {
             unset($input['banned_note']);
         }
 
-        if($request->file('avatar',false))
+        if ($request->file('avatar', false))
             $input['avatar'] = $request->file('avatar');
 
-        if(UserRepo::updateUser($id, $input)) {
-            $this->setAlert('Data Updated successfully','success');
-        }else{
+        if (isset($input['repassword'])) {
+            unset($input['repassword']);
+        } elseif (isset($input['password_confirmation'])) {
+            unset($input['password_confirmation']);
+        }
+
+        if (UserRepo::updateUser($id, $input)) {
+            $this->setAlert('Data Updated successfully', 'success');
+        } else {
             $this->setError(UserRepo::error());
         }
 
@@ -240,18 +263,18 @@ class UserController extends BaseController
         //     return $this->done();
         // }
 
-        if($request->file('avatar',false)==false){
-            $this->setError(__('validation.required',['attribute'=>'Avatar']));
+        if ($request->file('avatar', false) == false) {
+            $this->setError(__('validation.required', ['attribute' => 'Avatar']));
             return $this->done();
         }
 
         $id = $request->route('id');
-        if(UserRepo::updateUser($id, [
-            'avatar'=> $request->file('avatar')
+        if (UserRepo::updateUser($id, [
+            'avatar' => $request->file('avatar')
         ])) {
-            $this->setAlert(__('alert.update_success',['attribute'=>'Avatar']),'success');
-        }else{
-            $this->setError(UserRepo::error(),UserRepo::errorValidator());
+            $this->setAlert(__('alert.update_success', ['attribute' => 'Avatar']), 'success');
+        } else {
+            $this->setError(UserRepo::error(), UserRepo::errorValidator());
         }
         return $this->done();
     }
@@ -265,14 +288,13 @@ class UserController extends BaseController
 
         $id = $request->route('id');
 
-        if(UserRepo::deleteAvatar($id)){
-            $this->setAlert(__('alert.delete_success',['attribute'=>'Avatar']),'success');
-        }else{
-            $this->setError(UserRepo::error(),UserRepo::errorValidator());
+        if (UserRepo::deleteAvatar($id)) {
+            $this->setAlert(__('alert.delete_success', ['attribute' => 'Avatar']), 'success');
+        } else {
+            $this->setError(UserRepo::error(), UserRepo::errorValidator());
         }
 
         return $this->done();
-
     }
 
     /**
@@ -284,53 +306,55 @@ class UserController extends BaseController
      */
     public function updatePassword(Request $request)
     {
-        $id = UserAuth::user('id');//$request->route('id');
-        $userData = $request->only(['password','password_confirmation']);
+        $id = UserAuth::user('id'); //$request->route('id');
+        $userData = $request->only(['password', 'password_confirmation']);
+        $userData['password'] = UserAuth::decryptCredential($userData['password']);
+        $userData['password_confirmation'] = UserAuth::decryptCredential($userData['password_confirmation']);
 
         $validator = Validator::make($userData, [
-            'password' => 'required|min:8|max:255',
-            'password_confirmation' => 'required|min:8|max:255|same:password'
+            'password' => 'required|min:8|max:255|confirmed',
+            'password_confirmation' => 'required|min:8|max:255'
         ]);
 
         if ($validator->fails()) {
-            $this->setError('Input Error :',$validator->messages(),400,true);
+            $this->setError('Input Error :', $validator->messages(), 400, 400, true);
             return $this->done();
         }
 
-        unset($userData['password_confirmation']);
+        // unset($userData['password_confirmation']);
 
         $change = UserRepo::resetPassword($id, $userData['password']);
         if (!$change) {
             return $this->done();
         }
 
-        $this->setAlert('Password Updated successfully','success');
+        $this->setAlert('Password Updated successfully', 'success');
         return $this->done();
     }
 
     public function ban(Request $request)
     {
-        if(!UserAuth::hasAccess($this->accessRuleKey,'u')){
-            $this->setError(__('alert.access_denied'),false,403);
+        if (!UserAuth::hasAccess($this->accessRuleKey, 'u')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
         $id = $request->route('id');
-        UserRepo::banUser($id,$request->input('banned_note',''));
-        $this->setAlert('User banned successfully','success');
+        UserRepo::banUser($id, $request->input('banned_note', ''));
+        $this->setAlert('User banned successfully', 'success');
         return $this->done();
     }
 
     public function unban(Request $request)
     {
-        if(!UserAuth::hasAccess($this->accessRuleKey,'u')){
-            $this->setError(__('alert.access_denied'),false,403);
+        if (!UserAuth::hasAccess($this->accessRuleKey, 'u')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
         $id = $request->route('id');
         UserRepo::unbanUser($id);
-        $this->setAlert('User unbanned successfully','success');
+        $this->setAlert('User unbanned successfully', 'success');
         return $this->done();
     }
 
@@ -342,44 +366,42 @@ class UserController extends BaseController
         // }
 
         $id = $request->route('id');
-        if(($userData = UserRepo::getUser(['id',$id]))!=false){
-            if (isset($userData['email']) && $userData['email']){
+        if (($userData = UserRepo::getUser(['id', $id])) != false) {
+            if (isset($userData['email']) && $userData['email']) {
                 UserRepo::sendUserActivationEmail($id);
-                $this->setAlert('Email sent','success');
-            }else{
-                $this->setError(__('lang.data_attribute_not_found',['attribute'=>'Email']));
+                $this->setAlert('Email sent', 'success');
+            } else {
+                $this->setError(__('lang.data_attribute_not_found', ['attribute' => 'Email']));
             }
-        }else{
-            $this->setError(__('lang.data_attribute_not_found',['attribute'=>'User Id '.$id]));
+        } else {
+            $this->setError(__('lang.data_attribute_not_found', ['attribute' => 'User Id ' . $id]));
         }
         return $this->done();
-
     }
 
     public function delete(Request $request)
     {
-        if(!UserAuth::hasAccess($this->accessRuleKey,'d')){
-            $this->setError(__('alert.access_denied',false,403));
+        if (!UserAuth::hasAccess($this->accessRuleKey, 'd')) {
+            $this->setError(__('alert.access_denied', false, 403));
             return $this->done();
         }
 
         $id = $request->route('id');
 
-        if(UserAuth::isLogin() && $id != UserAuth::user('id')){
+        if (UserAuth::isLogin() && $id != UserAuth::user('id')) {
             $filter[] = ['id', $id];
-            $filter[] = ['level','>',UserAuth::user('level')];
+            $filter[] = ['level', '>', UserAuth::user('level')];
             $data = UserRepo::listUser($filter);
-            if($data['count']<=0){
+            if ($data['count'] <= 0) {
                 $this->setError('Permission denied');
                 return $this->done();;
             }
         }
 
-        if(!UserRepo::deleteUser($id)){
-            $this->setError('Error : '.UserRepo::error());
+        if (!UserRepo::deleteUser($id)) {
+            $this->setError('Error : ' . UserRepo::error());
         }
         return $this->done();
-
     }
 
 
@@ -395,8 +417,8 @@ class UserController extends BaseController
         $this->output['data'] = UserAuth::user();
         $this->output['data']['user_role'] = UserRepo::getUserRole($this->output['data']['id']);
 
-        foreach($this->output['data']['user_role'] as $key => $val) {
-            if($val['is_main_role']){
+        foreach ($this->output['data']['user_role'] as $key => $val) {
+            if ($val['is_main_role']) {
                 $this->output['data']['role_code'] = $key;
             }
         }
@@ -407,52 +429,56 @@ class UserController extends BaseController
     public function updateProfile(Request $request)
     {
 
-        if(UserAuth::isLogin()){
+        if (UserAuth::isLogin()) {
             $id = UserAuth::user('id');
-        }else{
+        } else {
             $this->setError('User belum login');
             return $this->done();
         }
 
         $input = $request->all();
 
-        if(isset($input['id']))unset($input['id']);
-        if(isset($input['created_at']))unset($input['created_at']);
-        if(isset($input['updated_at']))unset($input['updated_at']);
+        if (isset($input['id'])) unset($input['id']);
+        if (isset($input['created_at'])) unset($input['created_at']);
+        if (isset($input['updated_at'])) unset($input['updated_at']);
 
         $validator = [];
 
-        if(isset($input['username'])){
+        if (isset($input['username'])) {
             $validator['username'] = 'required|min:3|max:255';
         }
-        if(isset($input['name'])){
+        if (isset($input['name'])) {
             $validator['name'] = 'required|min:3|max:255';
         }
-        if(isset($input['email'])){
+        if (isset($input['email'])) {
             $validator['email'] = 'required|email|min:3|max:255';
         }
-        if(isset($input['phone'])){
+        if (isset($input['phone'])) {
             $validator['phone'] = 'required|min:3|max:255';
         }
+        if (!empty($input['pin'])) {
+            $input['pin'] = UserAuth::decryptCredential($input['pin']);
+            $validator['pin'] = 'digits:6';
+        }
 
-        if(!empty($validator)){
+        if (!empty($validator)) {
             $validator = Validator::make($input, $validator);
             if ($validator->fails()) {
-                $this->setError('Input Error :',$validator->messages(),400,true);
+                $this->setError('Input Error :', $validator->messages(), 400, 400, true);
                 return $this->done();
             }
         }
 
-        if(isset($input['role_code']))unset($input['role_code']);
-        if(isset($input['status']))unset($input['status']);
+        if (isset($input['role_code'])) unset($input['role_code']);
+        if (isset($input['status'])) unset($input['status']);
 
-        if($request->file('avatar',false))
+        if ($request->file('avatar', false))
             $input['avatar'] = $request->file('avatar');
 
-        if(UserRepo::updateUser($id, $input)) {
-            $this->setAlert('Data Updated successfully','success');
-        }else{
-            $this->setAlert(UserRepo::error(),'danger');
+        if (UserRepo::updateUser($id, $input)) {
+            $this->setAlert('Data Updated successfully', 'success');
+        } else {
+            $this->setAlert(UserRepo::error(), 'danger');
             $this->setError(UserRepo::error());
         }
 
@@ -467,15 +493,14 @@ class UserController extends BaseController
     public function changeRole(Request $request)
     {
         $roleCode = $request->route('role_code');
-        $backLink = $request->input('backlink',false);
-        $this->response = $backLink?redirect($backLink):back();
+        $backLink = $request->input('backlink', false);
+        $this->response = $backLink ? redirect($backLink) : back();
 
-        if(UserAuth::setActiveRole($roleCode)){
+        if (UserAuth::setActiveRole($roleCode)) {
             $roleName = UserAuth::role($roleCode)['name'];
-            $this->setAlert('Role <b>'.$roleName.'</b> berhasil diaktifkan','success');
-
-        }else{
-            $this->setAlert('Role tidak ditemukan','danger');
+            $this->setAlert('Role <b>' . $roleName . '</b> berhasil diaktifkan', 'success');
+        } else {
+            $this->setAlert('Role tidak ditemukan', 'danger');
         }
 
         return $this->done();

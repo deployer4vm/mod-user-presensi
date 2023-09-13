@@ -40,12 +40,13 @@
             "hpsynapse\\moduser\\Contracts\\ExportUserFormater":"hpsynapse\\moduser\\Services\\ExportUserFormater"
         }
     },
+    "load_priority": 0,
     "access": {
         "caption": {"en":"User Management","id":"User Management"},
         "description": {"en":"","id":""},
         "acl_caption": {"en":"Module User","id":"Module User"},
         "acl_description": {"en":"","id":""},
-        "icon": "ion ion-md-person",
+        "icon": "fi fi-rs-users-alt",
         "no":1,
         "has_acl": 1,
         "is_navbar": 1,
@@ -239,7 +240,8 @@
         "enable": 0,
         "default_role_code": "admin",
         "default_system_role_code": "system",
-        "field": ["email","password"]
+        "field": ["email","password"],
+        "admin_send_activation_email": 1
     },
     "login" :{
         "rememberme": 1,

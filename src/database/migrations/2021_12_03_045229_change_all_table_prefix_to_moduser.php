@@ -17,18 +17,40 @@ class ChangeAllTablePrefixToModuser extends Migration
     public function up()
     {
         if (config('AppConfig.system.multitenant.active', false) && $this->tenantMigrateMode() == false) {
-            if (Schema::hasTable('api_tokens')) {
+            if (Schema::hasTable('api_tokens') && !Schema::hasTable('moduser_api_tokens')) {
                 Schema::rename('api_tokens', 'moduser_api_tokens');
+            }
+            if (Schema::hasTable('auth_logs') && !Schema::hasTable('moduser_auth_logs')) {
                 Schema::rename('auth_logs', 'moduser_auth_logs');
+            }
+            if (Schema::hasTable('notifications') && !Schema::hasTable('moduser_notifications')) {
                 Schema::rename('notifications', 'moduser_notifications');
+            }
+            if (Schema::hasTable('notification_channels') && !Schema::hasTable('moduser_notification_channels')) {
                 Schema::rename('notification_channels', 'moduser_notification_channels');
+            }
+            if (Schema::hasTable('password_resets') && !Schema::hasTable('moduser_password_resets')) {
                 Schema::rename('password_resets', 'moduser_password_resets');
+            }
+            if (Schema::hasTable('roles') && !Schema::hasTable('moduser_roles')) {
                 Schema::rename('roles', 'moduser_roles');
+            }
+            if (Schema::hasTable('system_user_logs') && !Schema::hasTable('moduser_system_user_logs')) {
                 Schema::rename('system_user_logs', 'moduser_system_user_logs');
+            }
+            if (Schema::hasTable('users') && !Schema::hasTable('moduser_users')) {
                 Schema::rename('users', 'moduser_users');
+            }
+            if (Schema::hasTable('user_otp') && !Schema::hasTable('moduser_user_otp')) {
                 Schema::rename('user_otp', 'moduser_user_otp');
+            }
+            if (Schema::hasTable('user_profiles') && !Schema::hasTable('moduser_user_profiles')) {
                 Schema::rename('user_profiles', 'moduser_user_profiles');
+            }
+            if (Schema::hasTable('user_roles') && !Schema::hasTable('moduser_user_roles')) {
                 Schema::rename('user_roles', 'moduser_user_roles');
+            }
+            if (Schema::hasTable('user_tenants') && !Schema::hasTable('moduser_user_tenants')) {
                 Schema::rename('user_tenants', 'moduser_user_tenants');
             }
         }

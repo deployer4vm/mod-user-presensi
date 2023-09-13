@@ -8,7 +8,7 @@ use App\Base\Traits\MigrateDataTenant;
 class RemoveEmailUniqueOnUsersTable extends Migration
 {
     use MigrateDataTenant;
-    
+
     /**
      * Run the migrations.
      *
@@ -16,15 +16,30 @@ class RemoveEmailUniqueOnUsersTable extends Migration
      */
     public function up()
     {
-        if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::table('users', function (Blueprint $table) {
-                $table->dropUnique('users_email_unique');
-            });
+        if (config('AppConfig.system.multitenant.active', false) && $this->tenantMigrateMode() == false) {
+            $schemaManager = Schema::connection(config('database.perTenant') . $tenant['id'])->getConnection()
+                ->getDoctrineSchemaManager();
+            $indexesFound  = $schemaManager->listTableIndexes('users');
+            if (array_key_exists('users_email_unique', $indexesFound)) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->dropUnique('users_email_unique');
+                });
+            }
+            $indexesFound  = $schemaManager->listTableIndexes('moduser_users');
+            if (array_key_exists('moduser_users_email_unique', $indexesFound)) {
+                Schema::table('moduser_users', function (Blueprint $table) {
+                    $table->dropUnique('moduser_users_email_unique');
+                });
+            }
         }
 
-        $this->tablePerTenant('users', function (Blueprint $table) {
+        $this->tableIndexPerTenant('users', function (Blueprint $table) {
             $table->dropUnique('users_email_unique');
-        });
+        }, 'email', true, true);
+
+        $this->tableIndexPerTenant('moduser_users', function (Blueprint $table) {
+            $table->dropUnique('moduser_users_email_unique');
+        }, 'email', true, true);
     }
 
     /**

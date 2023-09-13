@@ -13,9 +13,9 @@ class User extends Authenticatable implements MustVerifyEmail
 {
 
     //comment HasApiTokens jika tidak menggunakan passport
-    use NotifiableCustom;//HasApiTokens,    
-    use ModelDataTenant;    
-    protected $connection = 'perTenant'; 
+    use NotifiableCustom; //HasApiTokens,    
+    use ModelDataTenant;
+    protected $connection = 'perTenant';
 
     protected $table = 'moduser_users';
 
@@ -25,10 +25,10 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
-        'all_tenant','user_idcode','name','username', 'email', 'phone', 'password','auth_password',
-        'socialauth_facebook_id','socialauth_facebook_token','socialauth_facebook_data',
-        'socialauth_google_id','socialauth_google_token','socialauth_google_data', 'level',
-        'note', 'role',  'status', 'banned_note','system_user'
+        'all_tenant', 'user_idcode', 'name', 'username', 'email', 'phone', 'password', 'auth_password',
+        'socialauth_facebook_id', 'socialauth_facebook_token', 'socialauth_facebook_data',
+        'socialauth_google_id', 'socialauth_google_token', 'socialauth_google_data', 'level',
+        'note', 'role',  'status', 'banned_note', 'system_user', 'secret_key', 'tenant_id', 'pin'
     ];
 
     /**
@@ -37,7 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'auth_password'
+        'password', 'remember_token', 'auth_password', 'pin'
     ];
 
     /**
@@ -48,21 +48,21 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    
+
     public function profile()
     {
-        return $this->hasOne('hpsynapse\moduser\Models\UserProfile','user_id');
+        return $this->hasOne('hpsynapse\moduser\Models\UserProfile', 'user_id');
     }
 
     public function roles()
     {
-        return $this->hasMany('hpsynapse\moduser\Models\UserRole','user_id');
+        return $this->hasMany('hpsynapse\moduser\Models\UserRole', 'user_id');
     }
 
-    
+
     public function mainRole()
     {
-        return $this->hasOne('hpsynapse\moduser\Models\UserRole','user_id')->has('role')->where('is_main_role',1);
+        return $this->hasOne('hpsynapse\moduser\Models\UserRole', 'user_id')->has('role')->where('is_main_role', 1);
     }
 
     // public function mainRole()
@@ -74,7 +74,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function userTenant()
     {
-        return $this->hasMany('hpsynapse\moduser\Models\UserTenant','user_id');
+        return $this->hasMany('hpsynapse\moduser\Models\UserTenant', 'user_id');
     }
 
     public function tenant()
@@ -89,7 +89,8 @@ class User extends Authenticatable implements MustVerifyEmail
         );
     }
 
-    public function apiToken(){
-        return $this->hasOne('hpsynapse\moduser\Models\ApiToken','user_id');
+    public function apiToken()
+    {
+        return $this->hasOne('hpsynapse\moduser\Models\ApiToken', 'user_id');
     }
 }

@@ -5,35 +5,35 @@ namespace hpsynapse\moduser\Repositories;
 use hpsynapse\moduser\Models\ApiToken;
 
 trait ApiTokenTraits
-{    
-    
+{
+
     public function isTokenValid($tokenData)
-    {        
-        if(is_array($tokenData)){
+    {
+        if (is_array($tokenData)) {
             $lastUpdate = $tokenData['updated_at'];
-        }else{
+        } else {
             $tokenData = $this->getToken($tokenData);
-            if(!$tokenData){
+            if (!$tokenData) {
                 $this->error = 'Token Not Found.';
                 return false;
             }
             $lastUpdate = $tokenData['updated_at'];
         }
-        
+
         //jika sudah melebihi batas waktu
-        if(now() > now()->addHours(config('bssystem.sso.session_lifetime'))){
+        if (now() > now()->addHours(config('bssystem.sso.session_lifetime'))) {
             $this->deleteToken($tokenData['api_token']);
             return false;
         }
-        
+
         return true;
     }
-    
-    
+
+
     public function listTokenBySessionId($sessionId)
     {
-        $apiToken = ApiToken::where('session_id',$sessionId)->get();
-        if(!$apiToken){
+        $apiToken = ApiToken::where('session_id', $sessionId)->get();
+        if (!$apiToken) {
             $this->error = 'Token Not Found.';
             return false;
         }
@@ -46,15 +46,15 @@ trait ApiTokenTraits
      * @return type
      */
     public function getToken($token)
-    {        
-        $apiToken = ApiToken::where('api_token',$token)->first();
-        if(!$apiToken){
+    {
+        $apiToken = ApiToken::where('api_token', $token)->first();
+        if (!$apiToken) {
             $this->error = 'Token Not Found.';
             return false;
         }
         return $apiToken->toArray();
     }
-    
+
     /**
      * 
      * @param type $userId , user id atau apps id
@@ -66,27 +66,27 @@ trait ApiTokenTraits
      *      token
      * @return type
      */
-    public function generateToken($userId,$roleCode='',$isPemanent=0,$deviceId='',$pushDetail=false)
+    public function generateToken($userId, $roleCode = '', $isPemanent = 0, $deviceId = '', $pushDetail = false)
     {
-        $data['api_token'] = hash('sha256', 'token'.$userId.'.'.now());
-        $data['session_id'] = session()->exists('_token')?session()->getId():'';
+        $data['api_token'] = hash('sha256', 'token' . $userId . '.' . now());
+        $data['session_id'] = session()->exists('_token') ? session()->getId() : '';
         $data['is_permanent'] = $isPemanent;
-        
-        if($isPemanent && $deviceId)$data['device_id'] = $deviceId;                
-            
-        if($pushDetail&& is_array($pushDetail)){
-            if(isset($pushDetail['type']))$data['push_type'] = $pushDetail['type'];
-            if(isset($pushDetail['token']))$data['push_token'] = $pushDetail['token'];
+
+        if ($isPemanent && $deviceId) $data['device_id'] = $deviceId;
+
+        if ($pushDetail && is_array($pushDetail)) {
+            if (isset($pushDetail['type'])) $data['push_type'] = $pushDetail['type'];
+            if (isset($pushDetail['token'])) $data['push_token'] = $pushDetail['token'];
         }
-        
+
         $data['active_role_code'] = $roleCode;
         $data['user_id'] = $userId;
-        $data['tenant_id'] = config('tenant.id',0);
-        
+        $data['tenant_id'] = config('tenant.id', 0);
+
         $apiTokenData = ApiToken::create($data);
         return $apiTokenData->toArray();
     }
-        
+
     /**
      * update updated_at by sso id
      * 
@@ -94,27 +94,26 @@ trait ApiTokenTraits
      * @param type $dateTime
      * @return boolean
      */
-    public function setSingleTokenLastUpdate($token,$dateTime=false)
+    public function setSingleTokenLastUpdate($token, $dateTime = false)
     {
-        if(!$dateTime)$dateTime = now()->toDateTimeString();
-        ApiToken::where('api_token',$token)->update(['updated_at'=>$dateTime]);
+        if (!$dateTime) $dateTime = now()->toDateTimeString();
+        ApiToken::where('api_token', $token)->update(['updated_at' => $dateTime]);
         return true;
     }
-    
+
     /** 
      * delete api token
      * 
      * @param strung $token token yang akan didelete
-     */     
+     */
     public function deleteToken($token)
-    {        
-        ApiToken::where('api_token',$token)->delete();
+    {
+        ApiToken::where('api_token', $token)->delete();
         return true;
     }
     public function deleteTokenBySessionId($sessionId)
     {
-        ApiToken::where('session_id',$sessionId)->delete();
+        ApiToken::where('session_id', $sessionId)->delete();
         return true;
     }
-    
 }

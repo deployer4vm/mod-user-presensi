@@ -7,13 +7,13 @@
         }
     },
     "require": {
-        "php":"~7.1",
-        "kreait/firebase-php": "^4.0",
-        "pusher/pusher-php-server": "~4.0",
-        "laravel/socialite": "^5.2"
+        "php":"^8.0.2",
+        "kreait/firebase-php": "^7.2",
+        "pusher/pusher-php-server": "^7.2",
+        "laravel/socialite": "^5.6"
     },
     "require-dev": {
-        "php":"~7.1"
+        "php":"^8.0.2"
     },
     "extra": {
         "laravel": {

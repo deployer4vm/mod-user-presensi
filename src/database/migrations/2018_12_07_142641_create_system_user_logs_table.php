@@ -8,7 +8,7 @@ use App\Base\Traits\MigrateDataTenant;
 class CreateSystemUserLogsTable extends Migration
 {
     use MigrateDataTenant;
-    
+
     /**
      * Run the migrations.
      *
@@ -16,7 +16,11 @@ class CreateSystemUserLogsTable extends Migration
      */
     public function up()
     {
-        if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
+        if (
+            config('AppConfig.system.multitenant.active', false) 
+            && $this->tenantMigrateMode() == false
+            && !Schema::hasTable('system_user_logs')
+        ) {
             Schema::create('system_user_logs', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedInteger('user_id');
