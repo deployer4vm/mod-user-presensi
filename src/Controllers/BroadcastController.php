@@ -11,6 +11,8 @@ use hpsynapse\moduser\Jobs\BroadcastNotif;
 
 use App\Base\BaseController;
 
+use App\Events\SendData;
+
 class BroadcastController extends BaseController
 {
     protected $accessRuleKey = 'moduser.broadcast';
@@ -27,6 +29,10 @@ class BroadcastController extends BaseController
     
     public function sendBroadcast(Request $request)
     {
+        event(new SendData('data'));
+        return response()->json([
+            'data' => 'test'
+        ]);
 
         if(!UserAuth::hasAccess($this->accessRuleKey,'c')){
             $this->setError(__('alert.access_denied',false,403));

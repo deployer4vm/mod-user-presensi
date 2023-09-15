@@ -12,6 +12,9 @@ use hpsynapse\moduser\Facades\UserAuth;
 
 use App\Base\BaseController;
 
+// use event dari app-base
+use App\Events\SendData;
+
 class NotificationController extends BaseController
 {        
     public function __construct()
@@ -37,6 +40,11 @@ class NotificationController extends BaseController
      */
     public function index(Request $request)
     {
+        $data = [
+            'title' => 'Pemberitahuan Baru',
+            'body' => 'Anda memiliki pemberitahuan baru!'
+        ];
+        event(new SendData($data));
 //        dd(parse_url('http://localhost/BS/APPS-Account/public/notification?limitStart=0'));
         $userId = UserAuth::user('id');
         
