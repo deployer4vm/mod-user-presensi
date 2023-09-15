@@ -195,9 +195,9 @@
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "broadcast.form" },
                 "class": "",
-                "is_navbar": 1,
+                "is_navbar": 0,
                 "enable": 1,
-                "tenant_group_id": 2,
+                "tenant_group_id": 0,
                 "active_acl": {
                     "has_access": 1,
                     "crud": {
@@ -311,7 +311,10 @@
             },
             "pusher": {
                 "enable": 0,
-                "config" : {}
+                "config" : {
+                    "user_channel_prefix" : "Notification.User.",
+                    "user_event" : "notification"
+                }
             },
             "aws_sns": {
                 "enable": 0,
