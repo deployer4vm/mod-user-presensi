@@ -42,6 +42,7 @@
   
   <script>
   import Pusher from 'pusher-js';
+  import Echo from 'laravel-echo';
   
   export default {
     data() {
@@ -84,6 +85,13 @@
         this.messages.push(JSON.stringify(data));
         this.loadNotif();
       });
+
+      window.Echo = new Echo({
+        broadcaster: 'pusher',
+        key: process.env.MIX_PUSHER_APP_KEY,
+        cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+        encrypted: true,
+    });
 
       Echo.channel('my-channel')
       .listen('my-event', (e) => {
