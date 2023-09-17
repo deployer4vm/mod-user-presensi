@@ -305,7 +305,7 @@
                 }
             },
             "pusher": {
-                "enable": 0,
+                "enable": 1,
                 "config" : {}
             },
             "aws_sns": {

@@ -1,117 +1,104 @@
 <template>
-    <b-card no-body header="Notification">
-      <b-list-group>
-        <b-list-group-item
-          :to="{ name: item.link_web.route, params: item.link_web.parameter }"
-          class="media d-flex align-items-center"
-          v-for="item in notif.notification"
-          :key="'pagenotif-' + item.id"
-        >
-          <div
-            :class="'ui-icon ui-icon-sm ion ion-ios-text border-0 text-white ' + (item.read_at == null ? 'bg-danger' : 'bg-secondary')"
-          ></div>
-          <div class="media-body line-height-condenced ml-3">
-            <div :class="item.read_at == null ? 'text-dark font-weight-bold' : 'text-muted'">{{ item.data.subject }}</div>
-            <div class="text-light small mt-1">{{ item.data.description }}</div>
-            <div class="text-light small mt-1">{{ item.created_at }}</div>
-          </div>
-        </b-list-group-item>
-      </b-list-group>
-      <div class="float-right m-2 mt-4" v-if="showPagination">
-        <b-pagination
-          size="sm"
-          :total-rows="notif.summary.count"
-          v-model="currentPage"
-          :per-page="perPage"
-          align="center"
-        />
-      </div>
+  <b-card no-body header="Notification">
+    <b-list-group>
+      <b-list-group-item :to="{ name: item.link_web.route, params: item.link_web.parameter }"
+        class="media d-flex align-items-center" v-for="item in notif.notification" :key="'pagenotif-' + item.id">
+        <div
+          :class="'ui-icon ui-icon-sm ion ion-ios-text border-0 text-white ' + (item.read_at == null ? 'bg-danger' : 'bg-secondary')">
+        </div>
+        <div class="media-body line-height-condenced ml-3">
+          <div :class="item.read_at == null ? 'text-dark font-weight-bold' : 'text-muted'">{{ item.data.subject }}</div>
+          <div class="text-light small mt-1">{{ item.data.description }}</div>
+          <div class="text-light small mt-1">{{ item.created_at }}</div>
+        </div>
+      </b-list-group-item>
+    </b-list-group>
+    <div class="float-right m-2 mt-4" v-if="showPagination">
+      <b-pagination size="sm" :total-rows="notif.summary.count" v-model="currentPage" :per-page="perPage"
+        align="center" />
+    </div>
+
+    <div>
+      <ul>
+        <li v-for="(v, k) in messages" :key="k">
+          {{ v }}
+        </li>
+      </ul>
+    </div>
+  </b-card>
+</template>
   
-      <div>
-        <ul>
-          <li v-for="(v, k) in messages" :key="k">
-            {{ v }}
-          </li>
-        </ul>
-      </div>
-    </b-card>
-  </template>
+  <!-- <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
   
-  <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  
-  <script>
-  import Pusher from 'pusher-js';
-  import Echo from 'laravel-echo';
-  
-  export default {
-    data() {
-      return {
-        notif: {
-          notification: [],
-          summary: {
-            count: 0,
-            unread_count: 0,
-          },
+<script>
+// import Pusher from 'pusher-js';
+// import Echo from 'laravel-echo';
+
+export default {
+  data() {
+    return {
+      notif: {
+        notification: [],
+        summary: {
+          count: 0,
+          unread_count: 0,
         },
-        currentPage: 1,
-        perPage: 10,
-  
-        messages: [],
-      };
-    },
-    computed: {
-      showPagination() {
-        return this.notif.summary.count > this.perPage;
       },
+      currentPage: 1,
+      perPage: 10,
+
+      messages: [],
+    };
+  },
+  computed: {
+    showPagination() {
+      return this.notif.summary.count > this.perPage;
     },
-    watch: {
-      currentPage(nV, oV) {
-        this.loadNotif((nV - 1) * this.perPage);
-      },
+  },
+  watch: {
+    currentPage(nV, oV) {
+      this.loadNotif((nV - 1) * this.perPage);
     },
-    created() {
-      Pusher.logToConsole = true;
-  
+  },
+  created() {
+      window.Pusher.logToConsole = true;
+
       this.messages = [];
-  
-      this.pusher = new Pusher('ddeff2d2899cc7d9d641', {
-        cluster: 'ap1',
-      });
-  
-      const channel = this.pusher.subscribe('my-channel');
-  
+
+      const channel = window.Pusher.subscribe('my-channel');
+
       channel.bind('my-event', (data) => {
         this.messages.push(JSON.stringify(data));
         this.loadNotif();
       });
 
-      window.Echo = new Echo({
-        broadcaster: 'pusher',
-        key: process.env.MIX_PUSHER_APP_KEY,
-        cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-        encrypted: true,
-    });
+    //   window.Echo = new Echo({
+    //     broadcaster: 'pusher',
+    //     key: process.env.MIX_PUSHER_APP_KEY,
+    //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+    //     encrypted: true,
+    // });
 
-      Echo.channel('my-channel')
+    window.Echo.channel('my-channel')
       .listen('my-event', (e) => {
-          console.log(e);
+        console.log(e);
+      });
+  },
+  methods: {
+    loadNotif(offset = 0) {
+      let filterParams = {
+        params: {
+          offset: offset,
+          limit: this.perPage,
+          setRead: true,
+        },
+      };
+      this.LocalApi.get(this.AppConfig.endpoint.api.moduser + '/notification', filterParams).then((res) => {
+        this.notif = res.data.data;
       });
     },
-    methods: {
-      loadNotif(offset = 0) {
-        let filterParams = {
-          params: {
-            offset: offset,
-            limit: this.perPage,
-            setRead: true,
-          },
-        };
-        this.LocalApi.get(this.AppConfig.endpoint.api.moduser + '/notification', filterParams).then((res) => {
-          this.notif = res.data.data;
-        });
-      },
-    },
-  };
-  </script>
+  },
+};
+</script>
   
