@@ -41,6 +41,7 @@ class BroadcastController extends BaseController
 
         $input = $request->only(['title','description','message']);
         BroadcastNotif::dispatch(UserAuth::user('id'),false,$input['title'],$input['description'],$input['message']);
+        // UserRepo::sendAdminMessage(UserAuth::user('id'),$input['title'],$input['message'],['description'=>$input['description']]);
         $this->output['message'] = 'Broadcast berhasil dikirim';
         return $this->done();
     }

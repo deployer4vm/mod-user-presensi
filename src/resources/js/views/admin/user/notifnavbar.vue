@@ -1,5 +1,5 @@
 <template>
-    <b-nav-item-dropdown no-caret :right="!isRTL" class="demo-navbar-notifications mr-lg-3">
+    <b-nav-item-dropdown no-caret :right="!isRTL" class="demo-navbar-notifications mr-lg-2">
         <template slot="button-content">
             <i class="fi fi-rr-bell navbar-icon align-middle"></i>
             <span class="badge badge-danger badge-dot indicator" v-if="notif.summary.unread_count != 0"></span>
@@ -51,8 +51,40 @@ export default {
         };
     },
     created() {
-        if(this.UserAuth.isLogin())
+        if(this.UserAuth.isLogin()){
             this.loadNotif();
+
+            if(this.isUsingPusher && this.isNotifPusher){
+                Echo.channel(this.AppConfig.packageLocal.moduser.notification.services.pusher.config.user_channel_prefix + this.UserAuth.getUser('id'))
+                    .listen('.' + this.AppConfig.packageLocal.moduser.notification.services.pusher.config.user_event, (e) => {
+                        
+                        this.Web.showAlert({ 
+                            type: 'dark', 
+                            title: this.Trans.get('notif.new_notification_title') + ' <b class="text-danger">(1)</b> ', 
+                            text: '<br><b>' + e.notification.title + '</b><br>' + e.data.description , position: "default" 
+                        });
+                        this.data.reloadNotif = this.data.reloadNotif?false:true
+                        this.loadNotif();
+                    });
+            }
+        }
+        
+    },
+    computed: {
+        isUsingPusher() {
+            return this.AppConfig.system.broadcast.services_enabled.pusher;
+        },
+        isNotifPusher() {
+            return this.AppConfig.packageLocal.moduser.notification.services.pusher.enable?true:false;
+        },
+        data: {
+            get() {
+                return this.$store.state.moduserView.dataNotif;
+            },
+            set(value) {
+                this.$store.commit("moduserView/setDataNotif", value);
+            }
+        },
     },
     methods: {
         loadNotif() {
@@ -65,24 +97,29 @@ export default {
                         var subject = '';
                         var newNotifCount = that.notif.summary.unread_count - that.lastNotifCount;
                         //jika unread notifnya bertambah maka tampilkan notif
-                        if(that.lastNotifCount!=0 && that.notif.summary.unread_count > that.lastNotifCount){ 
-                            var i=0;                   
-                            _.forEach(that.notif.notification,(v,i)=>{  
-                                if(v.read_at==null){
-                                    i++;
-                                    subject = subject + '<div class="p-1 pl-2">' + v.data.subject + '</div>';
-                                    if(i>=newNotifCount)return true;
-                                }
-                            });
-                            if(subject != '')
-                                that.Web.showAlert({ 
-                                    type: 'dark', 
-                                    title: this.Trans.get('notif.new_notification_title') + ' <b class="text-danger">(' + newNotifCount + ') </b>', 
-                                    text: '<br>' + subject , position: "default" 
+                        if(!(this.isUsingPusher && this.isNotifPusher))
+                            if(that.lastNotifCount!=0 && that.notif.summary.unread_count > that.lastNotifCount){ 
+                                var i=0;                   
+                                _.forEach(that.notif.notification,(v,i)=>{  
+                                    if(v.read_at==null){
+                                        i++;
+                                        subject = subject + '<div class="p-1 pl-2">' + v.data.subject + '</div>';
+                                        if(i>=newNotifCount)return true;
+                                    }
                                 });
-                        }
+                                if(subject != '')
+                                    that.Web.showAlert({ 
+                                        type: 'dark', 
+                                        title: this.Trans.get('notif.new_notification_title') + ' <b class="text-danger">(' + newNotifCount + ') </b>', 
+                                        text: '<br>' + subject , position: "default" 
+                                    });
+                            }
                         that.lastNotifCount = that.notif.summary.unread_count;
                     }
+                    if(!(this.isUsingPusher && this.isNotifPusher))
+                        window.timeOut = setTimeout(function(){                        
+                            that.loadNotif();
+                        },10000);
                 }).catch((res)=>{    
                     
                 });

@@ -136,7 +136,7 @@ class UserSystemController extends BaseController
         $userData = $request->all(); //$request->only(['name', 'email', 'password']);
 
         //jika berhasil
-        if ($user = UserSystemRepo::register($userData, false)) {
+        if ($user = UserSystemRepo::register($userData, true, true)) {
 
             $this->setAlert('Data Inserted successfully', 'success');
         } else {

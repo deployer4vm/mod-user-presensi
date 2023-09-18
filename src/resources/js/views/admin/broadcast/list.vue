@@ -17,7 +17,7 @@
               size="sm"
               v-model="perPage"
               :options="[10, 20, 30, 40, 50]"
-              class="d-inline-block w-auto"
+              class="d-inline-block btn-sm w-auto"
             />
           </div>
           <div class="col">

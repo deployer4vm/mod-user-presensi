@@ -1,49 +1,27 @@
 <template>
-    <b-card no-body header="Notification">
-      <b-list-group>
-        <b-list-group-item
-          :to="{ name: item.link_web.route, params: item.link_web.parameter }"
-          class="media d-flex align-items-center"
-          v-for="item in notif.notification"
-          :key="'pagenotif-' + item.id"
-        >
-          <div
-            :class="'ui-icon ui-icon-sm ion ion-ios-text border-0 text-white ' + (item.read_at == null ? 'bg-danger' : 'bg-secondary')"
-          ></div>
-          <div class="media-body line-height-condenced ml-3">
-            <div :class="item.read_at == null ? 'text-dark font-weight-bold' : 'text-muted'">{{ item.data.subject }}</div>
-            <div class="text-light small mt-1">{{ item.data.description }}</div>
-            <div class="text-light small mt-1">{{ item.created_at }}</div>
-          </div>
-        </b-list-group-item>
-      </b-list-group>
-      <div class="float-right m-2 mt-4" v-if="showPagination">
-        <b-pagination
-          size="sm"
-          :total-rows="notif.summary.count"
-          v-model="currentPage"
-          :per-page="perPage"
-          align="center"
-        />
-      </div>
-  
-      <div>
-        <ul>
-          <li v-for="(v, k) in messages" :key="k">
-            {{ v }}
-          </li>
-        </ul>
-      </div>
-    </b-card>
-  </template>
-  
-  <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  
-  <script>
-  import Pusher from 'pusher-js';
-  
-  export default {
+    <div>
+		<b-container fluid>
+            <b-card class="mt-4" no-body header="Notification">      
+                <b-list-group>
+                    
+                    <b-list-group-item :to="{name: item.link_web.route, params: item.link_web.parameter}" class="media d-flex align-items-center" v-for="item in notif.notification" :key="'pagenotif-' + item.id">
+                        <div :class="'ui-icon ui-icon-sm ion ion-ios-text border-0 text-white ' + (item.read_at==null?'bg-danger':'bg-secondary')"></div>
+                        <div class="media-body line-height-condenced ml-3">
+                            <div :class="item.read_at==null?'text-dark font-weight-bold':'text-muted'">{{item.data.subject}}</div>
+                            <div class="text-light small mt-1">{{item.data.description}}</div>
+                            <div class="text-light small mt-1">{{item.created_at}}</div>
+                        </div>
+                    </b-list-group-item>
+                </b-list-group>
+                <div class="float-right m-2 mt-4" v-if="showPagination">            
+                    <b-pagination size="sm" :total-rows="notif.summary.count" v-model="currentPage" :per-page="perPage" align="center" />
+                </div>
+            </b-card>
+        </b-container>
+    </div>
+</template>
+<script>
+export default {
     data() {
       return {
         notif: {
@@ -60,14 +38,25 @@
       };
     },
     computed: {
-      showPagination() {
-        return this.notif.summary.count > this.perPage;
-      },
+        showPagination() {
+            return this.notif.summary.count > this.perPage;
+        },
+        data: {
+            get() {
+                return this.$store.state.moduserView.dataNotif;
+            },
+            set(value) {
+                this.$store.commit("moduserView/setDataNotif", value);
+            }
+        },
     },
     watch: {
-      currentPage(nV, oV) {
-        this.loadNotif((nV - 1) * this.perPage);
-      },
+        currentPage(nV,oV) {
+            this.loadNotif((nV-1) * this.perPage);
+        },
+        'data.reloadNotif'(v) {
+            this.loadNotif();
+        }
     },
     created() {
       Pusher.logToConsole = true;

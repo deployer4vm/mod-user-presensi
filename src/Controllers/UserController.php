@@ -10,6 +10,9 @@ use hpsynapse\moduser\Facades\RoleRepo;
 use hpsynapse\moduser\Facades\UserAuth;
 
 use App\Base\BaseController;
+use App\Facades\Export;
+// use hpsynapse\moduser\Contracts\ExportUserFormater;
+use hpsynapse\moduser\Facades\ExportUserFormater;
 
 class UserController extends BaseController
 {
@@ -22,7 +25,7 @@ class UserController extends BaseController
 
     /**
      * GET /api/user
-     * 
+     *
      */
     public function readList(Request $request)
     {
@@ -82,16 +85,16 @@ class UserController extends BaseController
 
     /**
      * GET /api/user/{id}
-     * 
-     * Route Param : 
+     *
+     * Route Param :
      *      id : route id
      * @return Array default synapse api return
-     *      data 
+     *      data
      *          ...all user record
      *          profile Array record user_proflie
      *          user_role
      *          main_role Array record role utama user
-     *      
+     *
      */
     public function readOne(Request $request)
     {
@@ -118,8 +121,8 @@ class UserController extends BaseController
 
     /**
      * POST /api/user/
-     * 
-     * @param Request $request 
+     *
+     * @param Request $request
      *      name
      *      email
      *      username
@@ -163,7 +166,7 @@ class UserController extends BaseController
         }
 
         //jika berhasil
-        if ($user = UserRepo::register($userData, false)) {
+        if ($user = UserRepo::register($userData, false, true)) {
             $this->setAlert('Data Inserted successfully', 'success');
         } else {
             $this->setError(UserRepo::error());
@@ -249,7 +252,7 @@ class UserController extends BaseController
 
     /**
      * upload avatar
-     * 
+     *
      * @param Request $request
      *      avatar
      */
@@ -296,7 +299,7 @@ class UserController extends BaseController
 
     /**
      * update password di my profile
-     * 
+     *
      * @param Request $request
      *      password
      *      password_confirmatin
@@ -500,6 +503,59 @@ class UserController extends BaseController
             $this->setAlert('Role tidak ditemukan', 'danger');
         }
 
+        return $this->done();
+    }
+
+    /**
+     * Export User Data
+     *
+     */
+    public function downloadDataUser(Request $request)
+    {
+        $this->buildParams();
+
+        /**
+         * Start Download Init
+         * ---------------------------------------------------------------------
+         */
+        $cacheKey = 'exportdatauser.' . UserAuth::user('id');
+
+        // proses generate download
+        if ($this->output['data'] = Export::createExport(
+            $cacheKey,
+            [ExportUserFormater::class, 'downloadUserData'],
+            [
+                'filter' => $this->output['params']['filter'],
+            ],
+            UserAuth::user('id'),
+            config('tenant.id'),
+            'spout' // bisa isi 'phpspreadsheet' atau 'spout', tapi jika tidak disertakan maka akan otomatis 'spout'
+        )) {
+            // set paramter tambahan untuk digunakan diproses joobs jika diperlukan
+            Export::setAddsParam($cacheKey, []);
+
+            // set nama kolom dari kolom sebelah kiri ke kolom sebelah kanan
+            Export::setColumn($cacheKey, ExportUserFormater::columnDownload());
+
+            // set formater untuk row data yang diinsert
+            Export::setCoreRowFormater($cacheKey, ExportUserFormater::class, 'dataUserCoreRowFormater');
+
+            // set formater saat proses export selesai
+
+            if (!($this->output['data'] = Export::dispatchExport($cacheKey))) {
+                $this->setError(Export::error() ? Export::error() : 'Dispatch job error');
+            }
+        } else {
+            $this->setError(Export::error() ? Export::error() : 'Create export error');
+        }
+
+        return $this->done();
+    }
+
+    public function downloadDataUserStatus(Request $request)
+    {
+        $cacheKey = 'exportdatauser.' . UserAuth::user('id');
+        $this->output['data'] = Export::getExport($cacheKey);
         return $this->done();
     }
 }
