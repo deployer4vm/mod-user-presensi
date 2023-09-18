@@ -4,7 +4,7 @@ namespace hpsynapse\moduser\Channels;
 
 use Illuminate\Notifications\Notification;
 
-use hpsynapse\moduser\Services\FirebaseApi;
+use Pusher\Pusher;
 
 class PusherChannels
 {
@@ -16,27 +16,59 @@ class PusherChannels
      *
      * @throws missingRecipient
      */
-
     public function send($notifiable, Notification $notification)
     {
-        $notifMessage = $notification->toFirebase($notifiable);
+        $notifMessage = $notification->toPusher($notifiable);
         
-        if(isset($notifMessage['topic'])){
-            FirebaseApi::sendMessageToTopic($notifMessage['topic'],$notifMessage);
-        }else if(isset($notifMessage['token'])){
-            FirebaseApi::sendMessageToToken($notifMessage['token'],$notifMessage);            
-        }else{
-            
-        }
+        $pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'), 
+            config('broadcasting.connections.pusher.secret'), 
+            config('broadcasting.connections.pusher.app_id'), 
+            ['cluster' => config('broadcasting.connections.pusher.options.cluster')]
+        );
         
-//        $token1 = 'dbQCIUiid1w:APA91bE3ZH3ZZlP_9hL9lw-pL3SDjRdQ7q8pXhq4f-K4zkxpqaLn-HZiCf8BOvqgrlYGHccwKYI658oslg4Rd0UY4kjr8hBf23-593Lxd8UyenEg3Ls-YKQ9z4fcz3CSzRwvxSs3zBTx';
-//        $token2 = 'doQA4MMaaOw:APA91bGdgPbPFxwa3ZY3XEm1jDUEqAwTS0s4sh4m5GF6ptsI8Anp-YWSUrh4vcZUGosOgZrthcOqzbF_FilevIUVuHIbxow_KCsLadaGf2yP3z_vj90a6PQrXrZbSIjcYZl9ts5xB9QA';
-//        FirebaseApi::subscribeToTopic(
-//            'reseller',[$token1,$token2]
-//            );
-//        
-        
+        $channel = $notifMessage['channel'];
+        unset($notifMessage['channel']);
+        $event = $notifMessage['event'];
+        unset($notifMessage['event']);
+
+        $pusher->trigger(
+            $channel,//channel 
+            $event, //event
+            $notifMessage//data
+        );
+
         return true;
+    }
+    
+    /**
+     * di class Notification-nya harus ada method ini
+     */
+    public function toPusher($notifiable)
+    {
+        return [
+            'channel' => 'STRING',
+            'event' => 'STRING',
+            'notification' => [
+                'title' => 'STRING',
+                'body' => 'STRING',
+            ],
+            'data' => [
+                'description' => 'STRING',
+                'from' => [
+                    'name' => 'STRING',
+                    'icon' => 'STRING',
+                ],
+                'link_web' => [
+                    'link' => '',
+                    'route' => 'notification.detail',
+                    'parameter' => [
+                        'notifId' => 'STRING',
+                    ]
+                ],
+                'link_apps' => 'STRING',
+            ]  
+        ];
     }
 
 }
