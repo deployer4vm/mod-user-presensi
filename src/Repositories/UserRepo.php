@@ -230,7 +230,7 @@ class UserRepo extends BaseRepository
      * @param $filter array
      *      profile
      */
-    public function listUser($filter = false, int $offset = 0, int $limit = 0, array $orderBy = [])
+    public function listUser($filter = false, int $offset = 0, int $limit = 0, array $orderBy = [], $returnModel = false)
     {
         if (!$filter) $filter = [];
         $filter['searchField'] = ['name', 'email', 'username'];

@@ -87,6 +87,8 @@
                         <b-card-body>
                             <b-form-group label="New password">
                                 <b-input type="password" v-model="passwordForm.password" />
+
+                                <small>{{ Trans.get('user.field_description.password') }}</small>
                             </b-form-group>
                             <b-form-group label="Repeat new password">
                                 <b-input type="password" v-model="passwordForm.password_confirmation" />
