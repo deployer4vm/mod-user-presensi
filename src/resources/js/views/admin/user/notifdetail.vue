@@ -1,12 +1,16 @@
 <template>
-    <b-card :header="Trans.get('notif.notification_title') + ' / ' + title">
-        <!-- <h3>{{ notif.data.subject}}</h3>  -->
-        <b-card-text>
-            <div v-html="notif.data.body"></div>
-        </b-card-text>
-        <hr>
-        <b-button :to="{name: 'notification'}" variant="primary">{{Trans.get('lang.back')}}</b-button>
-    </b-card>
+    <div>
+		<b-container fluid>
+            <b-card class="mt-4" :header="Trans.get('notif.notification_title') + ' / ' + title">
+                <!-- <h3>{{ notif.data.subject}}</h3>  -->
+                <b-card-text>
+                    <div v-html="notif.data.body"></div>
+                </b-card-text>
+                <hr>
+                <b-button :to="{name: 'notification'}" variant="primary">{{Trans.get('lang.back')}}</b-button>
+            </b-card>
+        </b-container>
+    </div>
 </template>
 <script>
 export default {

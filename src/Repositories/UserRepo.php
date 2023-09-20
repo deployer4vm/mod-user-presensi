@@ -45,7 +45,7 @@ class UserRepo extends BaseRepository
      */
 
     /**
-     * 
+     *
      * @param string $key
      * @param type $value
      * @return boolean : true jika ada, false jiak tidak ada
@@ -63,9 +63,9 @@ class UserRepo extends BaseRepository
 
     /**
      * cek apakah user tertentu memiliki role tertentu
-     * 
+     *
      * @param integer $userId user id
-     * @param string $roleCode 
+     * @param string $roleCode
      */
     public function isHasRole($userId, $roleCode)
     {
@@ -76,11 +76,11 @@ class UserRepo extends BaseRepository
 
     /**
      * get user berdasarkan username/email dan password nya
-     * 
+     *
      * @param text $username
      * @param text $password
      * @param integer|null $tenantId id tenant, atau null jika auto detect
-     * 
+     *
      * @return false|array false jika user tidak ditemukan, atau jika berhasil array :
      *      * record table user
      *      profile :
@@ -156,7 +156,7 @@ class UserRepo extends BaseRepository
 
     /**
      * cek apakah email sudah terdaftar sebelumnya
-     * 
+     *
      * @param type $email
      * @param type $except
      * @return boolean
@@ -178,7 +178,7 @@ class UserRepo extends BaseRepository
 
     /**
      * cek apakah phone sudah terdaftar sebelumnya
-     * 
+     *
      * @param string $phone
      * @param type $except
      * @return boolean
@@ -200,7 +200,7 @@ class UserRepo extends BaseRepository
 
     /**
      * cek apakah username sudah terdaftar sebelumnya
-     * 
+     *
      * @param string $username
      * @param type $except
      * @return boolean
@@ -226,11 +226,11 @@ class UserRepo extends BaseRepository
      */
 
     /**
-     * 
+     *
      * @param $filter array
-     *      profile    
+     *      profile
      */
-    public function listUser($filter = false, int $offset = 0, int $limit = 0, array $orderBy = [])
+    public function listUser($filter = false, int $offset = 0, int $limit = 0, array $orderBy = [], $returnModel = false)
     {
         if (!$filter) $filter = [];
         $filter['searchField'] = ['name', 'email', 'username'];
@@ -258,7 +258,8 @@ class UserRepo extends BaseRepository
             $filter,
             $offset,
             $limit,
-            $orderBy
+            $orderBy,
+            $returnModel
         );
         $this->dataUserPagination = $this->pagination;
         $data['data'] = array_map([$this, '_formatUser'], $data['data']);
@@ -274,7 +275,7 @@ class UserRepo extends BaseRepository
 
     /**
      * get 1 record user beserta profile nya
-     * 
+     *
      * @param type              $userId
      * @return array|false      jika tidak ada
      */
@@ -290,10 +291,10 @@ class UserRepo extends BaseRepository
     /**
      * Hanya digunakan untuk fungsi yang memerlukan Model user, misal auth, notifikasi, dll
      * selain itu tidak boleh.
-     * 
+     *
      * Digunakan untuk ambil 1 record user berbentuk model elequent, biasanya
      * digunakan untuk keperluan fitur-fitur yg berkaitan dengan user model.
-     * 
+     *
      * @param type $user_id
      * @return type
      */
@@ -361,7 +362,7 @@ class UserRepo extends BaseRepository
             $user['main_role'] = array_merge($user['main_role'], $role);
         }
 
-        // unset($user['profile']);        
+        // unset($user['profile']);
         return $user;
     }
 
@@ -372,21 +373,21 @@ class UserRepo extends BaseRepository
 
     /**
      * rigistrasi user baru
-     * 
+     *
      * @param Array $userData : seluruh field di table user (kecuali role) dan :
      *      email : wajib
      *      role_code : * optional    string role_code, jika tidak dicantumkan akan menggunakan default role_code
      *      password        *unencryted password
      *      repassword      *unencryted password
      * @param Boolean $generateToken 1 jika generate token, 0 jika tidak
-     * 
+     *
      * @return Array seluruh field di table user dan :
      *      token           String      api_token dari table api_tokens yg digenerate saat registrasi, jika generatetoken true
      *      token_id        Number      id dari table api_tokens nhya
-     * 
+     *
      *      main_role       Array       record role
      *      profile         Array       record user profile
-     *      
+     *
      */
     public function register(array $userData, $generateToken = true, $registerBySystem = false)
     {
@@ -441,7 +442,7 @@ class UserRepo extends BaseRepository
             $userProfile['user_id'] = $data['id'];
             $data['profile'] = $this->registerProfile($userProfile);
 
-            //update role data          
+            //update role data
             $this->updateUserRole($data['id'], $roles);
             $data['main_role'] = $mainRole;
 
@@ -477,7 +478,7 @@ class UserRepo extends BaseRepository
 
         if ($registerBySystem
             && config('AppConfig.packageLocal.moduser.registration.admin_send_activation_email')
-            && isset($userData['email']) 
+            && isset($userData['email'])
             && !empty($userData['email'])
         ) {
             $this->sendUserActivationEmail($data['id']);
@@ -488,7 +489,7 @@ class UserRepo extends BaseRepository
     }
 
     /**
-     * 
+     *
      * @return Array
      *      role_code       Array   List role
      *      main_role       Array
@@ -557,7 +558,7 @@ class UserRepo extends BaseRepository
         }
 
         if (!is_array($userData['role_code'])) $userData['role_code'] = [$userData['role_code']];
-        //pastikan rule nya ada        
+        //pastikan rule nya ada
         $roles = Role::whereIn('role_code', $userData['role_code'])->orderBy('level', 'ASC')->get();
         if ($roles->count() <= 0) {
             $this->error = 'Roles not defined.';
@@ -611,7 +612,7 @@ class UserRepo extends BaseRepository
     }
 
     /**
-     * 
+     *
      * @param array $userData gabungan data users & user_profile
      */
     public function registerProfile(array $userData)
@@ -625,7 +626,7 @@ class UserRepo extends BaseRepository
     }
 
     /**
-     * 
+     *
      * @param array $userData
      * @return boolean
      */
@@ -673,7 +674,7 @@ class UserRepo extends BaseRepository
         return true;
     }
     /**
-     * 
+     *
      * @param integer           $userId user id user yang akan diupdate
      * @param array             $userData
      *      role_code *optional string role_code, jika disertakan maka akan mengubah role utama
@@ -893,7 +894,7 @@ class UserRepo extends BaseRepository
 
     /**
      * do email verification
-     * 
+     *
      * @param type $email
      * @param type $verifyCode
      * @return boolean
@@ -923,7 +924,7 @@ class UserRepo extends BaseRepository
 
     /**
      * do phone verification with OTP
-     * 
+     *
      * @param type $phone
      * @param type $otpCode
      * @return boolean
@@ -987,7 +988,7 @@ class UserRepo extends BaseRepository
     }
     /**
      * generate perkiraan user id selanjutanya
-     * 
+     *
      * @return int perkiraan user id selanjutnya
      */
     public function nextUserId()
@@ -1002,7 +1003,7 @@ class UserRepo extends BaseRepository
     /**
      * generate user_idcode
      * format YYYYMMDD[USER_ID][KARAKTER 0 HINGGA 8 DIGIT][NO URUT PENDAFTARAN HARI INI]
-     * 
+     *
      * @return int perkiraan user_idcode
      */
     public function generateUserIdcode()
@@ -1023,7 +1024,7 @@ class UserRepo extends BaseRepository
      */
 
     /**
-     * 
+     *
      * @param String $userId
      * @return boolean|array list role user, format mirip data role di APPSSession
      */
@@ -1073,7 +1074,7 @@ class UserRepo extends BaseRepository
     }
 
     /**
-     * 
+     *
      * @param type $userId
      */
     public function generateUserRole($userId)
@@ -1190,7 +1191,7 @@ class UserRepo extends BaseRepository
     //         'role_code' => $data['role_code'],
     //         'is_main_role' =>isset($data['is_main_role'])&&$data['is_main_role']?1:0,
     //         'has_auth_grant'=>isset($data['has_auth_grant'])&&$data['has_auth_grant']?1:0,
-    //     ]);       
+    //     ]);
 
     //     //update role di table user
     //     $this->updateUser($userRole['user_id'], ['role'=> $this->generateUserRole($userRole['user_id'])]);

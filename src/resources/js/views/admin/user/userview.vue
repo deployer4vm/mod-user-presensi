@@ -52,7 +52,7 @@
 
       </b-card-body>
       <hr class="border-light m-0">
-      <div class="table-responsive">
+      <div class="table-responsive mb-0">
 
         <b-table :items="userData.permissions" class="card-table m-0">
           <template slot="read" slot-scope="data">

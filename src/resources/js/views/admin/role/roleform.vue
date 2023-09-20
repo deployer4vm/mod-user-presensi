@@ -26,7 +26,7 @@
 
             <hr class="border-light m-0" />
 
-            <div class="table-responsive">
+            <div class="table-responsive mb-0">
                 <table class="table mb-0 table-hover not-responsive">
                     <thead>
                         <tr>

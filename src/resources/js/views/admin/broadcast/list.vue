@@ -17,7 +17,7 @@
               size="sm"
               v-model="perPage"
               :options="[10, 20, 30, 40, 50]"
-              class="d-inline-block w-auto"
+              class="d-inline-block btn-sm w-auto"
             />
           </div>
           <div class="col">
@@ -34,7 +34,7 @@
 
       <!-- Table -->
       <hr class="border-light m-0" />
-      <div class="table-responsive">
+      <div class="table-responsive mb-0">
         <b-table
           :items="listData.data"
           :fields="fields"

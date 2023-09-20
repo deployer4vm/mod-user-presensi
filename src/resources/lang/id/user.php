@@ -22,6 +22,9 @@ return [
         'client_secret' => 'API Client Secret',
         'copy_key' => 'Salin :key'
     ],
+    'field_description' => [
+        'password' => 'Password minimal 8 karakter'
+    ],
     'userlist' => [
         'add_new_user' => 'Tambah User'
     ],

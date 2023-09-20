@@ -35,8 +35,9 @@
             "hpsynapse\\moduser\\Contracts\\UserLog":"hpsynapse\\moduser\\Repositories\\UserLog",
             "hpsynapse\\moduser\\Contracts\\RoleRepo":"hpsynapse\\moduser\\Repositories\\RoleRepo",
             "hpsynapse\\moduser\\Contracts\\UserSystemRepo":"hpsynapse\\moduser\\Repositories\\UserSystemRepo",
-            "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo"
+            "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo",
 
+            "hpsynapse\\moduser\\Contracts\\ExportUserFormater":"hpsynapse\\moduser\\Services\\ExportUserFormater"
         }
     },
     "load_priority": 0,
@@ -107,7 +108,7 @@
                         "d": 1
                     }
                 },
-                "children": {                    
+                "children": {
                     "can_edit_role_code": {
                         "acl_caption": {"en":"Can Edit 'role_code'","id":"Bisa edit 'role_code'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -132,7 +133,7 @@
                                 "d": 0
                             }
                         }
-                    },                 
+                    },
                     "can_edit_level": {
                         "acl_caption": {"en":"Can Edit 'level'","id":"Bisa edit 'level'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -194,9 +195,9 @@
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "broadcast.form" },
                 "class": "",
-                "is_navbar": 1,
+                "is_navbar": 0,
                 "enable": 1,
-                "tenant_group_id": 2,
+                "tenant_group_id": 0,
                 "active_acl": {
                     "has_access": 1,
                     "crud": {
@@ -219,6 +220,9 @@
         }
     },
     "system_user": {
+        "enable": 0
+    },
+    "export_user": {
         "enable": 0
     },
     "auth_endpoint": {
@@ -308,7 +312,10 @@
             },
             "pusher": {
                 "enable": 0,
-                "config" : {}
+                "config" : {
+                    "user_channel_prefix" : "Notification.User.",
+                    "user_event" : "notification"
+                }
             },
             "aws_sns": {
                 "enable": 0,
