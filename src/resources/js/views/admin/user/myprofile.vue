@@ -9,6 +9,9 @@
                         <b-list-group class="account-settings-links" flush>
                             <b-list-group-item button :active="curTab === 'general'" @click="curTab = 'general'">General</b-list-group-item>
                             <b-list-group-item button :active="curTab === 'password'" @click="curTab = 'password'">Change password</b-list-group-item>
+                            <b-list-group-item button :active="curTab === 'pin'" @click="curTab = 'pin'">
+                                {{ Trans.get('user.form_profile.label.tab.pin') }}
+                            </b-list-group-item>
 
                             <template v-for="(component,i) in profileTabAdds">
                                 <b-list-group-item :key="i" button :active="curTab === component.id" @click="curTab = component.id"><!-- v-if="AppConfig.packageLocal.moduser.user_profile_tab.profile.show == 1">-->
@@ -71,9 +74,9 @@
 
                             <hr class="border-light m-0" />
 
-                            <b-form-group label="PIN (6 Digit)">
+                            <!-- <b-form-group label="PIN (6 Digit)">
                                 <b-input type="password" :class="{ 'form-control': true, 'is-invalid': $v.userForm.pin.$error ? true : false }" maxlength="6" v-model="userForm.pin" />
-                            </b-form-group>
+                            </b-form-group> -->
 
                             <div class="text-right mt-3">
                                 <b-btn @click="saveUser" variant="primary">Save changes</b-btn>
@@ -100,6 +103,30 @@
                         </b-card-body>
                     </div>
                     <!-- / Tab Change Password -->
+
+                    <!-- Tab Set PIN -->
+                    <div class="col-md-9" v-if="curTab === 'pin'">
+                        <b-card-body>
+                            <b-form-group :label="Trans.get('user.form_profile.input_caption.pin')">
+                                <b-input 
+                                    type="password" 
+                                    :class="{ 'form-control': true, 'is-invalid': $v.pinForm.pin.$error ? true : false }"
+                                    maxlength="6" 
+                                    v-model="pinForm.pin"
+                                />
+
+                                <invalid-tooltip
+                                    :inputItem="$v.pinForm.pin"
+                                    :fieldName="Trans.get('user.form_profile.input_caption.pin')"
+                                />
+                            </b-form-group>
+
+                            <div class="text-right mt-3">
+                                <b-btn @click="savePin" variant="primary">{{ Trans.get('lang.save_change') }}</b-btn>
+                            </div>
+                        </b-card-body>
+                    </div>
+                    <!-- / Tab Set PIN -->
 
                     <template v-for="(component,i) in profileTabAdds">
                         <div class="col-md-9" v-if="curTab === component.id" :key="i">
@@ -138,7 +165,14 @@
                     email: {
                         email
                     },
+                    // pin: {
+                    //     minLength: minLength(6),
+                    //     maxLength: maxLength(6)
+                    // }
+                },
+                pinForm: {
                     pin: {
+                        required,
                         minLength: minLength(6),
                         maxLength: maxLength(6)
                     }
@@ -176,6 +210,9 @@
                 role: null,
                 status: 1,
                 profile: {},
+                // pin: ""
+            },
+            pinForm: {
                 pin: ""
             },
             oldEmail:'',//data email sebelum diedit
@@ -196,6 +233,7 @@
         },
         created() {
             this.userForm = this.UserAuth.getUser();
+            this.pinForm.pin = this.userForm.pin;
             this.getUser(this.UserAuth.getUser('id'));
             this.initView();
             var that = this;
@@ -232,7 +270,7 @@
                     username: this.userForm.username,
                     name: this.userForm.name,
                     email: this.userForm.email,
-                    pin: this.userForm.pin != '' ? encryptor.encryptSync(this.userForm.pin) : ''
+                    // pin: this.userForm.pin != '' ? encryptor.encryptSync(this.userForm.pin) : ''
                 };
 
                 if(this.showUserField('phone'))
@@ -273,6 +311,46 @@
                         this.passwordForm.password_confirmation = "";
                     })
                     .catch((res) => {                     
+                        this.Web.showAlert({ 
+                            title: this.Trans.get("alert.warning_title"),
+                            text: this.Trans.get("alert.update_failed",{attribute:'Data'}) + "<br>\n" + res.message, 
+                            type: "warning" 
+                        });
+                    });
+            },
+            savePin(evt) {
+
+                evt.preventDefault();
+                if(this.$v){
+                    this.$v.$touch();
+                    if(this.$v.$error){
+                        this.Web.showAlert({
+                            title: this.Trans.get('alert.form_must_complete_title'),
+                            text: this.Trans.get('alert.form_must_complete_text'),
+                            type: "warning"
+                        });
+                        return false;
+                    }
+                }
+
+                var encryptor = new Encryptor({
+                    key: this.AppConfig.client.secret_key
+                });
+                let data = {
+                    id: this.userForm.id,
+                    pin: this.pinForm.pin != '' ? encryptor.encryptSync(this.pinForm.pin) : ''
+                };
+                
+                var formData = globals().Helper.convertToFormData(data);
+                this.LocalApi.post(this.AppConfig.endpoint.api.moduser + "/profile", formData,{
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then((res) => {
+                        this.Web.showAlert({ text: "Pin berhasil diubah" });
+                    })
+                    .catch((res) => {                        
                         this.Web.showAlert({ 
                             title: this.Trans.get("alert.warning_title"),
                             text: this.Trans.get("alert.update_failed",{attribute:'Data'}) + "<br>\n" + res.message, 

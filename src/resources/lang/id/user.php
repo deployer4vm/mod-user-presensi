@@ -39,4 +39,15 @@ return [
     'systemuser' => [
         'role_list' => 'Manage Role System ',
     ],
+
+    'form_profile' => [
+        'label' => [
+            'tab' => [
+                'pin' => 'Set Pin',
+            ],
+        ],
+        'input_caption' => [
+            'pin' => 'PIN (6 Digit)',
+        ],
+    ],
 ];
