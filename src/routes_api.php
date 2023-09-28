@@ -29,6 +29,8 @@ Route::group($groupAuth,function(){
         Route::post('/token/validate/{token}', 'Auth\TokenApiController@validateToken')->name('auth.api.validatetoken');
         //ubah role user yang sedang loign
         Route::get('/change_role/{role_code}', 'UserController@changeRole')->name('auth.api.changerole');
+        //
+        Route::post('/pin/validate/{encryptedPin}', 'UserController@validatePin')->name('auth.api.validatePin');
     });
 
     /**
@@ -92,15 +94,16 @@ Route::group($groupUser,function(){
     /**
      * fituf notif
      */
-    Route::get('/notification', 'NotificationController@index')->name('user.api.notification');
-    Route::get('/notification/type', 'NotificationController@listType')->name('user.api.notification.listType');
-    Route::get('/notification/{notificationId}', 'NotificationController@detail')->name('user.api.notification.detail');
-    Route::delete('/notification/{notificationId}', 'NotificationController@deleteNotif')->name('user.api.notification.delete');
-    Route::post('/notification/read', 'NotificationController@setRead')->name('user.api.notification.setReadBulk');
-    Route::post('/notification/{notificationId}/read', 'NotificationController@setRead')->name('user.api.notification.setRead');
-    Route::post('/notification/unread', 'NotificationController@setUnread')->name('user.api.notification.setUnreadBulk');
-    Route::post('/notification/{notificationId}/unread', 'NotificationController@setUnread')->name('user.api.notification.setUnread');
-
+    Route::group(['middleware'=>'auth.useronly'],function(){
+        Route::get('/notification', 'NotificationController@index')->name('user.api.notification');
+        Route::get('/notification/type', 'NotificationController@listType')->name('user.api.notification.listType');
+        Route::get('/notification/{notificationId}', 'NotificationController@detail')->name('user.api.notification.detail');
+        Route::delete('/notification/{notificationId}', 'NotificationController@deleteNotif')->name('user.api.notification.delete');
+        Route::post('/notification/read', 'NotificationController@setRead')->name('user.api.notification.setReadBulk');
+        Route::post('/notification/{notificationId}/read', 'NotificationController@setRead')->name('user.api.notification.setRead');
+        Route::post('/notification/unread', 'NotificationController@setUnread')->name('user.api.notification.setUnreadBulk');
+        Route::post('/notification/{notificationId}/unread', 'NotificationController@setUnread')->name('user.api.notification.setUnread');
+    });
     /**
      * fitur Broadcast notif
      */
@@ -125,7 +128,7 @@ Route::group($groupUser,function(){
     //create resource
     Route::match(['put','post'],'/', 'UserController@create')->name('user.create');
     //update resource
-    Route::match(['put','post'],'/profile', 'UserController@updateProfile')->name('user.update');
+    Route::middleware(['auth.useronly'])->match(['put','post'],'/profile', 'UserController@updateProfile')->name('user.update');
     Route::match(['put','post'],'/{id}', 'UserController@update')->name('user.update');
     Route::put('/{id}/ban', 'UserController@ban')->name('user.ban');
     Route::put('/{id}/unban', 'UserController@unban')->name('user.unban');

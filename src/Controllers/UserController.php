@@ -426,6 +426,19 @@ class UserController extends BaseController
         return $this->done();
     }
 
+    public function validatePin(Request $request,$encryptedPin)
+    {
+        $pin = UserAuth::decryptCredential($encryptedPin);
+        
+        if (UserAuth::isPinValid($pin)) {
+            $this->setMessage('PIN Sesuai', 'success');
+        }else{
+            $this->setError('PIN keliru');
+        }      
+        
+        return $this->done();
+    }
+
     public function updateProfile(Request $request)
     {
 
