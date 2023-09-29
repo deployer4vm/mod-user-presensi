@@ -12,6 +12,9 @@ use hpsynapse\moduser\Jobs\BroadcastNotif;
 use App\Base\BaseController;
 
 use App\Events\SendData;
+use hpsynapse\moduser\Channels\FirebaseChannels;
+use hpsynapse\moduser\Channels\PusherChannels;
+use hpsynapse\moduser\Models\NotificationChannel;
 
 use Pusher\Pusher;
 use GuzzleHttp\Client;
@@ -27,45 +30,34 @@ class BroadcastController extends BaseController
 
     public function index(Request $request)
     {
-
+        // 
     }
-    
+
     public function sendBroadcast(Request $request)
     {
-        // Mengatur opsi verify ke false untuk Guzzle client
-        $client = new Client(['verify' => false]);
-
-        // Inisialisasi objek Pusher
-        $pusher = new Pusher(
-            'ddeff2d2899cc7d9d641',
-            'f155bfdc00eaec781ec3',
-            '1669062',
-            [
-                'cluster' => 'ap1',
-                'useTLS' => true
-            ]
-        );
-
-        $input = $request->only(['title', 'description', 'message']);
-
-        // Data yang akan dikirim
-        $data['message'] = $input;
-
-        // Mengirim pesan ke Pusher
-        $pusher->trigger('my-channel', 'my-event', $data);
-
-        return response()->json([
-            'data' => 'test'
-        ]);
-
         if (!UserAuth::hasAccess($this->accessRuleKey, 'c')) {
             $this->setError(__('alert.access_denied', false, 403));
             return $this->done();
         }
 
         $input = $request->only(['title', 'description', 'message']);
-        BroadcastNotif::dispatch(UserAuth::user('id'), false, $input['title'], $input['description'], $input['message']);
-        $this->output['message'] = 'Broadcast berhasil dikirim';
-        return $this->done();
+
+        // Membuat instance dari PusherChannels
+        $pusherChannels = new PusherChannels();
+        $firebaseChannels = new FirebaseChannels();
+
+        // Mengirim notifikasi ke Pusher
+        $notifiable = UserAuth::user(); // Sesuaikan ini dengan notifiable yang sesuai
+        $notification = new \hpsynapse\moduser\Notifications\AdminMessage($input['title'], $input['description'], ['message' => $input['message']]);
+        $pusherChannels->send($notifiable, $notification);
+
+        // Generate token FCM
+        $customToken = $firebaseChannels->generateCustomToken(); // Memanggil fungsi generateCustomToken
+
+        dd(NotificationChannel::where('user_id', UserAuth::user('id'))->first());
+
+        // Mengirim notifikasi ke Firebase
+        $notifiable = $customToken; // Menyimpan token FCM pada notifiable (pastikan notifiable memiliki atribut fcm_token)
+        $firebaseChannels->send($notifiable, $notification);
     }
 }

@@ -35,8 +35,9 @@
             "hpsynapse\\moduser\\Contracts\\UserLog":"hpsynapse\\moduser\\Repositories\\UserLog",
             "hpsynapse\\moduser\\Contracts\\RoleRepo":"hpsynapse\\moduser\\Repositories\\RoleRepo",
             "hpsynapse\\moduser\\Contracts\\UserSystemRepo":"hpsynapse\\moduser\\Repositories\\UserSystemRepo",
-            "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo"
+            "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo",
 
+            "hpsynapse\\moduser\\Contracts\\ExportUserFormater":"hpsynapse\\moduser\\Services\\ExportUserFormater"
         }
     },
     "load_priority": 0,
@@ -107,7 +108,7 @@
                         "d": 1
                     }
                 },
-                "children": {                    
+                "children": {
                     "can_edit_role_code": {
                         "acl_caption": {"en":"Can Edit 'role_code'","id":"Bisa edit 'role_code'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -132,7 +133,7 @@
                                 "d": 0
                             }
                         }
-                    },                 
+                    },
                     "can_edit_level": {
                         "acl_caption": {"en":"Can Edit 'level'","id":"Bisa edit 'level'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -194,9 +195,9 @@
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "broadcast.form" },
                 "class": "",
-                "is_navbar": 1,
+                "is_navbar": 0,
                 "enable": 1,
-                "tenant_group_id": 2,
+                "tenant_group_id": 0,
                 "active_acl": {
                     "has_access": 1,
                     "crud": {
@@ -221,6 +222,9 @@
     "system_user": {
         "enable": 0
     },
+    "export_user": {
+        "enable": 0
+    },
     "auth_endpoint": {
         "dev": "auth",
         "prod": "auth"
@@ -236,7 +240,8 @@
         "enable": 0,
         "default_role_code": "admin",
         "default_system_role_code": "system",
-        "field": ["email","password"]
+        "field": ["email","password"],
+        "admin_send_activation_email": 1
     },
     "login" :{
         "rememberme": 1,
@@ -287,26 +292,27 @@
                 "config" : {}
             },
             "firebase": {
-                "enable": 0,
+                "enable": 1,
                 "config" : {
                     "firebasejson": {
-                        "type": "service_account",
-                        "project_id": "devsynapse-67c3b",
-                        "private_key_id": "f1921b3b017fe37f91c3042fad17667cb93532fd",
-                        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC4iHeS1H+VyCUN\nHmZCoNIsHmCKBqROHG4S/r+IRR3CtDEQdEuJwx5ZsM9JeNiomQG5wb5AKaPt+zb1\ni37XprpjaVdTdw9FMUld1qIyACyAhLaHzoKf0DYoZGYy3tX1/bxDEWsq/yssQXAc\nHQxNRT65An9mDRkmfMJ8tcO16zG7iCaM+4jf36vxRsixDYZTihYyaTPj2tAk5NFI\nE1IxImqDTLMuJzwbqOBYQAUcO3c2lvFpBuBy/t5HIyZ04s3jZAp82onAGvhUSl9o\nUDd3/QMzZi2Cq0FKbcmMvabONPSx/R22447hGXL4Zwu9PtRwmJirBuT1151ZCQPf\nFCa4HXXRAgMBAAECggEAVH1TNjyqT/OMF1YYXyBQKpgb/oZs+0CkG3ldS7DNoASt\nxEli/qgCQPGl7w9wL72inyD4kVsfbgqMDt/4SxfRFkw4igQkzzrySw9HQxp2Rb+9\n7S9d+ns0GMljS55gm5k59gFHLrAXXdN2V8DrDYQLZF0i5KBRqCAOUlhMzAHsSt6T\nOFzw/VXmd58llGyGPHgZ0NobNFK1HTELzK0/8r+EM+kZcMUR9T3oJSNJi+KqkDNI\nLztnqDV4yAJ3fdwDa5Ju/raXrQlYn/PtAAKMlqAJ/ypu/OsOO9CAuYvx7N0rFzMb\nrEW7bZyqRXP8phQAW9tvJyh9UWjq59i13QH/ft4pUwKBgQDwC9kwaLk/47eu4GsE\nUmzZi5/eGNhF5K+jNdvYvKN5DOkAnr43qr16AH/PhMKFx9WcshMIH0LhfmvyimWy\nnmpVDIYeT4LrPkAWf+ipFR+7GfLL2A7Ss3KOe7aMVfGBGG/nuFn9qXUe1gvZDXKw\nG5awozVnMvqqpbrKQwSu13KoCwKBgQDEzB2yeXi6HJG0mvmiXlxHJDEBRsXM+N7P\nwgmR2LpzY5m8uOlawo73Y/OQI54Ivv2pjB+q/nt8OA/r9FI5kpIODddwSwrcuQrT\nstW8N0EuFc3ZGq8+HFfxKX+1fzy3YjKYRyvFOOu74Vx2zBlu9mHbCmKVCBtbgNC0\nKrMSf8YXEwKBgQDP4yL8NqXAfAEW1Uo5Gv0jxjT0joW2uh+V9E3qPSxB6HldzRyl\nbxvbLdWCrdIdM/x+UQYEcbZlPSxVh6Adee5Sq573XxrdijLMiYe/7whk7EsGWJ41\nwa0DUoa8sK2PhM9dWZ2t/fTteKgYGPprI+l0HlRghJjr8s1632GN3g5xEwKBgQC2\nIy/NEc2henWEEPa/xtNi6GUOiGDjPuaApFZVDKAr0V/lIcKfxHerEW/H1J8b+yAr\n/ksE6DiDlCNwPxSmwje5GChvfpSUChKyMc7NPtpte7Kjn6XXN0ZRJhZTdWpNU23+\nL8ib5P2QSphYPre/UfrpTihFRFaFjqgaR3aqxWUhzwKBgHDK2VxoBMo2aV477Mkn\nvrMlpp9NHntlZwodA3cGn6MpedcSJXcfZnFSGcrv+4L9fksFX8dMREeP7mMBbtbY\nlkPUvLCnizpVXbrbhl/rZbRDTUG8YfGYdpBI+oUrHL/3iTAjBUxJRO597xvc1mAz\nHb1NHAy8O0GUEWrPudgXhomt\n-----END PRIVATE KEY-----\n",
-                        "client_email": "firebase-adminsdk-q79le@devsynapse-67c3b.iam.gserviceaccount.com",
-                        "client_id": "106632525683467690111",
-                        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                        "token_uri": "https://oauth2.googleapis.com/token",
-                        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-q79le%40devsynapse-67c3b.iam.gserviceaccount.com"
+                        "apiKey": "AIzaSyBFRIbH019yQIKJlflYGJ8E_XqXGwGfEDw",
+                        "authDomain": "smartcoopnotiffcm.firebaseapp.com",
+                        "databaseURL": "https://smartcoopnotiffcm-default-rtdb.asia-southeast1.firebasedatabase.app",
+                        "projectId": "smartcoopnotiffcm",
+                        "storageBucket": "smartcoopnotiffcm.appspot.com",
+                        "messagingSenderId": "864559764072",
+                        "appId": "1:864559764072:web:bab7220c72e900038421dd",
+                        "measurementId": "G-K8QT9BTY1L"
                     },
-                    "realtime_database_url":"https://devsynapse-67c3b-default-rtdb.firebaseio.com/"
+                    "realtime_database_url":"https://smartcoopnotiffcm-default-rtdb.asia-southeast1.firebasedatabase.app/"
                 }
             },
             "pusher": {
                 "enable": 1,
-                "config" : {}
+                "config" : {
+                    "user_channel_prefix" : "Notification.User.",
+                    "user_event" : "notification"
+                }
             },
             "aws_sns": {
                 "enable": 0,

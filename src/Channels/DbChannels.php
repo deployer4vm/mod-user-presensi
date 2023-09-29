@@ -38,9 +38,21 @@ class DbChannels
             $link_apps = $data['link_apps'];
             unset($data['link_apps']);
         }
+
+        $tenantId = config('tenant.id',0);
+        if($notification->tenantId && !$tenantId){
+            // $model = $notifiable->routeNotificationFor('database')->setTenantId($notification->tenantId);
+            // $model = (new \hpsynapse\moduser\Models\Notification())->setTenantId($notification->tenantId);
+            \App\Facades\Tenant::setActiveTenantById($notification->tenantId);
+        }else{
+            // $model = $notifiable->routeNotificationFor('database');
+        }
         
-        return $notifiable->routeNotificationFor('database')->create([
+        $model = $notifiable->routeNotificationFor('database');
+
+        return $model->create([
             'id' => $notification->id,
+            'tenant_id' => $notifiable->tenant_id,
 
             'link_web' => $link_web,
             'link_apps' => $link_apps,
@@ -49,6 +61,30 @@ class DbChannels
             'data' => $data,
             'read_at' => null,
         ]);
+    }
+
+    /**
+     * di class Notification-nya harus ada method ini
+     */
+    public function toDatabase($notifiable)
+    {
+        return [
+            'subject' => 'STRING',
+            'description' => 'STRING',
+            'body' => 'STRING',
+            'from' => [
+                'name' => 'STRING',
+                'icon' => 'STRING',
+            ],
+            'link_web' => [
+                'link' => 'STRING',
+                'route' => 'STRING',
+                'parameter' => [
+                    'notifId' => 'STRING',
+                ]
+            ],
+            'link_apps' => 'STRING'
+        ];
     }
 
 }
