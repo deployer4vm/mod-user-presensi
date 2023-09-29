@@ -14,6 +14,7 @@ use App\Base\BaseController;
 use App\Events\SendData;
 use hpsynapse\moduser\Channels\FirebaseChannels;
 use hpsynapse\moduser\Channels\PusherChannels;
+use hpsynapse\moduser\Channels\WhatsAppChannels;
 use hpsynapse\moduser\Models\NotificationChannel;
 
 use Pusher\Pusher;
@@ -45,11 +46,14 @@ class BroadcastController extends BaseController
         // Membuat instance dari PusherChannels
         $pusherChannels = new PusherChannels();
         $firebaseChannels = new FirebaseChannels();
+        $whatsappChannels = new WhatsAppChannels();
 
         // Mengirim notifikasi ke Pusher
         $notifiable = UserAuth::user(); // Sesuaikan ini dengan notifiable yang sesuai
         $notification = new \hpsynapse\moduser\Notifications\AdminMessage($input['title'], $input['description'], ['message' => $input['message']]);
         $pusherChannels->send($notifiable, $notification);
+
+        $whatsappChannels->send($request->title);
 
         // Generate token FCM
         $customToken = $firebaseChannels->generateCustomToken(); // Memanggil fungsi generateCustomToken
