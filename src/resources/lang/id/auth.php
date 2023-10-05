@@ -43,7 +43,7 @@ return [
             'user_not_found'=> 'User tidak ditemukan',
             'user_banned' => 'Login gagal. User diblokir',
             'user_system' => 'Login gagal. User system tidak bisa login',
-            'password_fail' => 'Usernaem atau password keliru'
+            'password_fail' => 'Username atau password keliru'
         ]
     ],
     //text lang di halaman register
