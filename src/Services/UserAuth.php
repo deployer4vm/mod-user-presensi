@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Base\Traits\ResCacheTrait;
 
 use hpsynapse\moduser\Facades\UserRepo;
+use hpsynapse\moduser\Facades\UserLog;
 use hpsynapse\moduser\Facades\RoleRepo;
 
 use hpsynapse\moduser\Models\ApiToken;
@@ -301,7 +302,7 @@ class UserAuth
      */
     public function isBanned()
     {
-        if ($this->localUser['status'] == 0) {
+        if ($this->userData['status'] == 0) {
             return true;
         }
         return false;
@@ -312,11 +313,21 @@ class UserAuth
      */
     public function isPinValid($pin,$userId=false)
     {
+        $tmpUserId = $userId;
         $userId = $userId?$userId:$this->userData['id'];
-        $tmpUser = User::select('pin')->where('id',$userId)->first();
+        $tmpUser = User::select(['pin','id'])->where('id',$userId)->first();
+        
         if(Hash::check($pin,$tmpUser->pin)){
             return true;
         }
+        UserLog::addLog(UserAuth::user('id'),'USERAUTH','PIN_INVALID',[
+            'pin'=>$pin,
+            'hashed_pin'=>$tmpUser->pin,
+            'is_h2h_token'=>$this->isH2H(),
+            'userId'=>$tmpUserId,
+            'userData'=>$this->userData,
+            'userPin'=>$tmpUser?$tmpUser->toArray():[],
+        ]);
         return false;
     }
 

@@ -55,7 +55,7 @@ return [
             'user_not_found'=> 'User not found',
             'user_banned' => 'Login Failed. Account Banned.',
             'user_system' => 'Login Failed. Cannot Login with System User.',
-            'password_fail' => 'Usernaem or password wrong'
+            'password_fail' => 'Username or password wrong'
         ]
     ],
     //text lang di halaman register
