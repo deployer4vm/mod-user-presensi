@@ -82,7 +82,7 @@
                         </b-form-group>
                     </div> -->
                     <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'user.add' }">
-                            <span class="ion ion-md-add"></span>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
+                            <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
                         </router-link>
                 </div>
             </b-card-body>

@@ -61,7 +61,7 @@
                     </div> -->
                     <div>
                         <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'role.add' }">
-                            <span class="ion ion-md-add"></span>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
+                            <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
                         </router-link>
                     </div>
                 </div>

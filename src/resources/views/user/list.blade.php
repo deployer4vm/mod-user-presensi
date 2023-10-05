@@ -152,7 +152,7 @@
         <div><span class="text-muted font-weight-light">Setup /</span> Managemen User</div>
         @if(\UserAuth::hasAccess('moduser.user','c'))
         <a href="{{route('user.addNew')}}" class="btn btn-primary rounded-pill d-block">
-            <span class="ion ion-md-add"></span>&nbsp; Tambah User
+            <i class="fi fi-rs-add"></i>&nbsp; Tambah User
         </a>
         @endif
     </h4>
