@@ -28,7 +28,7 @@ class WhatsAppChannels
                 }
             }',
             CURLOPT_HTTPHEADER => array(
-                'Authorization: Bearer EAAOZAq5RZBgiUBO85YkI93BktJRBUPOc5Lw5gyYae4ae4PnP6odOyenZAaqN3ARFwvIpIOREY3ZBrC63ZA7Q52CQF2wlZAvaIBHpUoLDSUzo2WHZBSrvIDU1UTQh17eOVz1DnS5cEIbsNlX9xzAa6tqVONeB7UbQSGUNt8yFlCMGooSZBjhmWhfHz2gQrfaZB6KTpMM3EsPAFm6qhpDmIRyHE',
+                'Authorization: Bearer EAAOZAq5RZBgiUBO55pyEDE2P7VAjXZBcAt3JeQoXu1UuwSUflGnLDlEUyH7GsiIUuyRnhqaCkZCpp7I3TpzXbuZC1eP3ZCHFf9yOpcIO3bFhrmB8VyzCKp2WKwfJpUQzqRC4pRDn53lJZCVotfxxyRRtQ4bf9ITnUG39VgrArGvoCMFB9M900tqZCqQSnD8LtxKzTKVFNZCiUU1xbaOMtozgZD',
                 'Content-Type: application/json'
             ),
         ));
