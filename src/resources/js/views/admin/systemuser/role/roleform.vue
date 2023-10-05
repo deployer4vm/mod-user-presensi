@@ -47,7 +47,7 @@
 
             <hr class="border-light m-0">
 
-            <div class="table-responsive" v-if="isAdd">
+            <div class="table-responsive mb-0" v-if="isAdd">
 
                 <table class="table mb-0 table-hover not-responsive">
                     <thead>

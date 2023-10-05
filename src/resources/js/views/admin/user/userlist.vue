@@ -90,7 +90,7 @@
 
             <!-- Table -->
             <hr class="border-light m-0" />
-            <div class="table-responsive">
+            <div class="table-responsive mb-0">
                 <b-table
                     :items="listData.data"
                     :fields="fields"

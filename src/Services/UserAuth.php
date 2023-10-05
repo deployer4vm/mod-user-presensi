@@ -72,12 +72,13 @@ class UserAuth
 
     public function getToken($field = false)
     {
-        if ($field && session('APPSSession.token.' . $field)) {
-            $data = session('APPSSession.token.' . $field);
-        } else {
-            $data = session('APPSSession.token');
-        }
-        return $data;
+        return $this->token;
+        // if ($field && session('APPSSession.token.' . $field)) {
+        //     $data = session('APPSSession.token.' . $field);
+        // } else {
+        //     $data = session('APPSSession.token');
+        // }
+        // return $data;
     }
 
     public function getSesionToken()
@@ -309,9 +310,10 @@ class UserAuth
     /**
      * @param String $pin unencrypted pin
      */
-    public function isPinValid($pin)
+    public function isPinValid($pin,$userId=false)
     {
-        $tmpUser = User::select('pin')->where('id',$this->userData['id'])->first();
+        $userId = $userId?$userId:$this->userData['id'];
+        $tmpUser = User::select('pin')->where('id',$userId)->first();
         if(Hash::check($pin,$tmpUser->pin)){
             return true;
         }

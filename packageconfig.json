@@ -253,7 +253,8 @@
     "user_profiles": {
         "hide_all": 0,
         "hide": [],
-        "adds": {}
+        "adds": {},
+        "custom_link": {}
     },
     "user_form_tab": {
         "profile" : {
