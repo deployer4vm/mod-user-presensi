@@ -685,6 +685,8 @@ class UserRepo extends BaseRepository
      */
     public function updateUser($userId, $userData, $runEvent = true)
     {
+        $log = [];
+
         if (!($oldUser = $this->getUser($userId))) {
             $this->error = __('lang.data_attribute_not_found', ['attribute' => 'User']);
             return false;
@@ -724,7 +726,9 @@ class UserRepo extends BaseRepository
         }
 
         if (!empty($userData['pin'])) {
+            $log['pin'] = $userData['pin'];
             $userData['pin'] = Hash::make($userData['pin']);
+            $log['hashed_pin'] = $userData['pin'];
         }
 
         $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
@@ -765,7 +769,6 @@ class UserRepo extends BaseRepository
             }
 
             $this->_update(new User, $userId, $userData);
-
             if (isset($userData['password']) && $userData['password']) {
                 $this->resetPassword($userId, $userData['password']);
             }
@@ -775,6 +778,9 @@ class UserRepo extends BaseRepository
 
             if ($dontHaveTransactionLevel)
                 Tenant::dbCommit();
+
+            $log['updated'] = $userData;
+            UserLog::addLog($userId, 'moduser_userrepo', 'update_user', $log);
 
             return true;
         } catch (Exception  $e) {

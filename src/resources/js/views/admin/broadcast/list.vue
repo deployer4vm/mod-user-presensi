@@ -3,7 +3,7 @@
     <h4 class="d-flex justify-content-between align-items-center w-100 mb-4">
       <div>Prk</div>
       <b-btn variant="success" @click="showForm()" class="d-block" v-if="UserAuth.hasAccess('moduser.broadcast','c')">
-        <span class="ion ion-md-add"></span>&nbsp; Tambah Broadcast
+        <i class="fi fi-rs-add"></i>&nbsp; Tambah Broadcast
       </b-btn>
     </h4>
 

@@ -58,10 +58,10 @@
                         </b-form-group>
                     </div> -->
                     <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'systemuser.add' }">
-                            <span class="ion ion-md-add"></span>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
+                            <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
                         </router-link>
                     <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'r')" class="btn btn-secondary d-block mx-1" :to="{ name: 'systemuser.role' }">
-                            <span class="ion ion-md-add"></span>&nbsp; {{ Trans.get("user.systemuser.role_list") }}
+                            <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.systemuser.role_list") }}
                         </router-link>
                 </div>
             </b-card-body>
