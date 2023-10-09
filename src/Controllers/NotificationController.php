@@ -44,7 +44,7 @@ class NotificationController extends BaseController
             'title' => 'Pemberitahuan Baru',
             'body' => 'Anda memiliki pemberitahuan baru!'
         ];
-        event(new SendData($data));
+        
 //        dd(parse_url('http://localhost/BS/APPS-Account/public/notification?limitStart=0'));
         $userId = UserAuth::user('id');
         

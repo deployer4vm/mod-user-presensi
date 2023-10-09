@@ -129,6 +129,7 @@ Route::group($groupUser,function(){
     Route::match(['put','post'],'/', 'UserController@create')->name('user.create');
     //update resource
     Route::middleware(['auth.useronly'])->match(['put','post'],'/profile', 'UserController@updateProfile')->name('user.update');
+    Route::middleware(['auth.useronly'])->match(['put','post'],'/sendOtp', 'UserController@sendOtp')->name('user.sendOtp');
     Route::match(['put','post'],'/{id}', 'UserController@update')->name('user.update');
     Route::put('/{id}/ban', 'UserController@ban')->name('user.ban');
     Route::put('/{id}/unban', 'UserController@unban')->name('user.unban');
@@ -138,5 +139,11 @@ Route::group($groupUser,function(){
     Route::delete('/{id}/delete-avatar', 'UserController@deleteAvatar')->name('user.deleteAvatar');
     //delete resource
     Route::delete('/{id}', 'UserController@delete')->name('user.delete');
+
+    // kirim otp via wa
+    Route::post('/profile/pin/send-otp', 'UserController@sendOtpViaWa')->name('user.send.pin')->middleware(['auth.useronly']);
+
+    // update profile pin yang sudah di kirimkan otp nya
+    Route::match(['put','post'], '/profile/pin/update', 'UserController@updateProfilePin')->name('user.update.pin')->middleware(['auth.useronly']);
 
 });

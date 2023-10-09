@@ -11,15 +11,18 @@ use hpsynapse\moduser\Channels\SmsChannels;
 class SendOTP extends Notification implements ShouldQueue
 {
     use Queueable;
-    
-    protected $otpcode,$isMainPhone;
+
+    protected $otpcode, $isMainPhone;
+
+    protected $primaryKey = 'user_id';
+    public $incrementing = false;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($otpcode,$phone=false)
+    public function __construct($otpcode, $phone = false)
     {
         $this->otpcode = $otpcode;
         $this->phone = $phone;
@@ -47,8 +50,8 @@ class SendOTP extends Notification implements ShouldQueue
     public function toSms($notifiable)
     {
         return [
-            'message'=>__('notification.yourotpcode',['otpCode'=>$this->otpcode]),
-            'phone'=> $this->phone
-            ];
+            'message' => __('notification.yourotpcode', ['otpCode' => $this->otpcode]),
+            'phone' => $this->phone
+        ];
     }
 }

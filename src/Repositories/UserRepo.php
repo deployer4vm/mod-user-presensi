@@ -28,6 +28,7 @@ use App\Facades\Tenant;
 
 use App\Base\BaseRepository;
 use hpsynapse\moduser\Facades\UserAuth;
+use hpsynapse\moduser\Models\UserOTP;
 
 class UserRepo extends BaseRepository
 {
@@ -281,7 +282,7 @@ class UserRepo extends BaseRepository
      */
     public function getUser($where)
     {
-        $user = $this->_getOne(User::with(['profile', 'mainRole']), $where);
+        $user = $this->_getOne(User::with(['profile', 'mainRole', 'otp']), $where);
         if ($user) {
             return $this->_formatUser($user);
         }
@@ -1057,7 +1058,7 @@ class UserRepo extends BaseRepository
 
         return $response;
     }
-
+    
     private function filterByClient($roleData)
     {
         $clientData = UserAuth::getClient();

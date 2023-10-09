@@ -43,10 +43,12 @@ return [
     'form_profile' => [
         'label' => [
             'tab' => [
+                'token' => 'Makan Token OTP',
                 'pin' => 'Set Pin',
             ],
         ],
         'input_caption' => [
+            'token' => 'OTP (8 Digit)',
             'pin' => 'PIN (6 Digit)',
         ],
     ],

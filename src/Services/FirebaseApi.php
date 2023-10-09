@@ -5,7 +5,6 @@ namespace hpsynapse\moduser\Services;
 use Kreait\Firebase;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
-use Kreait\Firebase\Database;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 
@@ -18,24 +17,23 @@ class FirebaseApi
 
     public function __construct()
     {
-        
+        // 
     }
 
     public static function initService()
-    {   
+    {
         if (!self::$firebase) {
             self::$config = config('AppConfig.packageLocal.moduser.notification');
-            // $serviceAccount = ServiceAccount::fromJsonFile(base_path(self::$config['firebase_config_path']));
-            $serviceAccount = ServiceAccount::fromArray(self::$config['services']['firebase']['config']['firebasejson']);
-            
+            $serviceAccountPath = base_path('/firebase_credentials.json');
+            $serviceAccount = ServiceAccount::fromValue($serviceAccountPath);
+
             self::$firebase = (new Factory)
                 ->withServiceAccount($serviceAccount)
-                ->withDatabaseUri(self::$config['services']['firebase']['config']['realtime_database_url']) //url from realtime database firebase
-                ->create();
+                ->withDatabaseUri(self::$config['services']['firebase']['config']['realtime_database_url']);
         }
         return self::$firebase;
     }
-    
+
     /**
      * initialize messaging object
      * 
@@ -43,12 +41,12 @@ class FirebaseApi
      */
     public static function getMessaging()
     {
-        if (!self::$firebase)self::initService();
-        if (!self::$messaging)self::$messaging = self::$firebase->getMessaging();
-        
+        if (!self::$firebase) self::initService();
+        if (!self::$messaging) self::$messaging = self::$firebase->getMessaging();
+
         return self::$messaging;
     }
-    
+
     /**
      * kirim push message ke salah satu device
      * 
@@ -57,12 +55,12 @@ class FirebaseApi
      *      'notification'
      *      'data'
      */
-    public static function sendMessageToToken($token,$message)
+    public static function sendMessageToToken($token, $message)
     {
-        $messageToToken = self::messageToToken($token,$message);
+        $messageToToken = self::messageToToken($token, $message);
         self::getMessaging()->send($messageToToken);
     }
-    
+
     /**
      * kirim push message ke topic tertentu
      * @param string $topic
@@ -70,12 +68,12 @@ class FirebaseApi
      *      'notification'
      *      'data'
      */
-    public static function sendMessageToTopic($topic,$message)
+    public static function sendMessageToTopic($topic, $message)
     {
-        $messageToTopic = self::messageToTopic($topic,$message);
+        $messageToTopic = self::messageToTopic($topic, $message);
         self::getMessaging()->send($messageToTopic);
     }
-    
+
     /**
      * format message untuk kirim ke topic
      * 
@@ -87,7 +85,7 @@ class FirebaseApi
     {
         return self::messageFormat('topic', $topic, $data);
     }
-    
+
     /**
      * format message untuk kirim ke salah satu device token
      * 
@@ -99,39 +97,39 @@ class FirebaseApi
     {
         return self::messageFormat('token', $token, $data);
     }
-    
+
     public static function messageFormat($type, $id, $data)
-    {        
+    {
         $notification = Notification::create(
             $data['notification']['title'],
-            $data['notification']['body']);
+            $data['notification']['body']
+        );
         return CloudMessage::withTarget($type, $id)
-                ->withNotification($notification) // optional
-                ->withData($data['data']) // optional
-        ;        
+            ->withNotification($notification) // optional
+            ->withData($data['data']) // optional
+        ;
     }
-    
+
     /**
      * =========================================================================
      */
-    
-    /**
-     * 
-     * @param type $topic
-     * @param type $token
-     */
-    public static function subscribeToTopic($topic,$token)
-    {
-        self::getMessaging()->subscribeToTopic($topic,$token);
-    }
-    /**
-     * 
-     * @param type $topic
-     * @param type $token
-     */
-    public static function unsubscribeFromTopic($topic,$token)
-    {
-        self::getMessaging()->unsubscribeFromTopic($topic,$token);
-    }
 
+    /**
+     * 
+     * @param type $topic
+     * @param type $token
+     */
+    public static function subscribeToTopic($topic, $token)
+    {
+        self::getMessaging()->subscribeToTopic($topic, $token);
+    }
+    /**
+     * 
+     * @param type $topic
+     * @param type $token
+     */
+    public static function unsubscribeFromTopic($topic, $token)
+    {
+        self::getMessaging()->unsubscribeFromTopic($topic, $token);
+    }
 }

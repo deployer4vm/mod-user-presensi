@@ -11,8 +11,14 @@ use hpsynapse\moduser\Facades\UserAuth;
 
 use App\Base\BaseController;
 use App\Facades\Export;
+use App\Mail\sendMailOtp;
 // use hpsynapse\moduser\Contracts\ExportUserFormater;
 use hpsynapse\moduser\Facades\ExportUserFormater;
+
+use hpsynapse\moduser\Channels\WhatsAppChannels;
+use hpsynapse\moduser\Models\User;
+use hpsynapse\moduser\Models\UserOTP;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends BaseController
 {
@@ -368,6 +374,11 @@ class UserController extends BaseController
         $id = $request->route('id');
         if (($userData = UserRepo::getUser(['id', $id])) != false) {
             if (isset($userData['email']) && $userData['email']) {
+                // $to_email = $userData['email'];
+                // $data = ['message' => 'Ini adalah pesan uji dari Laravel.'];
+
+                // Mail::to($to_email)->send(new SampleMail($data));
+
                 UserRepo::sendUserActivationEmail($id);
                 $this->setAlert('Email sent', 'success');
             } else {
@@ -426,22 +437,21 @@ class UserController extends BaseController
         return $this->done();
     }
 
-    public function validatePin(Request $request,$encryptedPin)
+    public function validatePin(Request $request, $encryptedPin)
     {
         $pin = UserAuth::decryptCredential($encryptedPin);
-        
+
         if (UserAuth::isPinValid($pin)) {
             $this->setMessage('PIN Sesuai', 'success');
-        }else{
+        } else {
             $this->setError('PIN keliru');
-        }      
-        
+        }
+
         return $this->done();
     }
 
     public function updateProfile(Request $request)
     {
-
         if (UserAuth::isLogin()) {
             $id = UserAuth::user('id');
         } else {
@@ -469,6 +479,87 @@ class UserController extends BaseController
         if (isset($input['phone'])) {
             $validator['phone'] = 'required|min:3|max:255';
         }
+        if (!empty($input['pin'])) {
+            $input['pin'] = UserAuth::decryptCredential($input['pin']);
+            $validator['pin'] = 'digits:6';
+        }
+
+        if (!empty($validator)) {
+            $validator = Validator::make($input, $validator);
+            if ($validator->fails()) {
+                $this->setError('Input Error :', $validator->messages(), 400, 400, true);
+                return $this->done();
+            }
+        }
+
+        if (isset($input['role_code'])) unset($input['role_code']);
+        if (isset($input['status'])) unset($input['status']);
+
+        if ($request->file('avatar', false))
+            $input['avatar'] = $request->file('avatar');
+
+        if ($input['pin']) {
+            $userId = UserAuth::user('id');
+            $userToken = $input['token'];
+
+            // Mencari UserOtp dengan user_id yang sesuai
+            $userOtp = UserOtp::where('user_id', $userId)->first();
+
+            if ($userOtp && $userOtp->token === $userToken) {
+                if (UserRepo::updateUser($id, $input)) {
+                    $this->setAlert('Data Updated successfully', 'success');
+
+                    // Jika pembaruan berhasil, hapus token
+                    UserOtp::where('user_id', $userId)->delete();
+                } else {
+                    $this->setAlert(UserRepo::error(), 'danger');
+                    $this->setError(UserRepo::error());
+                }
+            } else {
+                $this->setAlert('Invalid token', 'danger');
+                $this->setError('Invalid token');
+            }
+        }
+
+        return $this->done();
+    }
+
+    // kirim kode otp ke wa untuk mengubah pin
+    public function sendOtp()
+    {
+        $otp = str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT);
+
+        $userTenantId = UserAuth::user('tenant_id');
+        $userId = UserAuth::user('id');
+        $userPhone = UserAuth::user('phone');
+
+        UserOTP::updateOrInsert(
+            ['tenant_id' => $userTenantId, 'user_id' => $userId, 'phone' => $userPhone],
+            ['token' => $otp]
+        );
+
+        Mail::to(UserAuth::user('email'))->send(new sendMailOtp($otp));
+
+        return true;
+    }
+
+    // update data pin
+    public function updateProfilePin(Request $request)
+    {
+        if (UserAuth::isLogin()) {
+            $id = UserAuth::user('id');
+        } else {
+            $this->setError('User belum login');
+            return $this->done();
+        }
+
+        $input = $request->all();
+
+        if (isset($input['id'])) unset($input['id']);
+        if (isset($input['created_at'])) unset($input['created_at']);
+        if (isset($input['updated_at'])) unset($input['updated_at']);
+
+        $validator = [];
         if (!empty($input['pin'])) {
             $input['pin'] = UserAuth::decryptCredential($input['pin']);
             $validator['pin'] = 'digits:6';
