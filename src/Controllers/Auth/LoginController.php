@@ -239,6 +239,7 @@ class LoginController extends BaseController
 
                 UserNotifRepo::subscribeToChannel($notifChannel, $pushParam['token']);
             }
+            // UserAuth::setUser($user['id'],$token['api_token']);
             return $this->done();
         }
         // $this->setError(__('alert.auth_failed'));
