@@ -519,6 +519,13 @@ class UserController extends BaseController
                 $this->setAlert('Invalid token', 'danger');
                 $this->setError('Invalid token');
             }
+        } else {
+            if (UserRepo::updateUser($id, $input)) {
+                $this->setAlert('Data Updated successfully', 'success');
+            } else {
+                $this->setAlert(UserRepo::error(), 'danger');
+                $this->setError(UserRepo::error());
+            }
         }
 
         return $this->done();
