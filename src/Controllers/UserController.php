@@ -498,7 +498,7 @@ class UserController extends BaseController
         if ($request->file('avatar', false))
             $input['avatar'] = $request->file('avatar');
 
-        if ($input['pin']) {
+        if (isset($input['pin']) && !empty($input['pin'])) {
             $userId = UserAuth::user('id');
             $userToken = $input['token'];
 
