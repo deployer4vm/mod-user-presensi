@@ -96,7 +96,7 @@
                         >
                             Generate Token
                         </b-btn>
-                        <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
+                        <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
                         <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" v-b-tooltip.hover :to="{ name: 'systemuser.edit', params: { userId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
                             <span class="ion ion-md-create"></span>
                         </router-link>
