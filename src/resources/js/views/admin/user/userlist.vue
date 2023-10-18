@@ -81,9 +81,12 @@
                             </b-btn>
                         </b-form-group>
                     </div> -->
-                    <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'user.add' }">
-                            <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
-                        </router-link>
+                    <router-link 
+                        v-if="UserAuth.hasAccess(accessRuleKey, 'c')" 
+                        class="btn btn-sm btn-primary w-icon w-50 w-md-auto"
+                        :to="{ name: 'user.add' }">
+                        <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
+                    </router-link>
                 </div>
             </b-card-body>
             <!-- / Table controls -->
@@ -154,21 +157,23 @@
                     </template>
 
                     <template v-slot:cell(actions)="data">
-                        <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
-                        <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" v-b-tooltip.hover :to="{ name: 'user.edit', params: { userId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
-                            <span class="ion ion-md-create"></span>
-                        </router-link>
-                        <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteUser(data.item)" v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.linked_id == 0" v-b-tooltip.hover>
-                            <span class="ion ion-md-close"></span>
-                        </b-btn>
-                        <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
-                        <template slot="button-content">
-                            <i class="ion ion-ios-settings"></i>
-                        </template>
-                        <b-dropdown-item href="javascript:void(0)">View profile</b-dropdown-item>
-                        <b-dropdown-item @click="banUser(data.item.id)">Ban user</b-dropdown-item>
-                        <b-dropdown-item @click="deleteUser(data.item.id)">Remove</b-dropdown-item>
-                    </b-dropdown> -->
+                        <div class="d-flex align-items-center justify-content-center">
+                            <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
+                            <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" v-b-tooltip.hover :to="{ name: 'user.edit', params: { userId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
+                                <span class="ion ion-md-create"></span>
+                            </router-link>
+                            <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteUser(data.item)" v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.linked_id == 0" v-b-tooltip.hover>
+                                <span class="ion ion-md-close"></span>
+                            </b-btn>
+                            <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
+                                <template slot="button-content">
+                                    <i class="ion ion-ios-settings"></i>
+                                </template>
+                                <b-dropdown-item href="javascript:void(0)">View profile</b-dropdown-item>
+                                <b-dropdown-item @click="banUser(data.item.id)">Ban user</b-dropdown-item>
+                                <b-dropdown-item @click="deleteUser(data.item.id)">Remove</b-dropdown-item>
+                            </b-dropdown> -->
+                        </div>
                     </template>
                 </b-table>
             </div>
@@ -216,6 +221,7 @@
             filterStatus: "all",
             // END ---- listing option
             fields: [],
+            isLoadingData: false,
             defaultFields: [
                 {
                     key: "id",
@@ -271,12 +277,10 @@
                 {
                     key: "actions",
                     label: " ",
-                    tdClass: "text-nowrap align-middle text-center col-action",
-                    tdAttr: {
-                        "data-lable": ""
-                    }
-
-                }
+                    sortable: false,
+                    tdClass: "text-nowrap text-center",
+                    thClass: "align-middle text-center"
+                },
             ]
         }),
 
@@ -350,6 +354,9 @@
                 this.loadData(this.curPage,this.searchString,this.sortBy,this.sortDesc);
             },
             loadData(curPage, q = "", orderBy = false, sortDesc = false) {
+                if(this.isLoadingData)
+                    return false;
+
                 var offset = this.perPage * (curPage - 1);
                 this.loadParams = {};
                 this.loadParams.params = {};
@@ -375,7 +382,20 @@
                     this.loadParams.params.status = this.filterStatus;
                 }
 
-                this.$store.dispatch("user/userList", this.loadParams);
+                this.Web.setLoadingPage(true);
+                this.isLoadingData = true;
+
+                this.$store.dispatch("user/userList", this.loadParams)
+                    .then((res)=>{
+                        this.isLoadingData = false;
+                        this.Web.setLoadingPage(false);
+                        // _.forEach(res.data,(v,i)=>{
+                        //     v.roles = v.role.split(';');
+                        // });
+                        // this.listData.data = res.data;
+                        // this.$store.commit("user/setUserList", this.listData);
+                        // console.log('data : ',this.listData);
+                    });
             },
             setStatus(userId, status) {
                 if (status == 1) {

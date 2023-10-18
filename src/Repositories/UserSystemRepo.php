@@ -199,7 +199,7 @@ class UserSystemRepo extends BaseRepository
 
             if ($generateToken) {
                 $apiTokenData = $this->generateToken($data['id'], $mainRole['role_code'], 1);
-                $data['token'] = $apiTokenData['api_token'];;
+                $data['token'] = $apiTokenData['api_token'];
                 $data['token_id'] = $apiTokenData['id'];
             }
 

@@ -172,11 +172,16 @@ class LoginController extends BaseController
      *      
      * @return Array default synapse api return
      *      data
-     *          user        Array record
+     *          user                Array record
      *          tenant
-     *          role_code   String main role code
-     *          role        Array list role yg dimiliki user
+     *          role                Array list role yg dimiliki user
+     *          role_code           String main role code
+     *          role_group          Array list role group yg dimiliki user
+     *          role_group_code     String role group code yg aktif (sesuai role yg aktifnya)
+     *          role_level_group    Array record role level group yg aktif
+     * 
      *          token       string
+     * 
      *          lastUpdate
      *          validUntil
      */
@@ -232,6 +237,10 @@ class LoginController extends BaseController
             $token = UserRepo::generateToken($user['id'], $this->output['data']['role_code'], 0, $request->input('deviceId', ''), $pushParam);
             $this->output['data']['token'] = $token['api_token'];
 
+            $this->output['data']['role_group'] = [];
+            $this->output['data']['role_group_code'] = '';
+            $this->output['data']['role_level_group'] = [];
+
             //subscribekan ke channel/topic berdasarkan user role nya
             if ($request->input('pushNotifToken')) {
                 $notifChannel[] = 'all';
@@ -242,6 +251,7 @@ class LoginController extends BaseController
             // UserAuth::setUser($user['id'],$token['api_token']);
             return $this->done();
         }
+
         // $this->setError(__('alert.auth_failed'));
         $this->setError(UserRepo::errorFull());
         return $this->done();

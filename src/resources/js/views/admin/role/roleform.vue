@@ -40,6 +40,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Loop Modules -->
                         <template v-for="(moduleRule, key, i) in AppConfig.acl">
                             <template v-if="isInGroup(moduleRule.tenant_group_id)">
                                 <tr class="table-primary" :key="'parent-rule-' + i">
@@ -64,15 +65,18 @@
                                         </div>
                                     </td>
                                 </tr>
+                                <!-- Loop Rule -->
                                 <template v-for="(rule, ruleKey, index) in moduleRule.children">
                                     <tr :key="'rulekey' + ruleKey" v-if="isInGroup(rule.tenant_group_id)">
-                                        <th scope="row">{{ index + 1 }}</th>
+                                        <th scope="row">{{ i + 1 }}.{{ index + 1 }}</th>
                                         <td></td>
-                                        <td :class="'rulekey-' + dotCount(ruleKey)">
-                                            <!-- <span class="ion ion-md-return-right" v-if="dotCount(ruleKey)>1"></span> -->
-                                            {{ Trans.chose(rule.acl_caption) }}
-                                            <div v-if="rule.acl_description != ''">
-                                                <i>{{ Trans.chose(rule.acl_description) }}</i>
+                                        <td>
+                                            <div :style="'padding-left: ' + calcPadding(ruleKey) + 'px;'">
+                                                <!-- <span class="ion ion-md-return-right" v-if="calcPadding(ruleKey)>1"></span> -->
+                                                {{ Trans.chose(rule.acl_caption) }}
+                                                <div v-if="rule.acl_description != ''">
+                                                    <i>{{ Trans.chose(rule.acl_description) }}</i>
+                                                </div>
                                             </div>
                                         </td>
                                         <!-- jika hanya has_access nya aja yg ditampilkan, maka cukup tampilkan 1 check rule -->
@@ -115,21 +119,21 @@
 <!-- Page -->
 <style src="@/vendor/styles/pages/users.scss" lang="scss"></style>
 <style scoped>
-.rulekey-2 {
-    padding-left: 40px;
-}
-.rulekey-3 {
-    padding-left: 80px;
-}
-.rulekey-4 {
-    padding-left: 120px;
-}
-.rulekey-5 {
-    padding-left: 160px;
-}
-.rulekey-6 {
-    padding-left: 200px;
-}
+    .rulekey-2 {
+        padding-left: 40px;
+    }
+    .rulekey-3 {
+        padding-left: 80px;
+    }
+    .rulekey-4 {
+        padding-left: 120px;
+    }
+    .rulekey-5 {
+        padding-left: 160px;
+    }
+    .rulekey-6 {
+        padding-left: 200px;
+    }
 </style>
 <script>
 import { required, minLength, minValue } from "node_modules/vuelidate/lib/validators";
@@ -193,8 +197,8 @@ export default {
     },
     methods: {
         // untuk cek banyaknya titik pada rule key, karena parent dan child rule dipisah oleh titik
-        dotCount(key) {
-            return key.split(".").length - 1;
+        calcPadding(key) {
+            return (key.split(".").length - 2) * 40;
         },
         /**
          * cek apakah curTenantGroup (tenant_group_id dari menu) menampilkan menu atau tidak

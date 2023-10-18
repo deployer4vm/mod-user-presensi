@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 use Exception;
-use Validator;
-use Mail;
+use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
 use hpsynapse\moduser\Facades\UserLog;
@@ -20,6 +19,7 @@ use hpsynapse\moduser\Models\UserProfile;
 use hpsynapse\moduser\Models\PasswordReset;
 use hpsynapse\moduser\Models\UserRole;
 use hpsynapse\moduser\Models\Role;
+use hpsynapse\moduser\Models\UserOTP;
 // use hpsynapse\moduser\Models\ApiToken;
 use Illuminate\Support\Str;
 
@@ -28,12 +28,12 @@ use App\Facades\Tenant;
 
 use App\Base\BaseRepository;
 use hpsynapse\moduser\Facades\UserAuth;
-use hpsynapse\moduser\Models\UserOTP;
 
 class UserRepo extends BaseRepository
 {
     use ApiTokenTraits, UserMessageTraits;
 
+    protected $dataUserPagination = false;
 
     public function __construct(User $model)
     {
@@ -42,7 +42,7 @@ class UserRepo extends BaseRepository
 
     /**
      *  true / false operation method
-     * ==========================================================================
+     * =========================================================================
      */
 
     /**

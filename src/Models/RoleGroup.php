@@ -3,18 +3,19 @@
 namespace hpsynapse\moduser\Models;
 
 use App\Base\BaseModel;
+use App\Base\Traits\ModelDataTenant;
 
-/**
- * SUDAH TIDAK DIGUNAKAN
- */
-class UserTenant extends BaseModel
+class RoleGroup extends BaseModel
 {
+    use ModelDataTenant;    
+    protected $connection = 'perTenant'; 
+
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'moduser_user_tenants';
+    protected $table = 'moduser_role_groups';
     
     /**
      * The attributes that aren't mass assignable.
@@ -23,11 +24,10 @@ class UserTenant extends BaseModel
      */
     protected $guarded = ['id','created_at'];
     
-    public function user()
-    {
-        return $this->belongsTo('hpsynapse\moduser\Models\User','user_id');
-    }  
-
+    protected $casts = [
+        // 'rule' => 'array'
+    ];
+    
     public function tenant()
     {
         return $this->belongsTo('App\Models\Tenant','tenant_id');
