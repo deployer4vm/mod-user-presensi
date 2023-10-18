@@ -60,7 +60,10 @@
                         </b-form-group>
                     </div> -->
                     <div>
-                        <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'role.add' }">
+                        <router-link 
+                            v-if="UserAuth.hasAccess(accessRuleKey, 'c')" 
+                            class="btn btn-sm btn-primary w-icon w-50 w-md-auto"
+                            :to="{ name: 'role.add' }">
                             <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
                         </router-link>
                     </div>
@@ -73,33 +76,35 @@
 
             <div class="table-responsive mb-0">
                 <b-table :items="listData.data" :fields="fields" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :striped="true" :bordered="true" class="card-table">
-                    <template v-slot:cell(tenant)="data">
+                    <!-- <template v-slot:cell(tenant)="data">
                         {{ data.item.tenant ? data.item.tenant.name : "" }}
                     </template>
 
                     <template v-slot:cell(tenant_group)="data">
                         {{ data.item.tenant_group ? data.item.tenant_group.name : "" }}
-                    </template>
+                    </template> -->
 
                     <template v-slot:cell(role_code)="data">
                         <b-badge variant="outline-default">{{ data.item.role_code }}</b-badge>
                     </template>
 
                     <template v-slot:cell(actions)="data">
-                        <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
-                        <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" :to="{ name: 'role.edit', params: { roleId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
-                            <span class="ion ion-md-create"></span>
-                        </router-link>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
+                            <router-link class="btn btn-success icon-btn btn-sm" :title="Trans.get('lang.edit')" :to="{ name: 'role.edit', params: { roleId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
+                                <span class="ion ion-md-create"></span>
+                            </router-link>
 
-                        <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteRole(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd')">
-                            <span class="ion ion-md-close"></span>
-                        </b-btn>
-                        <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
-                        <template slot="button-content">
-                            <i class="ion ion-ios-settings"></i>
-                        </template>
-                        <b-dropdown-item @click="deleteRole(data.item.id)">Remove</b-dropdown-item>
-                        </b-dropdown> -->
+                            <b-btn class="btn btn-danger icon-btn btn-sm" :title="Trans.get('lang.delete')" @click="deleteRole(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd')">
+                                <span class="ion ion-md-close"></span>
+                            </b-btn>
+                            <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
+                            <template slot="button-content">
+                                <i class="ion ion-ios-settings"></i>
+                            </template>
+                            <b-dropdown-item @click="deleteRole(data.item.id)">Remove</b-dropdown-item>
+                            </b-dropdown> -->
+                        </div>
                     </template>
                 </b-table>
             </div>
@@ -149,6 +154,8 @@
                 // END ---- listing option
 
                 fields: [],
+
+                isLoadingData: false,
             };
         },
 
@@ -207,6 +214,9 @@
                 this.loadData(this.curPage,this.searchString,this.sortBy,this.sortDesc);
             },
             loadData(curPage, q = "", orderBy = false, sortDesc = false) {
+                if(this.isLoadingData)
+                    return false;
+
                 var offset = this.perPage * (curPage - 1);
                 this.loadParams = {};
 
@@ -228,17 +238,23 @@
 
                 if (this.filterStatus != "all") {
                     this.loadParams.status = this.filterStatus;
+                
                 }
 
-                this.$store.dispatch("role/roleList", this.loadParams);
-                // .then((res)=>{
-                //     _.forEach(res.data,(v,i)=>{
-                //         v.roles = v.role.split(';');
-                //     });
-                //     this.listData.data = res.data;
-                //     // this.$store.commit("user/setUserList", this.listData);
-                //     // console.log('data : ',this.listData);
-                // });
+                this.Web.setLoadingPage(true);
+                this.isLoadingData = true;
+
+                this.$store.dispatch("role/roleList", this.loadParams)
+                    .then((res)=>{
+                        this.isLoadingData = false;
+                        this.Web.setLoadingPage(false);
+                        // _.forEach(res.data,(v,i)=>{
+                        //     v.roles = v.role.split(';');
+                        // });
+                        // this.listData.data = res.data;
+                        // this.$store.commit("user/setUserList", this.listData);
+                        // console.log('data : ',this.listData);
+                    });
             },
             deleteRole(roleId) {
                 if (!this.UserAuth.hasAccess(this.accessRuleKey, "d")) {
@@ -324,25 +340,25 @@
                     }
                 },
 
-                {
-                    key: "tenant",
-                    label: this.Trans.get("role.field_caption.tenant"),
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": this.Trans.get("role.field_caption.tenant")
-                    }
-                },
+                // {
+                //     key: "tenant",
+                //     label: this.Trans.get("role.field_caption.tenant"),
+                //     sortable: true,
+                //     tdClass: "align-middle",
+                //     tdAttr: {
+                //         "data-lable": this.Trans.get("role.field_caption.tenant")
+                //     }
+                // },
 
-                {
-                    key: "tenant_group",
-                    label: this.Trans.get("role.field_caption.tenant_group"),
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": this.Trans.get("role.field_caption.tenant_group")
-                    }
-                },
+                // {
+                //     key: "tenant_group",
+                //     label: this.Trans.get("role.field_caption.tenant_group"),
+                //     sortable: true,
+                //     tdClass: "align-middle",
+                //     tdAttr: {
+                //         "data-lable": this.Trans.get("role.field_caption.tenant_group")
+                //     }
+                // },
 
                 {
                     key: "role_code",
@@ -356,10 +372,9 @@
                 {
                     key: "actions",
                     label: " ",
-                    tdClass: "text-nowrap align-middle text-center col-action",
-                    tdAttr: {
-                        "data-lable": ""
-                    }
+                    sortable: false,
+                    tdClass: "text-nowrap text-center",
+                    thClass: "align-middle text-center"
                 },
             ];
 

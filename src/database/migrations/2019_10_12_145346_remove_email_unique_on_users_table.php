@@ -17,8 +17,9 @@ class RemoveEmailUniqueOnUsersTable extends Migration
     public function up()
     {
         if (config('AppConfig.system.multitenant.active', false) && $this->tenantMigrateMode() == false) {
-            $schemaManager = Schema::connection(config('database.perTenant') . $tenant['id'])->getConnection()
-                ->getDoctrineSchemaManager();
+            // $schemaManager = Schema::connection(config('database.perTenant') . $tenant['id'])->getConnection()
+            //     ->getDoctrineSchemaManager();
+            $schemaManager = Schema::getDoctrineSchemaManager();
             $indexesFound  = $schemaManager->listTableIndexes('users');
             if (array_key_exists('users_email_unique', $indexesFound)) {
                 Schema::table('users', function (Blueprint $table) {

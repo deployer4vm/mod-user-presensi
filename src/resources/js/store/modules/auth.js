@@ -10,10 +10,15 @@ var encryptor = new Encryptor({
 const state = {
     token: null, //token akses API
     userId: null,
-    tenant: null,//aktif tenant
+    // tenant: null,//aktif tenant
     user: null, //data komplit user
     role: null, //list role user
     role_code: null, //main / active role
+    //
+    role_group: null, // list role group dan relasi datanya
+    role_group_code: null, // role group code yg aktif (sesuai role yg aktifnya)
+    role_level_group: null, // Array record role level group yg aktif
+    //
     group_app: null //group app saat login, agar jike berpindah akan di logout kan
 };
 
@@ -58,8 +63,12 @@ const mutations = {
         state.user = userData.user;
         state.userId = userData.user.id;
         state.role = userData.role;
-        state.tenant = userData.tenant;
         state.role_code = userData.role_code;
+        //
+        state.role_group = userData.role_group;
+        state.role_group_code = userData.role_group_code;
+        state.role_level_group = userData.role_level_group;
+        // state.tenant = userData.tenant;
     },
     setActiveRoleCode(state, roleCode) {
         state.role_code = roleCode;
@@ -72,9 +81,14 @@ const mutations = {
         state.userId = null;
         state.user = null;
         state.role = null;
-        state.tenant = null;
         state.role_code = null;
+        //
+        state.role_group = null;
+        state.role_group_code = null;
+        state.role_level_group = null;
+        //
         state.group_app = null;
+        // state.tenant = null;
     },
     setGroupApp(state, groupApp) {
         state.group_app = groupApp;
@@ -98,7 +112,11 @@ const actions = {
                     user: res.data.data.user,
                     role: res.data.data.role,
                     tenant: res.data.data.tenant,
-                    role_code: res.data.data.role_code
+                    role_code: res.data.data.role_code,
+                    //
+                    role_group: res.data.data.role_group,
+                    role_group_code: res.data.data.role_group_code,
+                    role_level_group: res.data.data.role_level_group,
                 });
 
                 //set token di LocalApi
@@ -201,8 +219,12 @@ const actions = {
             token: state.token,
             user: state.user,
             role: state.role,
-            tenant: state.tenant,
-            role_code: state.role_code
+            role_code: state.role_code,
+            //
+            role_group: state.role_group,
+            role_group_code: state.role_group_code,
+            role_level_group: state.role_level_group,
+            // tenant: state.tenant,
         }
         EventBus.$emit('onLogout', JSON.parse(JSON.stringify(userData)));
     },

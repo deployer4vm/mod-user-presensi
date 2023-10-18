@@ -27,8 +27,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'all_tenant', 'user_idcode', 'name', 'username', 'email', 'phone', 'password', 'auth_password',
         'socialauth_facebook_id', 'socialauth_facebook_token', 'socialauth_facebook_data',
-        'socialauth_google_id', 'socialauth_google_token', 'socialauth_google_data', 'level',
-        'note', 'role',  'status', 'banned_note', 'system_user', 'secret_key', 'tenant_id', 'pin'
+        'socialauth_google_id', 'socialauth_google_token', 'socialauth_google_data', 'level','user_type',
+        'note', 'role',  'status', 'banned_note', 'system_user','dashboard_type', 'secret_key', 'tenant_id', 'pin'
     ];
 
     /**
@@ -47,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
     ];
 
     public function profile()
@@ -63,7 +64,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne('hpsynapse\moduser\Models\UserOtp', 'user_id');
     }
-
 
     public function mainRole()
     {
@@ -82,17 +82,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany('hpsynapse\moduser\Models\UserTenant', 'user_id');
     }
 
-    public function tenant()
-    {
-        return $this->hasManyThrough(
-            'App\Models\Tenant', // table tujuan
-            'hpsynapse\moduser\Models\UserTenant', // table transaksi
-            'tenant_id', // Foreign key on table transaksi...
-            '', // Foreign key on table tujuan...
-            '', // Local key on main model table...
-            'user_id' // Local key on table transaksi...
-        );
-    }
+    // public function tenant()
+    // {
+    //     return $this->hasManyThrough(
+    //         'App\Models\Tenant', // table tujuan
+    //         'hpsynapse\moduser\Models\UserTenant', // table transaksi
+    //         'tenant_id', // Foreign key on table transaksi...
+    //         '', // Foreign key on table tujuan...
+    //         '', // Local key on main model table...
+    //         'user_id' // Local key on table transaksi...
+    //     );
+    // }
 
     public function apiToken()
     {
