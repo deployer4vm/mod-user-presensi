@@ -205,7 +205,7 @@
                                 </div> 
                                 @if(\UserAuth::hasAccess('moduser.user','u'))
                                 <div @click="showForm(false,item.id)" class="btn btn-success btn-xs icon-btn md-btn-flat article-tooltip" title="Edit">
-                                    <i class="ion ion-md-create"></i>
+                                    <i class="fi fi-rs-edit"></i>
                                 </div> 
                                 @endif
                                 @if(\UserAuth::hasAccess('moduser.user','d'))
@@ -219,7 +219,7 @@
                                     <i class="ion ion-md-eye"></i>
                                 </div>
                                 <div @click="showForm(false,item.id)" class="btn btn-success btn-xs icon-btn md-btn-flat article-tooltip" title="Edit">
-                                    <i class="ion ion-md-create"></i>
+                                    <i class="fi fi-rs-edit"></i>
                                 </div> 
                             </template>
                         </td>
