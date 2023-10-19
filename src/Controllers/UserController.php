@@ -503,14 +503,14 @@ class UserController extends BaseController
             $userToken = $input['token'];
 
             // Mencari UserOtp dengan user_id yang sesuai
-            $userOtp = UserOtp::where('user_id', $userId)->first();
+            $userOtp = UserOTP::where('user_id', $userId)->first();
 
             if ($userOtp && $userOtp->token === $userToken) {
                 if (UserRepo::updateUser($id, $input)) {
                     $this->setAlert('Data Updated successfully', 'success');
 
                     // Jika pembaruan berhasil, hapus token
-                    UserOtp::where('user_id', $userId)->delete();
+                    UserOTP::where('user_id', $userId)->delete();
                 } else {
                     $this->setAlert(UserRepo::error(), 'danger');
                     $this->setError(UserRepo::error());

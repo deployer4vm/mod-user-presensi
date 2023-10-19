@@ -62,7 +62,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function otp()
     {
-        return $this->hasOne('hpsynapse\moduser\Models\UserOtp', 'user_id');
+        return $this->hasOne('hpsynapse\moduser\Models\UserOTP', 'user_id');
     }
 
     public function mainRole()
