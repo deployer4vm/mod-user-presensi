@@ -34,7 +34,8 @@ return [
         'tab_profile_caption' => 'Profile'
     ],
     'alert' => [
-        'password_not_match' => 'Password tidak sama'
+        'email_invalid' => 'Email tidak valid',
+        'password_not_match' => 'Password tidak sama',
     ],
     'systemuser' => [
         'role_list' => 'Manage Role System ',
