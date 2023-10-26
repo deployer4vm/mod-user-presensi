@@ -57,12 +57,12 @@
                             </b-btn>
                         </b-form-group>
                     </div> -->
-                    <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'systemuser.add' }">
-                            <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
-                        </router-link>
-                    <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'r')" class="btn btn-secondary d-block mx-1" :to="{ name: 'systemuser.role' }">
-                            <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.systemuser.role_list") }}
-                        </router-link>
+                    <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-sm btn-primary w-icon w-md-auto" :to="{ name: 'systemuser.add' }">
+                        <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
+                    </router-link>
+                    <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'r')" class="btn btn-sm btn-secondary w-icon w-md-auto" :to="{ name: 'systemuser.role' }">
+                        <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.systemuser.role_list") }}
+                    </router-link>
                 </div>
             </b-card-body>
             <!-- / Table controls -->
@@ -85,24 +85,29 @@
                     </template>
 
                     <template v-slot:cell(actions)="data">
-                        <b-btn class="btn btn-info btn-sm md-btn-flat" v-if="data.item.api_token" 
-                            v-clipboard:copy="data.item.api_token.api_token" v-clipboard:success="copySuccess"
-                            v-clipboard:error="copyFail"
-                        >
-                            Copy Token
-                        </b-btn>
-                        <b-btn class="btn btn-primary btn-sm md-btn-flat" v-if="!data.item.api_token"
-                            @click="generateToken(data.item.id)"
-                        >
-                            Generate Token
-                        </b-btn>
-                        <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
-                        <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" v-b-tooltip.hover :to="{ name: 'systemuser.edit', params: { userId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
-                            <span class="ion ion-md-create"></span>
-                        </router-link>
-                        <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteUser(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.linked_id == 0" v-b-tooltip.hover>
-                            <span class="ion ion-md-close"></span>
-                        </b-btn>
+                        
+                        <div class="d-flex align-items-center justify-content-center">
+                            
+                            <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
+                            <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" v-b-tooltip.hover :to="{ name: 'systemuser.edit', params: { userId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
+                                <span class="ion ion-md-create"></span>
+                            </router-link>
+                            <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteUser(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.linked_id == 0" v-b-tooltip.hover>
+                                <span class="ion ion-md-close"></span>
+                            </b-btn>
+
+                            <b-btn class="btn btn-info btn-sm md-btn-flat" v-if="data.item.api_token" 
+                                v-clipboard:copy="data.item.api_token.api_token" v-clipboard:success="copySuccess"
+                                v-clipboard:error="copyFail"
+                            >
+                                Copy Token
+                            </b-btn>
+                            <b-btn class="btn btn-primary btn-sm md-btn-flat" v-if="!data.item.api_token"
+                                @click="generateToken(data.item.id)"
+                            >
+                                Generate Token
+                            </b-btn>
+                        </div>
                         <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
                         <template slot="button-content">
                             <i class="ion ion-ios-settings"></i>
@@ -312,14 +317,24 @@
             },
             generateToken(id)
             {
-                this.$store.dispatch("usersystem/generateToken", id)
-                    .then(res => {
-                        this.Web.showAlert({ text: "Token generated" });
-                        this.loadData(1);
-                    })
-                    .catch(res => {
-                        this.Web.showAlert({ text: "Token generated fail", style: "warning" });
-                    });
+                this.Web.showAlert({
+                    styleType: "modal",
+                    style: "warning",
+                    title: "Generate Token",
+                    text: "Generate ulang token ?<br><b>Token lama akan terhapus secara permanen.</b>",
+                    modalButtonCancel: "No",
+                    modalButtonOk: "Yes",
+                    onOk: () => {
+                        this.$store.dispatch("usersystem/generateToken", id)
+                            .then(res => {
+                                this.Web.showAlert({ text: "Token generated" });
+                                this.loadData(1);
+                            })
+                            .catch(res => {
+                                this.Web.showAlert({ text: "Token generated fail", style: "warning" });
+                            });
+                    }
+                });
             },
             initView() {
                 this.Web.setModule("moduser");
@@ -329,7 +344,7 @@
 
                 this.Web.resetBreadcrumb();
                 this.Web.addBreadcrumb(this.Trans.get('lang.home'));
-                this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption));
+                this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.caption));
                 this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption));
                 // this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.PSBBI.access.children.merchant.children.insurance.children.system_user.caption));
 

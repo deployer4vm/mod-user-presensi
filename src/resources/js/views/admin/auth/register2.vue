@@ -81,7 +81,7 @@
                         </form>
                         <!-- / Form -->
 
-                        <div class="text-center text-muted" v-if="AppConfig.packageLocal.moduser.registration.enable">
+                        <div class="text-center text-muted" v-if="authConfig.registration.enable">
                             {{ Trans.get("auth.register.already_have_an_account") }}
                             <router-link tag="a" :to="{ name: 'login' }">{{ Trans.get("auth.register.sigincaption") }}</router-link>
                         </div>
@@ -153,6 +153,9 @@
                     ? this.Web.getTenantName()
                     : this.Web.getAdminTitle();
             },
+            authConfig() {
+                return this.$store.state.authConfig.dataConfig;
+            },
         },
         methods: {
             onSubmit(evt) {
@@ -219,6 +222,8 @@
                 this.formEmpty.phone = this.$route.query.phone;
                 this.form.phone = this.$route.query.phone;
             }
+
+            this.$store.dispatch("authConfig/loadRegistration");
                         
         },
     };

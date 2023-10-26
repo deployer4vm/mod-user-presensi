@@ -53,8 +53,8 @@ if(config('AppConfig.system.use_admin_full_vue',1)!=1){
         Route::get('/revalidate/{appCode}', 'Auth\LoginController@revalidate')->name('auth.reValidate');
         
         //RegisterController
-        Route::get('/register', 'Auth\RegisterController@register')->name('auth.register');//->middleware('AppsPermissionCheck')
-        Route::post('/register', 'Auth\RegisterController@doRegister')->name('auth.doRegister');//->middleware('AppsPermissionCheck')
+        // Route::get('/register', 'Auth\RegisterController@register')->name('auth.register');//->middleware('AppsPermissionCheck')
+        // Route::post('/register', 'Auth\RegisterController@doRegister')->name('auth.doRegister');//->middleware('AppsPermissionCheck')
         
         //ForgotPassowrdController
         Route::get('/forgotpassword', 'Auth\ForgotPasswordController@forgotPassword')->name('auth.forgotPassword');//form forgot password

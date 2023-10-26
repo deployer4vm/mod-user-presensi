@@ -2,16 +2,19 @@
     <div>
         <header-breadcrumb :pageTitle="title" :backPath="{ name: 'home' }" />
 
-        <div class="m-3">
-            <b-card no-body class="overflow-hidden">
+        <b-container>
+            <b-card no-body class="my-4 overflow-hidden">
                 <div class="row no-gutters row-bordered row-border-light">
                     <div class="col-md-3 pt-0">
                         <b-list-group class="account-settings-links" flush>
                             <b-list-group-item button :active="curTab === 'general'"
-                                @click="curTab = 'general'">General</b-list-group-item>
-                            <b-list-group-item button :active="curTab === 'password'" @click="curTab = 'password'">Change
-                                password</b-list-group-item>
-                            <b-list-group-item button :active="curTab === 'pin'" @click="curTab = 'pin'">
+                                @click="curTab = 'general'">
+                                {{ Trans.get("user.form_profile.label.tab.data") }}
+                            </b-list-group-item>
+                            <b-list-group-item button :active="curTab === 'password'" @click="curTab = 'password'">
+                                {{ Trans.get("user.form_profile.label.tab.password") }}
+                            </b-list-group-item>
+                            <b-list-group-item button v-if="authConfig.pin.enable" :active="curTab === 'pin'" @click="curTab = 'pin'">
                                 {{ Trans.get("user.form_profile.label.tab.pin") }}
                             </b-list-group-item>
 
@@ -26,8 +29,8 @@
                     </div>
 
                     <!-- Tab General / Profile -->
-                    <div class="col-md-9" v-if="curTab === 'general'">
-                        <b-card-body class="media align-items-center" v-if="showUserField('avatar')">
+                    <div class="col-md-9" v-show="curTab === 'general'">
+                        <b-card-body v-if="showUserField('avatar')">
                             <!-- <img :src="`${publicUrl}images/avatars/${userForm.id}/${userForm.avatar}`" alt class="d-block ui-w-80" />
                             <div class="media-body ml-4">
                                 <b-btn variant="outline-primary">Upload new photo</b-btn>&nbsp;
@@ -35,23 +38,37 @@
                                 <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
                             </div> -->
 
-                            <image-crop-upload v-if="userForm.id" :imagePath="userForm.avatar"
+                            <!-- <image-crop-upload v-if="userForm.id" :imagePath="userForm.avatar"
                                 @setValue="userForm.avatar = $event" maxSize="800000"
                                 :fieldCaption="Trans.get('user.field_caption.avatar')" fieldName="avatar">
-                            </image-crop-upload>
+                            </image-crop-upload> -->
+
+                            <!-- Foto -->
+                            <b-form-group
+                                :label="Trans.get('user.field_caption.avatar')"
+                            >
+                                <upload-file-list
+                                    :files="userForm.avatar"
+                                    @onFiles="userForm.avatar = $event"
+                                    :firstFileAsCover="true"
+                                    :canMovePos="false"
+                                    :multiple="false"
+                                    :title="''"                    
+                                />
+                            </b-form-group>
                         </b-card-body>
 
                         <hr class="border-light m-0" />
                         <b-card-body>
-                            <b-form-group label="Username">
+                            <b-form-group :label="Trans.get('user.field_caption.username')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
                                 <b-input v-model="userForm.username" :readonly="true" />
                             </b-form-group>
 
-                            <b-form-group label="Name">
+                            <b-form-group :label="Trans.get('user.field_caption.name')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
                                 <b-input v-model="userForm.name" />
                             </b-form-group>
 
-                            <b-form-group label="Email">
+                            <b-form-group :label="Trans.get('user.field_caption.email')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
                                 <b-input v-model="userForm.email" />
                                 <b-alert variant="warning" show class="mt-3 mb-0" v-if="!userForm.email_verified_at && userForm.email == oldEmail
                                     ">
@@ -63,7 +80,7 @@
                                 </b-alert>
                             </b-form-group>
 
-                            <b-form-group label="Phone" v-if="showUserField('phone')">
+                            <b-form-group :label="Trans.get('user.field_caption.phone')" v-if="showUserField('phone')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
                                 <b-input v-model="userForm.phone" />
                                 <b-alert variant="warning" show class="mt-3 mb-0" v-if="false">
                                     Your phone is not confirmed.
@@ -73,11 +90,7 @@
                             </b-form-group>
 
                             <hr class="border-light m-0" />
-
-                            <!-- <b-form-group label="PIN (6 Digit)">
-                                <b-input type="password" :class="{ 'form-control': true, 'is-invalid': $v.userForm.pin.$error ? true : false }" maxlength="6" v-model="userForm.pin" />
-                            </b-form-group> -->
-
+                            
                             <div class="text-right mt-3">
                                 <b-btn @click="saveUser" variant="primary">Save changes</b-btn>
                             </div>
@@ -86,19 +99,32 @@
                     <!-- / Tab General / Profile -->
 
                     <!-- Tab Change Password -->
-                    <div class="col-md-9" v-if="curTab === 'password'">
+                    <div class="col-md-9" v-show="curTab === 'password'">
                         <b-card-body>
-                            <b-form-group label="New password">
-                                <b-input type="password" v-model="passwordForm.password" />
-
+                            <!-- password -->
+                            <b-form-group label="New password" label-align-md="right" label-class="pr-md-4" :label-cols-md="4">
+                                <b-input :class="{
+                                    'form-control': true,
+                                    'is-invalid': $v.passwordForm.password.$error ? true : false,
+                                }" type="password" v-model="passwordForm.password" />
                                 <small>{{
                                     Trans.get("user.field_description.password")
                                 }}</small>
+                                <invalid-tooltip :inputItem="$v.passwordForm.password"
+                                    :fieldName="Trans.get('user.field_caption.password')" />
                             </b-form-group>
-                            <b-form-group label="Repeat new password">
-                                <b-input type="password" v-model="passwordForm.password_confirmation" />
+                            <!-- confirm password -->
+                            <b-form-group label="Repeat new password" label-align-md="right" label-class="pr-md-4" :label-cols-md="4">
+                                <b-input :class="{
+                                    'form-control': true,
+                                    'is-invalid': $v.passwordForm.password_confirmation.$error ? true : false,
+                                }" type="password" v-model="passwordForm.password_confirmation" />
+                                <invalid-tooltip :inputItem="$v.passwordForm.password_confirmation"
+                                    :fieldName="Trans.get('user.field_caption.confirm_password')"
+                                    :customAlert="{ sameAsPassword: Trans.get('user.alert.password_not_match') }" />
                             </b-form-group>
 
+                            <hr class="border-light m-0" />
                             <div class="text-right mt-3">
                                 <b-btn @click="savePassword" variant="primary">Save changes</b-btn>
                             </div>
@@ -107,34 +133,34 @@
                     <!-- / Tab Change Password -->
 
                     <!-- Tab Set PIN -->
-                    <div class="col-md-9" v-if="curTab === 'pin'">
+                    <div class="col-md-9" v-if="authConfig.pin.enable" v-show="curTab === 'pin'">
                         <b-card-body>
-                            <!-- inputan token otp -->
-                            <b-form-group :label="Trans.get('user.form_profile.input_caption.token')">
-                                <b-input type="text" :class="{
-                                    'form-control': true,
-                                    'is-invalid': $v.pinForm.token.$error ? true : false,
-                                }" maxlength="8" v-model="pinForm.token" />
-
-                                <invalid-tooltip :inputItem="$v.pinForm.token" :fieldName="Trans.get('user.form_profile.input_caption.token')
-                                    " />
-                            </b-form-group>
-                            <!-- . inputan token otp -->
 
                             <!-- inputan pin baru -->
-                            <b-form-group :label="Trans.get('user.form_profile.input_caption.pin')">
+                            <b-form-group :label="Trans.get('user.field_caption.pin')" label-align-md="right" label-class="pr-md-4" :label-cols-md="4">
                                 <b-input type="password" :class="{
                                     'form-control': true,
                                     'is-invalid': $v.pinForm.pin.$error ? true : false,
-                                }" maxlength="6" v-model="pinForm.pin" />
-
+                                }" :maxlength="authConfig.pin.digit" v-model="pinForm.pin" />
                                 <invalid-tooltip :inputItem="$v.pinForm.pin"
-                                    :fieldName="Trans.get('user.form_profile.input_caption.pin')" />
+                                    :fieldName="Trans.get('user.field_caption.pin')" />
+                            </b-form-group>
+                            <!-- confirm pin baru -->
+                            <b-form-group :label="Trans.get('user.field_caption.confirm_pin')" label-align-md="right" label-class="pr-md-4" :label-cols-md="4">
+                                <b-input type="password" :class="{
+                                    'form-control': true,
+                                    'is-invalid': $v.pinForm.confirm_pin.$error ? true : false,
+                                }" :maxlength="authConfig.pin.digit" v-model="pinForm.confirm_pin" />
+
+                                <invalid-tooltip :inputItem="$v.pinForm.confirm_pin"
+                                    :fieldName="Trans.get('user.field_caption.confirm_pin')"
+                                    :customAlert="{ sameAsPin: Trans.get('user.alert.pin_not_match') }" />
                             </b-form-group>
                             <!-- / inputan pin baru -->
 
-                            <div class="text-right mt-3" style="display: flex; justify-content: end;">
-                                <b-btn @click="sendOtp" variant="primary">Get OTP</b-btn>
+                            <hr class="border-light m-0" />
+
+                            <div class="text-right mt-3 d-flex justify-content-end">
                                 <b-btn @click="savePin" variant="primary">{{
                                     Trans.get("lang.save_change")
                                 }}</b-btn>
@@ -150,7 +176,8 @@
                     </template>
                 </div>
             </b-card>
-        </div>
+        </b-container>
+        <user-otp :showForm="showOtpForm" :hideForm="hideOtpForm" @submitOtp="doSavePin"></user-otp>
     </div>
 </template>
 
@@ -170,6 +197,7 @@ import {
     minLength,
     maxLength,
     email,
+    sameAs
 } from "node_modules/vuelidate/lib/validators";
 import { Encryptor } from "node_modules/node-laravel-encryptor";
 
@@ -178,7 +206,6 @@ export default {
     components: {
         Multiselect,
     },
-    computed: {},
     validations() {
         let data = {
             userForm: {
@@ -187,38 +214,35 @@ export default {
                 },
                 email: {
                     email,
+                }
+            },
+            passwordForm: {
+                
+                password: {
+                    required,
+                    minLength: minLength(this.authConfig.password.minlength),
                 },
-                // pin: {
-                //     minLength: minLength(6),
-                //     maxLength: maxLength(6)
-                // }
+                password_confirmation: {
+                    required,
+                    minLength: minLength(this.authConfig.password.minlength),
+                    sameAsPassword: sameAs('password')
+                }
             },
             pinForm: {
-                token: {
-                    required,
-                    minLength: minLength(8),
-                    maxLength: maxLength(8),
-                },
 
                 pin: {
                     required,
-                    minLength: minLength(6),
-                    maxLength: maxLength(6),
+                    minLength: minLength(this.authConfig.pin.digit),
+                    maxLength: maxLength(this.authConfig.pin.digit),
                 },
+                confirm_pin: {
+                    required,
+                    minLength: minLength(this.authConfig.pin.digit),
+                    maxLength: maxLength(this.authConfig.pin.digit),
+                    sameAsPin: sameAs('pin')
+                }
             },
         };
-
-        // if(this.form.password != '') {
-        //     data.form.password = {
-        //             required: requiredIf(function(n) {
-        //                 return this.isAdd;
-        //             }),
-        //             minLength: minLength(6)
-        //         };
-        //     data.form.repassword = {
-        //             sameAsPassword: sameAs('password')
-        //         };
-        // }
 
         return data;
     },
@@ -242,39 +266,34 @@ export default {
             // pin: ""
         },
         pinForm: {
-            token: "",
+            // token: "",
             pin: "",
+            confirm_pin: ""
         },
         oldEmail: "", //data email sebelum diedit
         profileTabAdds: [],
+        // trigger otp form
+        showOtpForm: true,
+        hideOtpForm: true,
     }),
     computed: {
-        // userForm:{
-        //   get() {
-        //     return this.$store.state.user.userForm;
-        //   },
-        //   set(value) {
-        //     this.$store.commit('userStore/setUserForm', value);
-        //   }
-        // }
         title() {
             return this.Trans.get("user.my_profile");
+        },
+        authConfig() {
+            return this.$store.state.authConfig.dataConfig;
         },
     },
     created() {
         this.userForm = this.UserAuth.getUser();
-        this.pinForm.token = this.userForm.token;
         this.pinForm.pin = this.userForm.pin;
+        
+        this.$store.dispatch("authConfig/loadPassword");
+        this.$store.dispatch("authConfig/loadOtp");
+        this.$store.dispatch("authConfig/loadPin");
+
         this.getUser(this.UserAuth.getUser("id"));
         this.initView();
-        var that = this;
-        // setTimeout(() => {
-        //     that.profileTabAdds.push({
-        //         caption: 'Profile',
-        //         component: 'profile-tab-profile',
-        //         id: 'profile'
-        //     });
-        // }, 500);
     },
     methods: {
         showUserField(field) {
@@ -300,9 +319,9 @@ export default {
             );
         },
         saveUser(evt) {
-            var encryptor = new Encryptor({
-                key: this.AppConfig.client.secret_key,
-            });
+            // var encryptor = new Encryptor({
+            //     key: this.AppConfig.client.secret_key,
+            // });
             let data = {
                 id: this.userForm.id,
                 username: this.userForm.username,
@@ -339,7 +358,20 @@ export default {
                     });
                 });
         },
-        savePassword() {
+        savePassword(ev) {
+            ev.preventDefault();
+            if (this.$v.passwordForm) {
+                this.$v.passwordForm.$touch();
+                if (this.$v.passwordForm.$error) {
+                    this.Web.showAlert({
+                        title: this.Trans.get("alert.form_must_complete_title"),
+                        text: this.Trans.get("alert.form_must_complete_text"),
+                        type: "warning",
+                    });
+                    return false;
+                }
+            }
+
             var encryptor = new Encryptor({
                 key: this.AppConfig.client.secret_key,
             });
@@ -372,30 +404,12 @@ export default {
                     });
                 });
         },
-        // funsi untuk send otp
-        sendOtp() {
-            this.LocalApi.post(this.AppConfig.endpoint.api.moduser + "/sendOtp")
-                .then((res) => {
-                    this.Web.showAlert({ text: "kode otp telah terkirim" });
-                })
-                .catch((res) => {
-                    this.Web.showAlert({
-                        title: this.Trans.get("alert.warning_title"),
-                        text:
-                            this.Trans.get("alert.update_failed", { attribute: "Data" }) +
-                            "<br>\n" +
-                            res.message,
-                        type: "warning",
-                    });
-                });
-        },
-
         // fungsi untuk mengubah pin
-        savePin(evt) {
-            evt.preventDefault();
-            if (this.$v) {
-                this.$v.$touch();
-                if (this.$v.$error) {
+        savePin(ev) {
+            ev.preventDefault();
+            if (this.$v.pinForm) {
+                this.$v.pinForm.$touch();
+                if (this.$v.pinForm.$error) {
                     this.Web.showAlert({
                         title: this.Trans.get("alert.form_must_complete_title"),
                         text: this.Trans.get("alert.form_must_complete_text"),
@@ -405,34 +419,40 @@ export default {
                 }
             }
 
+            this.showOtpForm = this.showOtpForm?false:true;
+        },
+        doSavePin(otp){
+
             var encryptor = new Encryptor({
                 key: this.AppConfig.client.secret_key,
             });
             let data = {
                 id: this.userForm.id,
-                token: this.pinForm.token,
-                pin:
-                    this.pinForm.pin != "" ? encryptor.encryptSync(this.pinForm.pin) : "",
+                token: otp,
+                pin: this.pinForm.pin != "" ? encryptor.encryptSync(this.pinForm.pin) : "",
             };
 
             var formData = globals().Helper.convertToFormData(data);
             this.LocalApi.post(
-                this.AppConfig.endpoint.api.moduser + "/profile",
-                formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
-            )
+                    this.AppConfig.endpoint.api.moduser + "/profile",
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                )
                 .then((res) => {
-                    this.Web.showAlert({ text: "berhasil ubah pin" });
+                    this.Web.showAlert({ text: "PIN berhasil diubah" });
+                    this.pinForm.pin = '';
+                    this.pinForm.confirm_pin = '';
+                    this.hideOtpForm = this.hideOtpForm?false:true;// trigger tutup form otp
                 })
                 .catch((res) => {
                     this.Web.showAlert({
                         title: this.Trans.get("alert.warning_title"),
                         text:
-                            this.Trans.get("alert.update_failed", { attribute: "Data" }) +
+                            this.Trans.get("alert.update_failed", { attribute: "PIN" }) +
                             "<br>\n" +
                             res.message,
                         type: "warning",

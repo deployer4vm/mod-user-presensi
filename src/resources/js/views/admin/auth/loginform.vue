@@ -38,7 +38,7 @@
                   tag="a"
                   :to="{name: 'forgotpassword'}"
                   class="d-block small"
-                  v-if="AppConfig.packageLocal.moduser.login.forgotpassword"
+                  v-if="authConfig.login.forgotpassword"
                 >{{ Trans.get('auth.login.forgotpassword') }}</router-link>
               </div>
               <b-input type="password" :state="$v.form.password.$error?'invalid':''" v-model.trim="form.password" @change="$v.form.password.$touch()" />
@@ -49,7 +49,7 @@
               <b-check
                 v-model="form.rememberMe"
                 class="m-0"
-                v-if="AppConfig.packageLocal.moduser.login.rememberme"
+                v-if="authConfig.login.rememberme"
               >{{ Trans.get('auth.login.remember_me') }}</b-check>
               <b-btn type="submit" variant="primary">{{ Trans.get('auth.login.sigincaption') }}</b-btn>
             </div>
@@ -59,7 +59,7 @@
 
         <b-card-footer
           class="py-3 px-4 px-sm-5"
-          v-if="AppConfig.packageLocal.moduser.registration.enable"
+          v-if="authConfig.registration.enable"
         >
           <div class="text-center text-muted">
             {{ Trans.get('auth.login.dont_have_an_account') }}
@@ -109,7 +109,10 @@ export default {
     computed: {
         title() {      
             return this.Web.getTenantName()?this.Web.getTenantName():this.Web.getAdminTitle();
-        }
+        },
+        authConfig() {
+            return this.$store.state.authConfig.dataConfig;
+        },
     },
     methods: {
         onSubmit(evt) {
@@ -146,6 +149,9 @@ export default {
             this.form.rememberMe = false;
         }
     },
-    created() {}
+    created() {        
+        this.$store.dispatch("authConfig/loadRegistration");
+        this.$store.dispatch("authConfig/loadLogin");
+    }
 };
 </script>

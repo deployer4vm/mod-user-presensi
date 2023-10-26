@@ -6,13 +6,15 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+
 use hpsynapse\moduser\Channels\SmsChannels;
+use hpsynapse\moduser\Channels\WhatsAppChannels;
 
 class SendOTP extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $otpcode, $isMainPhone;
+    protected $otpcode,$appName;
 
     protected $primaryKey = 'user_id';
     public $incrementing = false;
@@ -22,11 +24,11 @@ class SendOTP extends Notification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($otpcode, $phone = false)
+    public function __construct($otpcode,$appName)
     {
         $this->otpcode = $otpcode;
-        $this->phone = $phone;
-        // $this->connection = config('bssystem.queue_connection_ac');
+        $this->appName = $appName;
+        
         $this->queue = 'high';
     }
 
@@ -37,8 +39,33 @@ class SendOTP extends Notification implements ShouldQueue
      * @return array
      */
     public function via($notifiable)
+    {        
+        //1 email, 2 sms, 3 wa
+        return [$notifiable->otp_channel==1?'mail':($notifiable->otp_channel==2?SmsChannels::class:WhatsAppChannels::class)];
+    }
+
+    /**
+     *
+     * @param  mixed  $notifiable
+     */
+    public function toSms($notifiable)
     {
-        return [SmsChannels::class];
+        return [
+            'message' => __('auth.profile.otp_sms.message', ['otp' => $this->otpcode,'appName' => $this->appName]),
+            'phone' => $notifiable->phone
+        ];
+    }
+
+    /**
+     *
+     * @param  mixed  $notifiable
+     */
+    public function toWhatsApp($notifiable)
+    {
+        return [
+            'message' => __('auth.profile.otp_sms.message', ['otp' => $this->otpcode,'appName' => $this->appName]),
+            'phone' => $notifiable->phone
+        ];
     }
 
     /**
@@ -47,11 +74,12 @@ class SendOTP extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toSms($notifiable)
+    public function toMail($notifiable)
     {
-        return [
-            'message' => __('notification.yourotpcode', ['otpCode' => $this->otpcode]),
-            'phone' => $this->phone
-        ];
+        $email = new \hpsynapse\moduser\Mail\OTP(
+            $this->otpcode,
+            $this->appName
+        );
+        return $email->to($notifiable->email);
     }
 }

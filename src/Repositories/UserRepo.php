@@ -18,7 +18,9 @@ use hpsynapse\moduser\Models\User;
 use hpsynapse\moduser\Models\UserProfile;
 use hpsynapse\moduser\Models\PasswordReset;
 use hpsynapse\moduser\Models\UserRole;
+use hpsynapse\moduser\Models\UserGroup;
 use hpsynapse\moduser\Models\Role;
+use hpsynapse\moduser\Models\RoleLevelGroup;
 use hpsynapse\moduser\Models\UserOTP;
 // use hpsynapse\moduser\Models\ApiToken;
 use Illuminate\Support\Str;
@@ -27,11 +29,40 @@ use hpsynapse\moduser\Models\UserTenant;
 use App\Facades\Tenant;
 
 use App\Base\BaseRepository;
+use App\Facades\DbConfig;
+use hpsynapse\moduser\Facades\AuthConfig;
 use hpsynapse\moduser\Facades\UserAuth;
 
 class UserRepo extends BaseRepository
 {
     use ApiTokenTraits, UserMessageTraits;
+
+    protected $autoResource = [
+        'Group' => [
+            'r' => UserGroup::class,
+            'w' => UserGroup::class
+        ],
+    ];
+
+    protected $autoResourceSearchField = [
+        'Group' => ['name', 'description', 'code'],
+    ];
+
+    protected $autoResourceCreateValidate = [
+        'Group' => [
+            'tenant_id' => 'required',
+            'name' => 'required',
+            'code' => 'required'
+        ],
+    ];
+
+    protected $autoResourceUpdateValidate = [
+        'Group' => [
+            'tenant_id' => false,
+            'name' => 'required',
+            'code' => 'required'
+        ],
+    ];
 
     protected $dataUserPagination = false;
 
@@ -237,7 +268,7 @@ class UserRepo extends BaseRepository
         $filter['searchField'] = ['name', 'email', 'username'];
         $filter['hiddenColumn'] = ['created_at', 'updated_at', 'cached_at'];
 
-        $user = User::with(['profile', 'roles.role', 'mainRole']);
+        $user = User::with(['profile', 'roles.role', 'mainRole','userGroup','userRoleGroup']);
 
         if (isset($filter['profile'])) {
             $user = $user->whereHas('profile', function ($q) use ($filter) {
@@ -430,7 +461,7 @@ class UserRepo extends BaseRepository
 
             if ($generateToken) {
                 $apiTokenData = $this->generateToken($data['id'], $mainRole['role_code']);
-                $data['token'] = $apiTokenData['api_token'];;
+                $data['token'] = $apiTokenData['api_token'];
                 $data['token_id'] = $apiTokenData['id'];
             }
 
@@ -478,7 +509,7 @@ class UserRepo extends BaseRepository
         }
 
         if ($registerBySystem
-            && config('AppConfig.packageLocal.moduser.registration.admin_send_activation_email')
+            && AuthConfig::isEmailActivationEnabled()
             && isset($userData['email'])
             && !empty($userData['email'])
         ) {
@@ -503,6 +534,8 @@ class UserRepo extends BaseRepository
             'name' => 'required|min:5|max:255',
         ];
 
+        $userData['user_type'] = empty($userData['user_type'])?1:$userData['user_type'];
+
 
         if (!empty($userData['email'])) {
             $validatorRule['email'] = 'required|email|min:5|max:255';
@@ -516,19 +549,23 @@ class UserRepo extends BaseRepository
             $userData['username'] = '';
         }
 
-        if (empty($userData['username']) && empty($userData['email'])) {
+        if (empty($userData['username']) && empty($userData['email']) && $userData['user_type']==1) {
             $this->error = 'Username atau email harus diisi';
             return false;
         }
 
-        if (!isset($userData['password'])) {
-            $userData['password'] = empty($userData['username']) ? $userData['email'] : $userData['username'];
-        }
-        $validatorRule['password'] = 'required|min:5|max:255';
-        if (isset($userData['repassword'])) {
-            $validatorRule['password'] .= '|same:repassword';
-        } else {
-            $validatorRule['password'] .= '|confirmed';
+        if($userData['user_type']==1){
+            if (!isset($userData['password'])) {
+                $userData['password'] = empty($userData['username']) ? $userData['email'] : $userData['username'];
+            }
+            $validatorRule['password'] = 'required|min:5|max:255';
+            if (isset($userData['repassword'])) {
+                $validatorRule['password'] .= '|same:repassword';
+            } else {
+                $validatorRule['password'] .= '|confirmed';
+            }
+        }else{
+            $userData['password'] = '';
         }
 
         $validator = Validator::make($userData, $validatorRule);
@@ -551,11 +588,7 @@ class UserRepo extends BaseRepository
 
         //jika tidak menyertakan role_id maka set default
         if (empty($userData['role_code'])) {
-            if (config('AppConfig.system.web_admin.registration.default_role_code')) {
-                $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
-            } else {
-                $userData['role_code'] = [config('AppConfig.packageLocal.moduser.registration.default_role_code')];
-            }
+            $userData['role_code'] = [AuthConfig::getRegistrationDefaultRoleCode()];            
         }
 
         if (!is_array($userData['role_code'])) $userData['role_code'] = [$userData['role_code']];
@@ -700,6 +733,7 @@ class UserRepo extends BaseRepository
             unset($userData['phone']);
         }
 
+        if (isset($userData['role_group_is_integrated'])) unset($userData['role_group_is_integrated']);
         if (isset($userData['_token'])) unset($userData['_token']);
         if (isset($userData['_method'])) unset($userData['_method']);
         if (isset($userData['created_at'])) unset($userData['created_at']);
@@ -768,7 +802,10 @@ class UserRepo extends BaseRepository
                 unset($userData['role_code'], $userData['role']);
             }
 
-            $this->_update(new User, $userId, $userData);
+            if(!$this->_update(new User, $userId, $userData)){
+                throw new Exception($this->errorFull());
+            }
+
             if (isset($userData['password']) && $userData['password']) {
                 $this->resetPassword($userId, $userData['password']);
             }
@@ -936,11 +973,13 @@ class UserRepo extends BaseRepository
      * @param type $otpCode
      * @return boolean
      */
-    public function varifyPhone($phone, $otpCode)
+    public function varifyPhone($phone, $otpCode, $tenantId = false)
     {
-        if ($this->isOTPValid($phone, $otpCode)) {
+        $tenantId = $tenantId?$tenantId:config('tenant.id',0);
+        $user = User::where('phone', $phone)->where('tenant_id',$tenantId)->first();
+        if ($this->isOTPValid($user->id, $otpCode, $tenantId)) {
             // $phoneField = 'phone';
-            $user = User::where('phone', $phone)->whereNull('phone_verified_at')->first();
+            $user = User::where('phone', $phone)->where('tenant_id',$tenantId)->whereNull('phone_verified_at')->first();
             if (!$user) {
                 $this->error = __('auth.phoneverify_fail_phonenotfound');
                 return false;
@@ -1018,7 +1057,7 @@ class UserRepo extends BaseRepository
         $count = $this->model->whereDate('created_at', '=', Carbon::today()->toDateString())->count() + 1;
         $nextId = $this->nextUserId();
 
-        $zero = str_repeat('0', 8 - strlen($count . $nextId));
+        $zero = strlen($count . $nextId)<9?str_repeat('0', 8 - strlen($count . $nextId)):'';
 
         $idcode = Carbon::today()->format('Ymd') . $nextId . $zero . $count;
         return $idcode;
@@ -1033,7 +1072,8 @@ class UserRepo extends BaseRepository
     /**
      *
      * @param String $userId
-     * @return boolean|array list role user, format mirip data role di APPSSession
+     * @return boolean|array list role user, format mirip data role di APPSSession 
+     *          plus data user role group nya jika ada
      */
     public function getUserRole($userId, $withoutTime = true, $mainRoleOnly = false, $filterByClient = true)
     {
@@ -1044,8 +1084,8 @@ class UserRepo extends BaseRepository
         }
         $userRoleData = $userRoleData->get();
         if (!$userRoleData) return false;
-        foreach ($userRoleData as $key => $value) {
-            $roleData = Role::where('id', $value->role_id)->first();
+        foreach ($userRoleData as $value) {
+            $roleData = Role::with(['roleGroup'])->where('id', $value->role_id)->first();
             if ($roleData) {
                 $roleData = $roleData->toArray();
                 // dd($roleData);
@@ -1058,11 +1098,35 @@ class UserRepo extends BaseRepository
                 if ($withoutTime) {
                     unset($roleData['created_at'], $roleData['updated_at']);
                 }
+
+                // get additional identity data 
+                if($roleData['role_group'] && $roleData['role_group']['has_model']){
+                    $roleData['role_group']['data'] = $roleData['role_group']['model']::where('user_id',$userId)->first();
+                }
+
                 $response[$roleData['role_code']] = $roleData;
             }
         }
 
         return $response;
+    }
+
+    /**
+     * 
+     */
+    public function getRoleLevelGroup($where)
+    {
+        $model =  new RoleLevelGroup();
+        $response = false;
+        if(isset($where['level'])){
+            if($response = $model->where('level_start','<=',$where['level'])->where('level_end','>=',$where['level'])->first()){
+                return $response->toArray();
+            }
+        }else{
+            return $this->_getOne($model, $where);
+        }
+
+        return false;
     }
     
     private function filterByClient($roleData)

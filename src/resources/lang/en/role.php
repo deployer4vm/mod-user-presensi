@@ -6,7 +6,9 @@ return [
         'tenant' => 'Tenant',
         'tenant_group' => 'Tenant Group',
         'role_code' => 'Role Code',
-        'level' => 'Level'
+        'level' => 'Level',
+        'locked_data_mode' => 'Accessibility',
+        'role_group_id' => 'Role Group'
     ],
     'rolelist' => [
         'add_new_role' => 'New Role'
@@ -23,5 +25,18 @@ return [
         'has_access' => 'Has Access',
         'check_all' => 'Check All',
         'uncheck_all' => 'Uncheck All',
+    ],
+    // rule group
+    'role_group' => [
+        'name' => 'Role Group',
+        'data_role_group' => [
+            'name' => '',
+            'field_name' => [
+                
+            ],
+            'field_description' => [],
+            'label' => []
+
+        ]
     ]
 ];

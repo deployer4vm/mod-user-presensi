@@ -2,10 +2,14 @@
 
 namespace hpsynapse\moduser\Channels;
 
+use Illuminate\Notifications\Notification;
+
 class WhatsAppChannels
 {
-    public function send($phone)
+    public function send($notifiable, Notification $notification)
     {
+        $data = $notification->toWhatsApp($notifiable);
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => 'https://graph.facebook.com/v17.0/127106333824838/messages',
@@ -18,7 +22,7 @@ class WhatsAppChannels
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => '{
                 "messaging_product": "whatsapp",
-                "to": ' . $phone . ',
+                "to": ' . $data->phone . ',
                 "type": "template",
                 "template": {
                     "name": "hello_world",
@@ -36,5 +40,16 @@ class WhatsAppChannels
         curl_exec($curl);
 
         curl_close($curl);
+    }
+
+    /**
+     * di class Notification-nya harus ada method ini
+     */
+    public function toWhatsApp($notifiable)
+    {
+        return [
+            'phone' => 'STRING',
+            'message' => 'STRING'
+        ];
     }
 }

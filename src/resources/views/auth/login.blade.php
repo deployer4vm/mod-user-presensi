@@ -61,14 +61,14 @@
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center m-0">
-                                @if(config('AppConfig.packageLocal.moduser.login.rememberme'))
+                                @if($remembermeEnabled)
                                 <label class="custom-control custom-checkbox m-0">
                                     <input type="checkbox" class="custom-control-input" name="remember">
                                     <span class="custom-control-label">{{ __('auth.login.remember_me') }}</span>
                                 </label>
                                 @endif
                                 <button type="submit" class="btn btn-primary">{{ __('auth.login.sigincaption') }}</button>                            
-                                @if(config('AppConfig.packageLocal.moduser.login.forgotpassword'))
+                                @if($forgotpasswordEnabled)
                                 <a href="{{ route('auth.forgotPassword') }}" class="d-block small">{{ __('auth.login.forgotpassword') }}</a>
                                 @endif
                             </div>
@@ -76,7 +76,7 @@
                         </form>
                         <!-- / Form -->
 
-                        @if(config('AppConfig.packageLocal.moduser.registration.enable'))
+                        @if($registerEnabled)
                         <div class="text-center text-muted">
                             {{ __('auth.login.dont_have_an_account') }} <a href="{{ route('auth.register') }}">{{ __('auth.login.signupcaption') }}</a>
                         </div>

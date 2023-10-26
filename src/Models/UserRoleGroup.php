@@ -31,5 +31,10 @@ class UserRoleGroup extends BaseModel
     public function tenant()
     {
         return $this->belongsTo('App\Models\Tenant','tenant_id');
+    }
+    
+    public function roleGroup()
+    {
+        return $this->belongsTo(RoleGroup::class,'role_group_id');
     }   
 }

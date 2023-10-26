@@ -28,10 +28,10 @@ class Role extends BaseModel
         'rule' => 'array'
     ];
     
-    // public function tenantGroup()
-    // {
-    //     return $this->belongsTo('App\Models\TenantGroup','tenant_group_id');
-    // }
+    public function tenantGroup()
+    {
+        return $this->belongsTo('App\Models\TenantGroup','tenant_group_id');
+    }
 
     public function tenant()
     {

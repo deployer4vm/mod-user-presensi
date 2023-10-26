@@ -2,15 +2,29 @@
 
 namespace hpsynapse\moduser\Controllers\Auth;
 
+// 1. Import level PHP
+
+// 2. Import level Package Composer
+
+// 3. Import level Laravel Core
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// 4. Import level Synapse Core
+use App\Base\BaseController;
+use App\Facades\DbConfig;
+
+// 5. Import level Synapse Module Package
+
+// 6. Import level Synapse MainApp & Module MainApp
+
+// 7. Import level Synapse - Current Module
 use hpsynapse\moduser\Facades\UserRepo;
 use hpsynapse\moduser\Facades\RoleRepo;
 use hpsynapse\moduser\Facades\UserNotifRepo;
 use hpsynapse\moduser\Facades\UserAuth;
-
-use App\Base\BaseController;
+use hpsynapse\moduser\Facades\AuthConfig;
+use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends BaseController
 {
@@ -25,51 +39,56 @@ class RegisterController extends BaseController
     /**
      * Register Form (blade)
      */
-    public function register(Request $request, $apps_code = '')
-    {
-        $data['backlink'] = $request->input('backlink');
-        return view('auth.register', $data);
-    }
+    // public function register(Request $request, $apps_code = '')
+    // {
+    //     $data['backlink'] = $request->input('backlink');
+    //     return view('auth.register', $data);
+    // }
 
-    public function doRegister(Request $request, $apps_code = '')
-    {
-        $returnParam['backlink'] = $response['backlink'] = $request->input('backlink') ? $request->input('backlink') : config('cur_apps.home_url');
-        $returnParam['apps_code'] = $apps_code;
-        $response['isRegistered'] = 1;
-        $response['isLogin'] = 1;
-        $response['reff'] = 'register';
+    // public function doRegister(Request $request, $apps_code = '')
+    // {
+    //     if(!AuthConfig::isSelfRegistrationEnabled()){
+    //         $this->setError(__('auth.register.alert.self_registration_disabled'));
+    //         return redirect()->route('auth.register')->with('alert', ['type' => 'warning', 'message' => __('auth.registerfailed', ['error' => UserRepo::error()])])->withInput();
+    //     }
 
-        $userData = $request->all(); //$request->only(['name', 'email', 'password', 'password_confirmation']);
-        $request->validate([
-            'name' => 'required|min:3|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|max:20',
-            'password' => 'required|min:5|max:255',
-            'password_confirmation' => 'required|min:5|max:255|same:password',
-            'tos_confirm' => 'required'
-        ]);
+    //     $returnParam['backlink'] = $response['backlink'] = $request->input('backlink') ? $request->input('backlink') : config('cur_apps.home_url');
+    //     $returnParam['apps_code'] = $apps_code;
+    //     $response['isRegistered'] = 1;
+    //     $response['isLogin'] = 1;
+    //     $response['reff'] = 'register';
 
-        $regUserData = UserRepo::register($userData);
+    //     $userData = $request->all(); //$request->only(['name', 'email', 'password', 'password_confirmation']);
+    //     $request->validate([
+    //         'name' => 'required|min:3|max:255',
+    //         'email' => 'required|email|max:255',
+    //         'phone' => 'required|max:20',
+    //         'password' => 'required|min:5|max:255',
+    //         'password_confirmation' => 'required|min:5|max:255|same:password',
+    //         'tos_confirm' => 'required'
+    //     ]);
 
-        //jika berhasil
-        if ($regUserData) {
-            $userModel = UserRepo::getUserModel($regUserData['id']);
-            Auth::login($userModel);
-            AcSSOService::setUser(
-                $regUserData['id'],
-                [
-                    'id' => $regUserData['token_id'],
-                    'api_token' => $regUserData['token']
-                ]
-            );
-            $response['token'] = AcSSOService::getUserToken();
-            UserRepo::activateUser($regUserData['id']);
-            $response['alert'] = ['type' => 'info', 'message' => __('auth.registersuccess')];
-            return $this->authDone($response);
-        }
+    //     $regUserData = UserRepo::register($userData);
 
-        return redirect()->route('auth.register', $returnParam)->with('alert', ['type' => 'warning', 'message' => __('auth.registerfailed', ['error' => UserRepo::error()])])->withInput();
-    }
+    //     //jika berhasil
+    //     if ($regUserData) {
+    //         $userModel = UserRepo::getUserModel($regUserData['id']);
+    //         Auth::login($userModel);
+    //         AcSSOService::setUser(
+    //             $regUserData['id'],
+    //             [
+    //                 'id' => $regUserData['token_id'],
+    //                 'api_token' => $regUserData['token']
+    //             ]
+    //         );
+    //         $response['token'] = AcSSOService::getUserToken();
+    //         UserRepo::activateUser($regUserData['id']);
+    //         $response['alert'] = ['type' => 'info', 'message' => __('auth.registersuccess')];
+    //         return $this->authDone($response);
+    //     }
+
+    //     return redirect()->route('auth.register', $returnParam)->with('alert', ['type' => 'warning', 'message' => __('auth.registerfailed', ['error' => UserRepo::error()])])->withInput();
+    // }
 
     /*
      * =========================================================================
@@ -104,6 +123,12 @@ class RegisterController extends BaseController
      */
     public function apiRegister(Request $request)
     {
+        
+        if(!AuthConfig::isSelfRegistrationEnabled()){
+            $this->setError(__('auth.register.alert.self_registration_disabled'));
+            return $this->done();
+        }
+        
         $userData = $request->all(); //$request->only(['name', 'email', 'gender', 'password', 'password_confirmation']);
 
         // jika tidak menyer
@@ -111,7 +136,7 @@ class RegisterController extends BaseController
             $userData['username'] = $userData['email'];
 
         // jika wajib ada tos_confirm maka validasi
-        if (config('AppConfig.packageLocal.moduser.registration.tos_confirm', 0) == 1) {
+        if (!AuthConfig::isSelfRegistrationTosConfirm()) {
             if (!isset($userData['tos_confirm']) || $userData['tos_confirm'] == 0) {
                 $this->setError(__('auth.register.alert.tos_confirm_required'));
                 return $this->done();
@@ -122,7 +147,7 @@ class RegisterController extends BaseController
         if (isset($userData['role_code'])) {
         }
 
-        $validator = \Validator::make($userData, [
+        $validator = Validator::make($userData, [
             'username' => 'required|min:3|max:255',
             'name' => 'required|min:3|max:255',
             'email' => 'required|email|max:255',
@@ -138,7 +163,7 @@ class RegisterController extends BaseController
             //jika berhasil
             if ($regUserData) {
 
-                if (config('AppConfig.packageLocal.moduser.registration.auto_activate', 0) == 1)
+                if (AuthConfig::isSelfRegistrationAutoActivate())
                     UserRepo::activateUser($regUserData['id']);
 
                 if ($request->input('pushNotifToken')) {

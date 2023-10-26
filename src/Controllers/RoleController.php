@@ -2,6 +2,7 @@
 
 namespace hpsynapse\moduser\Controllers;
 
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 use hpsynapse\moduser\Facades\RoleRepo;
@@ -14,6 +15,20 @@ class RoleController extends BaseController
 {
     protected $accessRuleKey = 'moduser.role';
 
+    private function accessCheck($rw = 'r')
+    {
+        $access = (UserAuth::hasAccess($this->accessRuleKey, $rw)
+            || UserAuth::isWebDev());
+
+        $hasAccess = true;
+        if (!$access) {
+            $hasAccess = false;
+            $this->setError(__('alert.access_denied'), false, 403);
+        }
+
+        return $hasAccess;
+    }
+
     public function __construct()
     {
         $this->forceApiOutput();
@@ -22,17 +37,18 @@ class RoleController extends BaseController
     /**
      * GET /api/user/role
      * 
-     * list pengajuan
+     * list role (selain role system)
      * 
      * @param Request $request
      * 
      */
     public function readList(Request $request)
     {
-        if (!(UserAuth::hasAccess($this->accessRuleKey, 'r') || UserAuth::hasAccess('moduser.user', 'r'))) {
+        if (!(UserAuth::hasAccess('moduser.user', 'r') || $this->accessCheck('r'))) {
             $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
+
         // dd(config('database'));
         $orderBy = [];
         $filter = [];
@@ -74,7 +90,6 @@ class RoleController extends BaseController
 
         $limit['offset'] = $request->input('offset', 0);
         $limit['limit'] = $request->input('limit', 0);
-
         $this->output['data'] = RoleRepo::listRole(
             $filter,
             $limit['offset'],
@@ -96,7 +111,7 @@ class RoleController extends BaseController
         if (!UserAuth::hasAccess($this->accessRuleKey, 'r')) {
             $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
-        }
+        } 
 
         $id = $request->route('id');
         $this->output['data'] = RoleRepo::getRole($id);
@@ -135,7 +150,7 @@ class RoleController extends BaseController
             'rule' => 'required'
         ];
 
-        $validator = \Validator::make($input, $validator);
+        $validator = Validator::make($input, $validator);
 
         if (isset($input['id'])) unset($input['id']);
 

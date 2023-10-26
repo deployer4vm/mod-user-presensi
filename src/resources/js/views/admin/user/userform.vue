@@ -6,7 +6,7 @@
             <b-tabs class="nav-tabs-top nav-responsive-sm">
                 <b-tab :title="Trans.get('user.userform.tab_account_caption')" active>
 
-                    <b-card-body v-if="showUserField('avatar')">
+                    <b-card-body v-if="showUserField('avatar')" class="text-center">
                         <!-- <div class="media align-items-center">
                             <div class="ui-w-100 bg-light text-center rounded">
                                 <img :src="`${publicUrl}images/avatars/${form.id}/${form.avatar}?size=100x100`" alt class="d-block" style="max-width: 100px; max-height: 100px;" v-if="form.avatar" />
@@ -21,7 +21,7 @@
                                 <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
                             </div>
                         </div> -->
-                        <image-crop-upload
+                        <!-- <image-crop-upload
                             v-if="form.id || isAdd"
                             :imagePath="form.avatar"
                             @setValue="form.avatar = $event"
@@ -29,66 +29,97 @@
                             :fieldCaption="Trans.get('user.field_caption.avatar')"
                             fieldName="avatar"
                         >
-                        </image-crop-upload>
+                        </image-crop-upload> -->
+                        
+                        <!-- Foto -->
+                        <b-form-group
+                            :label="Trans.get('user.field_caption.avatar')"
+                        >
+                            <upload-file-list
+                                :files="form.avatar"
+                                @onFiles="form.avatar = $event"
+                                :firstFileAsCover="true"
+                                :canMovePos="false"
+                                :multiple="false"
+                                :title="''"       
+                                :disabled="isDisabled"             
+                            />
+                        </b-form-group>
                     </b-card-body>
 
-                    <hr class="border-light m-0" v-if="showUserField('avatar')" />
-
                     <b-card-body class="pb-2">
-                        <b-form-group :label="Trans.get('user.field_caption.name')" class="col position-relative">
-                            <b-input :state="$v.form.name.$error ? 'invalid' : ''" @blur="$v.form.name.$touch()" v-model="form.name" placeholder="Name" />
+                        <!-- nama -->
+                        <b-form-group :label="Trans.get('user.field_caption.name')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <b-input :disabled="isDisabled" :state="$v.form.name.$error ? 'invalid' : ''" @blur="$v.form.name.$touch()" v-model="form.name" placeholder="Name" />
                             <invalid-tooltip :inputItem="$v.form.name" :fieldName="'Name'" />
                         </b-form-group>
 
-                        <b-form-group :label="Trans.get('user.field_caption.username')" class="col position-relative" v-if="showUserField('username')">
-                            <b-input v-model="form.username" :placeholder="Trans.get('user.field_caption.username')" />
+                        <!-- username -->
+                        <b-form-group :label="Trans.get('user.field_caption.username')" v-if="showUserField('username')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <b-input :disabled="isDisabled" v-model="form.username" :placeholder="Trans.get('user.field_caption.username')" />
                         </b-form-group>
-
-                        <b-form-group :label="Trans.get('user.field_caption.email')" class="col position-relative" v-if="showUserField('email')">
-                            <masked-input type="text" :mask="emailMask" :aria-invalid="$v.form.email.$error" v-model.trim="form.email" placeholder="Email" class="form-control" />
+                        
+                        <!-- email -->
+                        <b-form-group :label="Trans.get('user.field_caption.email')" v-if="showUserField('email')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <masked-input :disabled="isDisabled" type="text" :mask="emailMask" :aria-invalid="$v.form.email.$error" v-model.trim="form.email" placeholder="Email" class="form-control" />
                             <a href="javascript:void(0)" class="small" v-if="false">Resend confirmation</a>
                         </b-form-group>
 
-                        <b-form-group label="Phone" class="col position-relative" v-if="showUserField('phone')">
-                            <b-input v-model="form.phone" />
+                        <!-- telepon -->
+                        <b-form-group :label="Trans.get('user.field_caption.phone')" v-if="showUserField('phone')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <b-input v-model="form.phone" :disabled="isDisabled" />
                             <a href="javascript:void(0)" class="small" v-if="false">Resend confirmation</a>
                         </b-form-group>
 
-                        <hr class="border-light m-0" v-if="!isAdd" />
+                        <!-- <hr class="border-light mt-0" v-if="!isAdd" /> -->
 
-                        <b-form-group label="PIN (6 Digit)" v-if="!isAdd">
-                            <b-input type="password" maxlength="6" v-model="form.pin" />
-                        </b-form-group>
+                        <!-- pin -->
+                        <!-- <b-form-group :label="Trans.get('user.field_caption.pin') + ' ' + Trans.get('user.field_description.pin')" v-if="!isAdd" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <b-input :disabled="isDisabled" type="password" maxlength="6" v-model="form.pin" />
+                        </b-form-group> -->
                     </b-card-body>
 
                     <hr class="border-light m-0" />
 
+                    <!-- password & confirm password -->
                     <b-card-body class="pb-2">
-                        <b-form-group :label="Trans.get('user.field_caption.password')" class="col position-relative">
-                            <b-input type="password" :state="$v.form.password.$error ? 'invalid' : ''" v-model.trim="form.password" @blur="$v.form.password.$touch()" :placeholder="Trans.get('user.field_caption.password')" />
+                        <b-form-group :label="Trans.get('user.field_caption.password')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <b-input :disabled="isDisabled" type="password" :state="$v.form.password.$error ? 'invalid' : ''" v-model.trim="form.password" @blur="$v.form.password.$touch()" :placeholder="Trans.get('user.field_caption.password')" />
                             <invalid-tooltip :inputItem="$v.form.password" :fieldName="Trans.get('user.field_caption.password')" />
                         </b-form-group>
 
-                        <b-form-group :label="Trans.get('user.field_caption.confirm_password')" class="col position-relative">
-                            <b-input type="password" :state="$v.form.repassword.$error ? 'invalid' : ''" v-model.trim="form.repassword" @blur="$v.form.repassword.$touch()" :placeholder="Trans.get('user.field_caption.confirm_password')" />
+                        <b-form-group :label="Trans.get('user.field_caption.confirm_password')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <b-input :disabled="isDisabled" type="password" :state="$v.form.repassword.$error ? 'invalid' : ''" v-model.trim="form.repassword" @blur="$v.form.repassword.$touch()" :placeholder="Trans.get('user.field_caption.confirm_password')" />
                             <invalid-tooltip :inputItem="$v.form.repassword" :fieldName="Trans.get('user.field_caption.confirm_password')" :customAlert="{ sameAsPassword: Trans.get('user.alert.password_not_match') }" />
                         </b-form-group>
                     </b-card-body>
 
                     <hr class="border-light m-0" />
-
                     <b-card-body class="pb-2">
-                        <b-form-group :label="Trans.get('user.field_caption.role')" class="col position-relative">
+                    
+                        <!-- OTP channel -->
+                        <b-form-group v-if="authConfig.otp.enable" :label="Trans.get('user.field_caption.otp_channel')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <b-select :disabled="isDisabled" v-model="form.otp_channel" :options="selectOtpChannel" />
+                        </b-form-group>
+
+                        <!-- User Group -->
+                        <b-form-group :label="Trans.get('user.field_caption.user_group_id')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                            <b-select :disabled="isDisabled" v-model="form.user_group_id" :options="selectUserGroup" />
+                        </b-form-group>
+
+                        <!-- select role -->
+                        <b-form-group :label="Trans.get('user.field_caption.role')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
                             <template v-if="AppConfig.packageLocal.moduser.user_role.multi_role">
-                                <b-check-group :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" class="custom-controls-stacked" />
+                                <b-check-group :disabled="isDisabled" :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" class="custom-controls-stacked" />
                             </template>
                             <template v-else>
-                                <b-select :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" @blur="$v.form.role_code.$touch()" />
+                                <b-select :disabled="isDisabled" :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" @blur="$v.form.role_code.$touch()" />
                             </template>
                             <invalid-tooltip :inputItem="$v.form.role_code" :fieldName="Trans.get('user.field_caption.role')" />
                         </b-form-group>
 
-                        <b-form-group :label="Trans.get('user.field_caption.status')" class="col position-relative">
+                        <!-- status -->
+                        <b-form-group :label="Trans.get('user.field_caption.status')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
                             <b-select v-model="form.status" :options="{ 1: Trans.get('user.field_caption.status_item.active'), 2: Trans.get('user.field_caption.status_item.banned') }" />
                         </b-form-group>
                     </b-card-body>
@@ -184,7 +215,10 @@
         },
         data: () => ({
             accessRuleKey: "moduser.user",
+            // form
             emailMask: emailMask,
+            selectUserGroup: [],
+            selectOtpChannel: [],
             form: {},
             formEmpty: {
                 id: 0,
@@ -193,8 +227,12 @@
                 repassword: "",
                 role_code: [],
                 note: "",
+                system_user: 0,
                 status: 1,
-                pin: "",
+                // pin: "",
+                user_group_id: 0,
+                user_type: 1,
+                otp_channel: 1,
                 profile: {
                     gender: 1,
                     date_of_birth: null,
@@ -215,12 +253,14 @@
             isAdd() {
                 return this.$route.params.userId ? false : true;
             },
-
             pageTitle() {
                 return this.Trans.chose(this.AppConfig.packageLocal.moduser.access.caption);
             },
             title() {
                 return this.isAdd ? this.Trans.get("user.userform.form_add_caption") : ("#" + this.form.name);
+            },
+            authConfig() {
+                return this.$store.state.authConfig.dataConfig;
             },
             oneData: {
                 get() {
@@ -233,7 +273,11 @@
             //access config
             showProfile() {
                 return this.AppConfig.packageLocal.moduser.user_profiles.hide_all == 0;
-            }
+            },
+            //
+            isDisabled() {
+                return false;//this.form.locked_data_mode == 2;
+            },
         },
         created() {
             if (!(this.UserAuth.hasAccess(this.accessRuleKey, "c") || this.UserAuth.hasAccess(this.accessRuleKey, "u"))) {
@@ -246,6 +290,31 @@
                 });
                 return false;
             }
+
+            this.$store.dispatch("authConfig/loadOtp").then(res => {
+                this.selectOtpChannel = [];
+                if(this.authConfig.otp.enable_channel.email==1){
+                    this.selectOtpChannel.push({
+                        value: 1,
+                        text: this.Trans.get("user.field_caption.otp_channel_select_1"),
+                    });
+                }
+                if(this.authConfig.otp.enable_channel.sms==1){
+                    this.selectOtpChannel.push({
+                        value: 2,
+                        text: this.Trans.get("user.field_caption.otp_channel_select_2"),
+                    });
+                }
+                if(this.authConfig.otp.enable_channel.wa==1){
+                    this.selectOtpChannel.push({
+                        value: 3,
+                        text: this.Trans.get("user.field_caption.otp_channel_select_3"),
+                    });
+                }
+            });
+            this.$store.dispatch("authConfig/loadPassword");
+
+            this.loadUserGroup();
 
             // this.Web.setNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.caption));
             // this.Web.appendNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.user.caption));
@@ -270,14 +339,14 @@
                 this.form.role_code = "";
             }
 
-            //load data role
-            this.$store.dispatch("role/roleList", { system_role: false }).then(res => {
+            //load data role, { system_role: 0 }
+            this.$store.dispatch("role/roleList").then(res => {
                 let tmpRoleItems = [];
                 _.forEach(res.data, (v, i) => {
-                    tmpRoleItems.push({ value: v.role_code, text: "[" + v.role_code + "] " + v.name });
+                    if(!v.role_group || (v.role_group.has_model == 0 && v.role_group.can_selected_on_create==1))
+                        tmpRoleItems.push({ value: v.role_code, text: "[" + v.role_code + "] " + v.name });
                 });
                 this.roleItems = tmpRoleItems;
-                console.log(res);
             });
 
             this.loadData();
@@ -288,7 +357,10 @@
                 if (!this.isAdd) {
                     this.isDataLoaded = false;
                     this.$store
-                        .dispatch("user/getUser", this.$route.params.userId)
+                        .dispatch("user/getUser", {id: this.$route.params.userId, params: {
+                            user_type: 1,
+                            append: ['role_group_is_integrated']
+                        }})
                         .then(res => {
                             this.checkSystemUser(res)
                             this.form = this.oneData;
@@ -304,15 +376,21 @@
                             this.form.status = this.form.status==2?2:1;
                             this.form.password = "";
                             this.form.repassword = "";
-                            this.form.pin = "";
+                            // this.form.pin = "";
                             this.isDataLoaded = true;
+                            delete this.form.user_role;
+                            delete this.form.main_role;
 
                             this.initView();
                         })
                         .catch(res => {
                             this.isDataLoaded = true;
-                            console.log("get User error : ", res);
-                            this.Web.showAlert({ text: "Get Data Error", style: "warning" });
+                            this.Web.showAlert({
+                                title: this.Trans.get("alert.warning_title"),
+                                text: res.message,
+                                type: "warning",
+                            });
+                            this.$router.push({ name: "user.list" });
                         });
                 } else {
                     this.isDataLoaded = true;
@@ -367,12 +445,12 @@
                             return false;
                         }
 
-                        var oldPin = "";
+                        // var oldPin = "";
 
-                        if (this.form.pin != '') {
-                            oldPin = this.form.pin;
-                            this.form.pin = encryptor.encryptSync(this.form.pin);
-                        }
+                        // if (this.form.pin != '') {
+                        //     oldPin = this.form.pin;
+                        //     this.form.pin = encryptor.encryptSync(this.form.pin);
+                        // }
 
                         this.$store
                             .dispatch("user/update", { data: this.form, id: this.form.id })
@@ -384,7 +462,7 @@
                                 console.log("update user error : ", err);
                                 this.Web.showAlert({ type: "danger", text: "Simpan data gagal : " + err.message });
                             });
-                        this.form.pin = oldPin;
+                        // this.form.pin = oldPin;
                     }
                     this.form.password = this.form.repassword = oldPassword;
                 }
@@ -411,10 +489,43 @@
 
             },
             checkSystemUser(user){
-                if(user.system_user !== 0){
+                if(user.system_user !== 0 || user.role_group_is_integrated == 1){
                     this.$router.push({ name: "user.list" });
                     this.Web.showAlert({ text: this.Trans.get("alert.access_denied"), type: "warning" });
                 }
+            },
+            loadUserGroup() {         
+                this.Repo('moduserUserGroup')
+                    .readList({saveState:false})
+                    .then((res) => {
+                        if (res.count == 0) {
+                            this.Web.showAlert({
+                                title: this.Trans.get("alert.info_title"),
+                                text: this.Trans.get("lang.no_data"),
+                                type: "info",
+                            });
+                        }else{
+                            this.selectUserGroup = [{text: '-- Ungrouped --', value: 0},]
+                            res.data.forEach((v,i) => {
+                                this.selectUserGroup.push({
+                                    value: v.id,
+                                    text: v.name,
+                                });
+                            });
+                        }
+                    })
+                    .catch((res) => {
+                        this.Web.showAlert({
+                            title: this.Trans.get("alert.warning_title"),
+                            text:
+                                this.Trans.get("alert.read_failed", {
+                                    attribute: this.Trans.get('user.user_group.name'),
+                                }) +
+                                "<br>\n" +
+                                res.message,
+                            type: "warning",
+                        });
+                    });
             },
             //--------------------------
             initView() {

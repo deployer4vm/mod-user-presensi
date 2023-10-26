@@ -46,9 +46,11 @@ const actions = {
                 return res.data.data;
             });
     },
-    getUser({ commit }, id) {
+    getUser({ commit }, params) {
         return globals()
-            .LocalApi.get(userApi + "/" + id)
+            .LocalApi.get(userApi + "/" + params.id, {
+                params: params.params
+            })
             .then(res => {
                 commit("setUser", res.data.data);
                 return res.data.data;

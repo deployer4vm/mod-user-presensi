@@ -47,7 +47,7 @@ class RoleSystemController extends BaseController
         if($request->input('status', false))
             $filter[] = ['status', $request->input('status')];
 
-        $filter[] = ['system_role', true];
+        $filter[] = ['system_role', 1];
 
         if(UserAuth::isLogin()){
             $roles = explode(';',trim(UserAuth::user('role'),';'));

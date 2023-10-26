@@ -2,6 +2,10 @@
 //can be used to register vue global componet
 import globals from "@/globals";
 
+EventBus.$on('onLogin', function () {
+    this.$store.dispatch("authConfig/loadAll");
+});
+
 // jika fitur notifikasi aktif maka registerkan component navbar notifikasi
 if(
     globals().AppConfig.packageLocal.moduser.notification.enable==1 && 

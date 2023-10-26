@@ -12,6 +12,7 @@ use App\Base\BaseRepository;
 class RoleSystemRepo extends BaseRepository
 {
     public $error = '';
+    public $roleRepo = '';
     
     public function __construct(Role $model, RoleRepo $roleRepo)
     {        

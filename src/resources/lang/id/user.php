@@ -2,15 +2,24 @@
 
 return [
     'my_profile' => 'My Profile',
-    'field_caption' => [ //digunakan di form dan list (kolom)
+    'field_caption' => [ //digunakan di form dan list (kolom) manage user
         'avatar' => 'Avatar',
         'name' => 'Nama',
         'username' => 'Username',
         'email' => 'Email',
+        'phone' => 'Phone',
+        'pin' => 'PIN',
+        'confirm_pin' => 'Konfirmasi PIN',
         'password' => 'Password',
         'confirm_password' => 'Konfirmasi Password',
         'role' => 'Role',
         'status' => 'Status',
+        'user_type' => 'Tipe User',
+        'user_group_id' => 'User Group',
+        'otp_channel' => 'Pengiriman OTP',
+        'otp_channel_select_1' => 'Email',
+        'otp_channel_select_2' => 'SMS',
+        'otp_channel_select_3' => 'WhatsApp',
         'status_item' => [
             'guest' => 'User Baru',
             'active' => 'Aktif',
@@ -23,7 +32,8 @@ return [
         'copy_key' => 'Salin :key'
     ],
     'field_description' => [
-        'password' => 'Password minimal 8 karakter'
+        'password' => 'Password minimal 8 karakter',
+        'pin' => '(6 Digit)',
     ],
     'userlist' => [
         'add_new_user' => 'Tambah User'
@@ -34,22 +44,41 @@ return [
         'tab_profile_caption' => 'Profile'
     ],
     'alert' => [
-        'password_not_match' => 'Password tidak sama'
+        'password_not_match' => 'Password tidak sama',
+        'pin_not_match' => 'PIN tidak sama'
     ],
     'systemuser' => [
         'role_list' => 'Manage Role System ',
     ],
-
     'form_profile' => [
         'label' => [
             'tab' => [
-                'token' => 'Makan Token OTP',
+                'data' => 'Data',
+                'password' => 'Change password',
                 'pin' => 'Set Pin',
             ],
         ],
         'input_caption' => [
-            'token' => 'OTP (8 Digit)',
-            'pin' => 'PIN (6 Digit)',
+            
+        ],
+        'field_description' => [
+            
+        ],
+        'alert' => [ 
+
         ],
     ],
+    // user group
+    'user_group' => [
+        'name' => 'User Group',
+        'data_role_group' => [
+            'name' => '',
+            'field_name' => [
+                
+            ],
+            'field_description' => [],
+            'label' => []
+
+        ]
+    ]
 ];

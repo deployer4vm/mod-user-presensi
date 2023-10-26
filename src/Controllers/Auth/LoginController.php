@@ -12,6 +12,7 @@ use hpsynapse\moduser\Facades\UserNotifRepo;
 use hpsynapse\moduser\Facades\RoleRepo;
 
 use hpsynapse\moduser\Facades\UserAuth;
+use hpsynapse\moduser\Facades\AuthConfig;
 
 //use Carbon\Carbon;
 
@@ -39,6 +40,9 @@ class LoginController extends BaseController
     public function login(Request $request)
     {
         $data['backlink'] = $request->input('backlink');
+        $data['registerEnabled'] = AuthConfig::isSelfRegistrationEnabled();
+        $data['forgotpasswordEnabled'] = AuthConfig::isLoginForgotPasswordEnabled();
+        $data['remembermeEnabled'] = AuthConfig::isLoginRemembermeEnabled();
 
         return view('auth.login', $data);
     }
@@ -169,6 +173,11 @@ class LoginController extends BaseController
      * @param Request $request
      *      username
      *      password
+     *      role_code       *optional, string role code yg diset sebagai 
+     *                      role code active di session ini
+     * 
+     *      deviceId
+     *      pushNotifToken
      *      
      * @return Array default synapse api return
      *      data
@@ -188,8 +197,8 @@ class LoginController extends BaseController
     public function apiLogin(Request $request)
     {
         $this->forceApiOutput();
-
-        $authParam = $request->only('username', 'password');
+        
+        $authParam = $request->only('username', 'password','role_code');
         // Log::debug($authParam);
 
         if (!isset($authParam['username']) || !isset($authParam['password'])) {
@@ -221,10 +230,22 @@ class LoginController extends BaseController
                 $this->output['data']['tenant'] = $user['tenant'];
 
             $this->output['data']['role'] = UserRepo::getUserRole($user['id']);
+            $this->output['data']['role_group'] = [];
+            $this->output['data']['role_group_code'] = '';
+            // get role code utama
             foreach ($this->output['data']['role'] as $key => $val) {
+                if($val['role_group']){
+                    $this->output['data']['role_group'][$val['role_group']['code']] = $val['role_group'];
+                }
+
                 if ($val['is_main_role']) {
                     $this->output['data']['role_code'] = $key;
                 }
+            }
+
+            // jika set role code
+            if(!empty($authParam['role_code']) && isset($this->output['data']['role'][$authParam['role_code']])){
+                $this->output['data']['role_code'] = $authParam['role_code'];
             }
 
             // jika main role tidak ada berarti ada yang salah di insert user ke databasenya
@@ -233,13 +254,18 @@ class LoginController extends BaseController
                 return $this->done();
             }
 
-            $this->output['data']['role'] = UserRepo::getUserRole($user['id']);
+            // set aktif role code
+            if($this->output['data']['role'][$this->output['data']['role_code']]['role_group'])
+                $this->output['data']['role_group_code'] = $this->output['data']['role'][$this->output['data']['role_code']]['role_group']['code'];
+
+            // $this->output['data']['role'] = UserRepo::getUserRole($user['id']);
+            // generate token
             $token = UserRepo::generateToken($user['id'], $this->output['data']['role_code'], 0, $request->input('deviceId', ''), $pushParam);
             $this->output['data']['token'] = $token['api_token'];
 
-            $this->output['data']['role_group'] = [];
-            $this->output['data']['role_group_code'] = '';
-            $this->output['data']['role_level_group'] = [];
+            $this->output['data']['role_level_group'] = UserRepo::getRoleLevelGroup(
+                ['level'=>$this->output['data']['role'][$this->output['data']['role_code']]['level']]
+            );
 
             //subscribekan ke channel/topic berdasarkan user role nya
             if ($request->input('pushNotifToken')) {

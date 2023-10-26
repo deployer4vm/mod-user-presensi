@@ -40,6 +40,17 @@ Route::group($groupAuth,function(){
 });
 
 /**
+ * Get Auth Config
+ */
+Route::group(['prefix'=>config('AppConfig.endpoint.api.moduser').'/auth-config'],function(){
+    Route::get('/', 'config\AuthConfigController@index')->name('user.api.authConfig');
+    Route::get('/registration', 'config\AuthConfigController@registrationConfig')->name('user.api.authConfig.registration');
+    Route::get('/login', 'config\AuthConfigController@loginConfig')->name('user.api.authConfig.login');
+    Route::get('/password', 'config\AuthConfigController@passwordConfig')->name('user.api.authConfig.password');
+    Route::get('/otp', 'config\AuthConfigController@otpConfig')->name('user.api.authConfig.otp');
+    Route::get('/pin', 'config\AuthConfigController@pinConfig')->name('user.api.authConfig.pin');
+});
+/**
  * Route API feature User Management
  */
 $groupUser = [
@@ -49,10 +60,30 @@ $groupUser = [
 Route::get('/notification/setnotif', 'NotificationController@setnotif')->name('user.notification.setnotif');
 Route::group($groupUser,function(){
 
+
+
     /**
-     * Module Role
+     * Role
      */
     Route::group(['prefix'=>'role'],function(){
+        
+        /**
+         * Role Group
+         */
+        Route::group(['prefix'=>'group'],function(){
+            //read list resource
+            Route::get('/', 'RoleGroupController@readList')->name('user.role.group.readList');
+            //read one resource
+            Route::get('/{id}', 'RoleGroupController@readOne')->name('user.role.group.readOne');
+
+            //create resource
+            Route::post('/', 'RoleGroupController@create')->name('user.role.group.create');
+            //update resource
+            Route::put('/{id}', 'RoleGroupController@update')->name('user.role.group.update');
+            //delete resource
+            Route::delete('/{id}', 'RoleGroupController@delete')->name('user.role.group.delete');
+        });
+        
         //read list resource
         Route::get('/', 'RoleController@readList')->name('user.role.readList');
         //read one resource
@@ -114,6 +145,23 @@ Route::group($groupUser,function(){
      * fitur User
      */
 
+    /**
+     * User Group
+     */
+    Route::group(['prefix'=>'group'],function(){
+        //read list resource
+        Route::get('/', 'UserGroupController@readList')->name('user.group.readList');
+        //read one resource
+        Route::get('/{id}', 'UserGroupController@readOne')->name('user.group.readOne');
+
+        //create resource
+        Route::post('/', 'UserGroupController@create')->name('user.group.create');
+        //update resource
+        Route::put('/{id}', 'UserGroupController@update')->name('user.group.update');
+        //delete resource
+        Route::delete('/{id}', 'UserGroupController@delete')->name('user.group.delete');
+    });
+
     // Export User
     Route::group(['prefix' => 'export', 'as' => 'download.'], function () {
         Route::get('/', 'UserController@downloadDataUser')->name('dataUser');
@@ -129,7 +177,10 @@ Route::group($groupUser,function(){
     Route::match(['put','post'],'/', 'UserController@create')->name('user.create');
     //update resource
     Route::middleware(['auth.useronly'])->match(['put','post'],'/profile', 'UserController@updateProfile')->name('user.update');
-    Route::middleware(['auth.useronly'])->match(['put','post'],'/sendOtp', 'UserController@sendOtp')->name('user.sendOtp');
+    // generate and send OTP
+    Route::middleware(['auth.useronly'])->match(['put','post'],'/send-otp', 'UserController@sendOtp')->name('user.sendOtp');
+    Route::middleware(['auth.useronly'])->match(['put','post'],'/validate-otp', 'UserController@validateOtp')->name('user.validateOtp');
+
     Route::match(['put','post'],'/{id}', 'UserController@update')->name('user.update');
     Route::put('/{id}/ban', 'UserController@ban')->name('user.ban');
     Route::put('/{id}/unban', 'UserController@unban')->name('user.unban');
@@ -141,9 +192,9 @@ Route::group($groupUser,function(){
     Route::delete('/{id}', 'UserController@delete')->name('user.delete');
 
     // kirim otp via wa
-    Route::post('/profile/pin/send-otp', 'UserController@sendOtpViaWa')->name('user.send.pin')->middleware(['auth.useronly']);
+    // Route::post('/profile/pin/send-otp', 'UserController@sendOtpViaWa')->name('user.send.pin')->middleware(['auth.useronly']);
 
     // update profile pin yang sudah di kirimkan otp nya
-    Route::match(['put','post'], '/profile/pin/update', 'UserController@updateProfilePin')->name('user.update.pin')->middleware(['auth.useronly']);
+    // Route::match(['put','post'], '/profile/pin/update', 'UserController@updateProfilePin')->name('user.update.pin')->middleware(['auth.useronly']);
 
 });

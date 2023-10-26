@@ -117,6 +117,11 @@
                         </div>
                     </template>
 
+                    <template v-slot:cell(user_group)="data">                        
+                        <b-badge v-if="data.item.user_group" variant="outline-info">{{ data.item.user_group.name }}</b-badge>
+                        <template v-else>-</template>
+                    </template>
+
                     <template v-slot:cell(email)="data">
                         <div>
                             <span>{{data.item.email}}</span>
@@ -135,19 +140,26 @@
                                     <b-badge variant="outline-danger mt-2">
                                         unverified
                                     </b-badge>
-                                    <span class="pt-2 text-light">
+                                    <div class="pt-2 text-light">
                                         kirim ulang email verifikasi ?
-                                        <b-btn class="btn btn-secondary btn-sm md-btn-flat" @click="sendVerification(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
+                                        <b-btn class="btn btn-secondary btn-sm w-icon" @click="sendVerification(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
                                             <span class="ion ion-md-mail mr-1"></span> Kirim
                                             <!-- kirim -->
                                         </b-btn>
-                                    </span>
+                                    </div>
                             </template>
                         </div>
                     </template>
 
                     <template v-slot:cell(role)="data">
-                        <b-badge variant="outline-info" v-for="dRole in data.item.roles" :key="data.item.id + dRole.role.id">{{ dRole.role.name }}</b-badge>
+                        <b-badge variant="outline-info" class="m-1" v-for="dRole in data.item.roles" :key="data.item.id + '-' + dRole.role.id">{{ dRole.role.name }}</b-badge>
+                        
+                        <div v-if="data.item.user_role_group">
+                            <hr class="m-1">
+                            <small>Role Group : </small>
+                            <b-badge variant="outline-secondary" class="m-1" v-for="dRole in data.item.user_role_group" :key="data.item.id + '-rolegroup-' + dRole.id">{{ dRole.name }}</b-badge>
+                        </div>
+
                     </template>
 
                     <template v-slot:cell(status)="data">
@@ -157,7 +169,7 @@
                     </template>
 
                     <template v-slot:cell(actions)="data">
-                        <div class="d-flex align-items-center justify-content-center">
+                        <div class="d-flex align-items-center justify-content-center" v-if="!data.item.role_group_is_integrated">
                             <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
                             <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" v-b-tooltip.hover :to="{ name: 'user.edit', params: { userId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
                                 <span class="ion ion-md-create"></span>
@@ -267,6 +279,14 @@
                     }
                 },
                 {
+                    key: "user_group",
+                    sortable: true,
+                    tdClass: "align-middle",
+                    tdAttr: {
+                        "data-lable": "User Group"
+                    }
+                },
+                {
                     key: "status",
                     sortable: true,
                     tdClass: "align-middle",
@@ -359,7 +379,10 @@
 
                 var offset = this.perPage * (curPage - 1);
                 this.loadParams = {};
-                this.loadParams.params = {};
+                this.loadParams.params = {
+                    append : ['role_group_is_integrated'],
+                    user_type : 1
+                };
 
                 this.loadParams.params.limit = this.perPage;
                 this.loadParams.params.offset = offset;
@@ -507,7 +530,7 @@
             this.fields = JSON.parse(JSON.stringify(this.defaultFields));
 
             if (!(this.UserAuth.hasAccess(this.accessRuleKey, "u") || this.UserAuth.hasAccess(this.accessRuleKey, "d"))) {
-                this.fields.splice(6, 1);
+                this.fields.splice(7, 1);
             }
 
             //jika username termasuk dari field yang dihide maka hide kolomnya

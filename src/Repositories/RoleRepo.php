@@ -2,15 +2,55 @@
 
 namespace hpsynapse\moduser\Repositories;
 
-use hpsynapse\moduser\Models\Role;
+// 1. Import level PHP
 
-use hpsynapse\moduser\Facades\UserRepo;
+// 2. Import level Package Composer
 
+// 3. Import level Laravel Core
+
+// 4. Import level Synapse Core
 use App\Base\BaseRepository;
 
-class RoleRepo extends BaseRepository
+// 5. Import level Synapse Module Package
+
+// 6. Import level Synapse MainApp & Module MainApp
+
+// 7. Import level Synapse - Current Module
+// model
+use hpsynapse\moduser\Models\Role;
+use hpsynapse\moduser\Models\RoleGroup;
+// class
+use hpsynapse\moduser\Facades\UserRepo;
+
+
+class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\RoleRepo
 {
-    public $error = '';
+    protected $autoResource = [
+        'Group' => [
+            'r' => RoleGroup::class,
+            'w' => RoleGroup::class
+        ],
+    ];
+
+    protected $autoResourceSearchField = [
+        'Group' => ['name', 'description', 'code'],
+    ];
+
+    protected $autoResourceCreateValidate = [
+        'Group' => [
+            'tenant_id' => 'required',
+            'name' => 'required',
+            'code' => 'required'
+        ],
+    ];
+
+    protected $autoResourceUpdateValidate = [
+        'Group' => [
+            'tenant_id' => false,
+            'name' => 'required',
+            'code' => 'required'
+        ],
+    ];
     
     public function __construct(Role $model)
     {        
@@ -22,7 +62,7 @@ class RoleRepo extends BaseRepository
         if (!$filter) $filter = [];
         $filter['searchField'] = ['name'];
         $filter['hiddenColumn'] = ['created_at','updated_at'];
-        $model = Role::with(['tenantGroup','tenant']);
+        $model = Role::with(['roleGroup']);//::with(['tenantGroup','tenant']);
 
         if (isset($filter['level']) && $filter['level']) {
             $model = $model->where('level', $filter['level']);

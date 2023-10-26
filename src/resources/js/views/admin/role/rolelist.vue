@@ -59,14 +59,17 @@
                             </b-btn>
                         </b-form-group>
                     </div> -->
-                    <div>
-                        <router-link 
-                            v-if="UserAuth.hasAccess(accessRuleKey, 'c')" 
-                            class="btn btn-sm btn-primary w-icon w-50 w-md-auto"
-                            :to="{ name: 'role.add' }">
-                            <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
-                        </router-link>
-                    </div>
+                    <router-link 
+                        v-if="UserAuth.hasAccess(accessRuleKey, 'c')" 
+                        class="btn btn-sm btn-primary w-icon w-50 w-md-auto"
+                        :to="{ name: 'role.add' }">
+                        <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
+                    </router-link>
+                    <!-- <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'r')" 
+                        class="btn btn-sm btn-secondary w-icon w-md-auto" 
+                        :to="{ name: 'systemuser.role' }">
+                        <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("role.systemuser.manage_role_group") }}
+                    </router-link> -->
                 </div>
             </b-card-body>
             <!-- / Table controls -->
@@ -88,14 +91,19 @@
                         <b-badge variant="outline-default">{{ data.item.role_code }}</b-badge>
                     </template>
 
+                    <template v-slot:cell(role_group)="data">                        
+                        <b-badge v-if="data.item.role_group" variant="outline-info">{{ data.item.role_group.name }}</b-badge>
+                        <template v-else>not grouped</template>
+                    </template>
+
                     <template v-slot:cell(actions)="data">
                         <div class="d-flex align-items-center justify-content-center">
                             <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
-                            <router-link class="btn btn-success icon-btn btn-sm" :title="Trans.get('lang.edit')" :to="{ name: 'role.edit', params: { roleId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
+                            <router-link class="btn btn-success icon-btn btn-sm" :title="Trans.get('lang.edit')" :to="{ name: 'role.edit', params: { roleId: data.item.id } }" v-if="(UserAuth.hasAccess(accessRuleKey, 'u') && data.item.locked_data_mode!=2) || UserAuth.isWebdev()">
                                 <span class="ion ion-md-create"></span>
                             </router-link>
 
-                            <b-btn class="btn btn-danger icon-btn btn-sm" :title="Trans.get('lang.delete')" @click="deleteRole(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd')">
+                            <b-btn class="btn btn-danger icon-btn btn-sm" :title="Trans.get('lang.delete')" @click="deleteRole(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.locked_data_mode==0">
                                 <span class="ion ion-md-close"></span>
                             </b-btn>
                             <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
@@ -218,7 +226,7 @@
                     return false;
 
                 var offset = this.perPage * (curPage - 1);
-                this.loadParams = {};
+                this.loadParams = {system_role: 0};
 
                 this.loadParams.limit = this.perPage;
                 this.loadParams.offset = offset;
@@ -368,7 +376,14 @@
                         "data-lable": this.Trans.get("")
                     }
                 },
-
+                {
+                    key: "role_group",
+                    sortable: true,
+                    tdClass: "align-middle",
+                    tdAttr: {
+                        "data-lable": this.Trans.get("")
+                    }
+                },
                 {
                     key: "actions",
                     label: " ",
@@ -381,16 +396,17 @@
             if (!(this.UserAuth.hasAccess(this.accessRuleKey, "u") || this.UserAuth.hasAccess(this.accessRuleKey, "d"))) {
                 this.fields.splice(5, 1);
             }
+
             //jika tidak menggunakan system tenant maka hilangkan kolom tenant
             if (this.AppConfig.system.multitenant.active == 0) {
-                this.fields.splice(3, 2);
+                // this.fields.splice(3, 2);
             } else {
-                if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("tenant_group")) {
-                    this.fields.splice(4, 1);
-                }
-                if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("tenant")) {
-                    this.fields.splice(3, 1);
-                }
+                // if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("tenant_group")) {
+                //     this.fields.splice(4, 1);
+                // }
+                // if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("tenant")) {
+                //     this.fields.splice(3, 1);
+                // }
                 if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("level")) {
                     this.fields.splice(2, 1);
                 }

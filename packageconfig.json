@@ -27,6 +27,7 @@
         "interface": {
             "hpsynapse\\moduser\\Contracts\\UserRepo":"hpsynapse\\moduser\\Repositories\\UserRepo",
             "hpsynapse\\moduser\\Contracts\\UserAuth":"hpsynapse\\moduser\\Services\\UserAuth",
+            "hpsynapse\\moduser\\Contracts\\AuthConfig":"hpsynapse\\moduser\\Services\\AuthConfig",
             "hpsynapse\\moduser\\Contracts\\FirebaseApi":"hpsynapse\\moduser\\Services\\FirebaseApi",
             "hpsynapse\\moduser\\Contracts\\SocialAuthSrv":"hpsynapse\\moduser\\Services\\SocialAuthSrv",
             "hpsynapse\\moduser\\Contracts\\UserNotifSrv":"hpsynapse\\moduser\\Services\\UserNotifSrv",
@@ -78,6 +79,61 @@
                         "r": 1,
                         "u": 1,
                         "d": 1
+                    }
+                },
+                "children" : {
+                    "can_edit_locked_data_mode": {
+                        "acl_caption": {"en":"Can Edit 'locked_data_mode'","id":"Bisa edit 'locked_data_mode'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
+                    "group" : {
+                        "caption": {"en":"Manage User Group","id":"Manage User Group"},
+                        "acl_caption": {"en":"Manager User Group Data","id":"Manager User Group Data"},
+                        "acl_description": {"en":"","id":""},
+                        "route": { "name": "user.group.list" },
+                        "class": "",
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
+                            }
+                        }
                     }
                 }
             },
@@ -134,6 +190,31 @@
                             }
                         }
                     },
+                    "can_edit_role_group_id": {
+                        "acl_caption": {"en":"Can Edit 'role_group_id'","id":"Bisa edit 'role_group_id'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
                     "can_edit_level": {
                         "acl_caption": {"en":"Can Edit 'level'","id":"Bisa edit 'level'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -156,6 +237,84 @@
                                 "r": 0,
                                 "u": 0,
                                 "d": 0
+                            }
+                        }
+                    },
+                    "can_edit_rule": {
+                        "acl_caption": {"en":"Can Edit 'Rule'","id":"Bisa edit 'Rule'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
+                    "can_edit_locked_data_mode": {
+                        "acl_caption": {"en":"Can Edit 'locked_data_mode'","id":"Bisa edit 'locked_data_mode'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
+                    "group" : {
+                        "caption": {"en":"Manage Role Group","id":"Manage Role Group"},
+                        "acl_caption": {"en":"Manager Role Group Data","id":"Manager Role Group Data"},
+                        "acl_description": {"en":"","id":""},
+                        "route": { "name": "role.group.list" },
+                        "class": "",
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
                             }
                         }
                     }
@@ -216,6 +375,197 @@
                         "d": 0
                     }
                 }
+            },
+            "config": {
+                "caption": {"en":"Config","id":"Config"},
+                "acl_caption": {"en":"Config","id":"Config"},
+                "acl_description": {"en":"","id":""},
+                "route": { "name": "moduser.config" },
+                "class": "",
+                "is_navbar": 0,
+                "enable": 1,
+                "tenant_group_id": 0,
+                "active_acl": {
+                    "has_access": 1,
+                    "crud": {
+                        "c": 0,
+                        "r": 0,
+                        "u": 0,
+                        "d": 0
+                    }
+                },
+                "acl_config": {
+                    "show": 1,
+                    "crud": {
+                        "c": 0,
+                        "r": 0,
+                        "u": 0,
+                        "d": 0
+                    }
+                },
+                "children": {
+                    "auth": {
+                        "caption": {"en":"Auth Config","id":"Auth Config"},
+                        "acl_caption": {"en":"Auth Config","id":"Auth Config"},
+                        "acl_description": {"en":"","id":""},
+                        "route": { "name": "moduser.config.auth" },
+                        "class": "",
+                        "is_navbar": 1,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "children": {
+                            "otp": {
+                                "acl_caption": {"en":"Can manage OTP Config","id":"Can manage OTP Config"},
+                                "acl_description": {"en":"","id":""},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
+                            },
+                            "pin": {
+                                "acl_caption": {"en":"Can manage PIN Config","id":"Can manage PIN Config"},
+                                "acl_description": {"en":"","id":""},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
+                            },
+                            "login": {
+                                "acl_caption": {"en":"Can manage Login Config","id":"Can manage Login Config"},
+                                "acl_description": {"en":"","id":""},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
+                            }
+                        }
+                    },                    
+                    "registration": {
+                        "caption": {"en":"Registration Config","id":"Registration Config"},
+                        "acl_caption": {"en":"Has access to registration config","id":"Has access to registration config"},
+                        "acl_description": {"en":"","id":""},
+                        "route": { "name": "moduser.config.registration" },
+                        "class": "",
+                        "is_navbar": 1,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
+                    "setup": {
+                        "caption": {"en":"Setup Config (webdev only)","id":"Setup Config (webdev only)"},
+                        "acl_caption": {"en":"Setup Config","id":"Setup Config"},
+                        "acl_description": {"en":"","id":""},
+                        "route": { "name": "moduser.config.setup" },
+                        "class": "",
+                        "is_navbar": 1,
+                        "enable": 0,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    }
+                }
             }
         }
     },
@@ -243,11 +593,24 @@
         "field": ["email","password"],
         "admin_send_activation_email": 1
     },
-    "login" :{
-        "rememberme": 1,
-        "forgotpassword": 1
+    "auth":{
+        "login" :{
+            "rememberme": 1,
+            "forgotpassword": 1
+        },
+        "otp": {
+            "enable":1,
+            "enable_channel":{
+                "email":1,
+                "sms":0,
+                "wa":0
+            }
+        },
+        "pin": {
+            "enable":1
+        },
+        "auth_grant" : 1
     },
-    "has_auth_grant" : 1,
     "session_lifetime": 60,
     "users_hidden_field": [],
     "user_profiles": {

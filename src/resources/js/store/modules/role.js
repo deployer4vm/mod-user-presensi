@@ -42,9 +42,11 @@ const actions = {
                 return res.data.data;
             });
     },
-    getRole({ commit }, id) {
+    getRole({ commit }, params) {
         return globals()
-            .LocalApi.get(userApi + "/role/" + id)
+            .LocalApi.get(userApi + "/role/" + params.id,{
+                params: params.params
+            })
             .then(res => {
                 commit("setRole", res.data.data);
                 return res.data.data;

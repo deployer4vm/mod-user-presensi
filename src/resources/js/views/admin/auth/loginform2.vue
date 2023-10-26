@@ -57,15 +57,15 @@
                             </b-form-group>
 
                             <div class="d-flex justify-content-between align-items-center m-0">
-                                <b-check v-model="form.rememberMe" class="m-0" v-if="AppConfig.packageLocal.moduser.login.rememberme">{{ Trans.get("auth.login.remember_me") }}</b-check>
+                                <b-check v-model="form.rememberMe" class="m-0" v-if="authConfig.login.rememberme">{{ Trans.get("auth.login.remember_me") }}</b-check>
                                 <b-btn type="submit" variant="primary">{{ Trans.get("auth.login.sigincaption") }}</b-btn>
 
-                                <router-link tag="a" :to="{ name: 'forgotpassword' }" class="d-block small" v-if="AppConfig.packageLocal.moduser.login.forgotpassword">{{ Trans.get("auth.login.forgotpassword") }}</router-link>
+                                <router-link tag="a" :to="{ name: 'forgotpassword' }" class="d-block small" v-if="authConfig.login.forgotpassword">{{ Trans.get("auth.login.forgotpassword") }}</router-link>
                             </div>
                         </form>
                         <!-- / Form -->
 
-                        <div class="text-center text-muted" v-if="AppConfig.packageLocal.moduser.registration.enable">
+                        <div class="text-center text-muted" v-if="authConfig.registration.enable">
                             {{ Trans.get("auth.login.dont_have_an_account") }}
                             <router-link tag="a" :to="{ name: 'register' }">{{ Trans.get("auth.login.signupcaption") }}</router-link>
                         </div>
@@ -109,7 +109,10 @@
         computed: {
             title() {
                 return this.Web.getTenantName() ? this.Web.getTenantName() : this.Web.getAdminTitle();
-            }
+            },
+            authConfig() {
+                return this.$store.state.authConfig.dataConfig;
+            },
         },
         methods: {
             onSubmit(evt) {
@@ -149,6 +152,9 @@
                 this.form.rememberMe = false;
             }
         },
-        created() {}
+        created() {        
+            this.$store.dispatch("authConfig/loadRegistration");
+            this.$store.dispatch("authConfig/loadLogin");
+        }
     };
 </script>

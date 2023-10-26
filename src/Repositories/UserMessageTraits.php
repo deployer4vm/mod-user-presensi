@@ -1,6 +1,7 @@
 <?php
 namespace hpsynapse\moduser\Repositories;
 
+use hpsynapse\moduser\Facades\AuthConfig;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Request;
@@ -152,6 +153,7 @@ trait UserMessageTraits
         ]);
         return $userData;
     }
+
     public function generateEmailVerfifyCode($email)
     {
         return hash('sha256',$email.'somesaltbrooooooo');
@@ -165,66 +167,121 @@ trait UserMessageTraits
     /**
      * generate dan kirim kode OTP ke not
      * 
-     * @param type $userId
-     * @param booloean $isMainPhone 
-     *      true jika dikirim ke phone di table user
-     *      false jika dikirim ke phone2 di table user_profile
+     * @param int $userId
+     * @param int $digit jumlah digit
+     * @param int $tenantId
      * @return boolean
      */
-    public function sendOTP($userId,$isMainPhone=true)
+    public function sendOTP($userId,int $digit=0,$tenantId=0)
     {        
-        $user = User::find($userId);
-        if(!$user)return false;
-        $phone = $isMainPhone ? $user->phone : $user->profile->phone2;
-        // dd($user);
-        $otpCode = $this->generateOTP($user->id,$phone);
+        $tenantId = $tenantId?$tenantId:config('tenant.id',0);
+        $digit = empty($digit)?AuthConfig::OTPDigit():$digit;
 
-        return $user->notify(new \hpsynapse\moduser\Notifications\SendOTP($otpCode,$phone));
+        $user = User::find($userId);
+        if(!$user){
+            $this->error = 'User not found';
+            return false;
+        }
+
+        if(!($otp = $this->generateOTP($user->id,$digit,$tenantId))){
+            return false;
+        }
+        
+        //notifyNow
+        $user->notify(new \hpsynapse\moduser\Notifications\SendOTP($otp['otp'],config('AppConfig.client.app_name','')));
+        
+        return $otp['timeout'];
     }
     
     /**
      * generate dan save kode OTP table, jika sebelum telah ada maka akan dihapus
      * terlebih dahulu
      * 
+     * @param int $digit 1-8
      * @param int $userId
      * @param string $phone
      * @return type
      */
-    public function generateOTP($userId,$phone)
+    public function generateOTP($userId,int $digit=0,$tenantId=0)
     {
-        $otpData = UserOTP::where('phone',$phone)->first();
-        if($otpData)UserOTP::where('phone',$phone)->delete();
+        $tenantId = $tenantId?$tenantId:config('tenant.id',0);
+        $digit = empty($digit)?AuthConfig::OTPDigit():$digit;
 
-        $otpCode = rand(1000,9999);
-        $otp = UserOTP::create([
+        $user = User::find($userId);
+        if(!$user){
+            $this->error = 'User not found';
+            return false;
+        }
+
+        if($user->otp_channel==1) {
+            if(empty($user->email)){
+                $this->error = 'Email belum diset';
+                return false;
+            }else{
+                $recipient = $user->email;
+            }
+        }else if($user->otp_channel==2 || $user->otp_channel==3){
+            if(empty($user->phone)){
+                $this->error = 'Nomor telepon belum diset';
+                return false;
+            }else{
+                $recipient = $user->phone;
+            }
+        }else{
+            $this->error = 'Channel pengiriman OTP belum diset';
+            return false;
+        }
+
+        // delete otp lama jika ada
+        UserOTP::where('user_id',$userId)->delete();
+
+        $otpCode = (int) str_repeat('9',$digit);
+        $otpCode = str_pad(rand(0, $otpCode), $digit, '0', STR_PAD_LEFT);
+        $timeout = now()->addMinutes(AuthConfig::OTPTimeout());
+
+        UserOTP::create([
             'tenant_id' => config('tenant.id',0),
             'user_id' => $userId,
             'token' => $otpCode,
-            'phone' => $phone,
-            'timeout' => now()->addMinutes(5)
+            'channel' => $user->otp_channel,
+            'recipient' => $recipient,
+            'timeout' => $timeout
         ]);
 
-        return $otpCode;
+        return [
+            'otp'=>$otpCode,
+            'timeout'=>$timeout
+        ];
     }
 
     /**
      * Cek apakah otp valid, jika valid true dan kode otp langsung dihapus
      * 
-     * @param type $phone
+     * @param type $userId
      * @param type $otpCode
      * @return boolean
      */
-    public function isOTPValid($phone,$otpCode)
+    public function isOTPValid($userId,$otpCode,$tenantId=0)
     {
-        $otpData = UserOTP::where('phone',$phone)        
-                ->where('token',$otpCode)
-                ->first();
+        $tenantId = $tenantId?$tenantId:config('tenant.id',0);
+    
+        $otpData = UserOTP::where('user_id',$userId) 
+                ->where('tenant_id',$tenantId)       
+                ->where('token',$otpCode)->first();
         
         //jika otp valid
         if($otpData){
-            UserOTP::where('phone',$phone)->delete();
+            UserOTP::where('user_id',$userId) 
+                ->where('tenant_id',$tenantId)->delete();
+            // cek apakah expired
+            if(now()->format('Y-m-d H:i:s') > $otpData->timeout){
+                $this->error = 'Invalid OTP';
+                return false;
+            }
             return true;
         }
+
+        $this->error = 'Invalid OTP';
         return false;
     }
     
@@ -235,14 +292,14 @@ trait UserMessageTraits
      * @param type $phone
      * @return boolean
      */
-    public function isMainPhone($userId,$phone)
-    {
-        $phone = UserRepo::phoneFormat($phone);
-        $user = User::find($userId);
-        if(!$user)return false;        
-        if($user->phone == $phone)return true;
-        return false;
-    }
+    // public function isMainPhone($userId,$phone)
+    // {
+    //     $phone = UserRepo::phoneFormat($phone);
+    //     $user = User::find($userId);
+    //     if(!$user)return false;        
+    //     if($user->phone == $phone)return true;
+    //     return false;
+    // }
     
     /**
      * Notifikasi

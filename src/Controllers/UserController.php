@@ -6,23 +6,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use hpsynapse\moduser\Facades\UserRepo;
-use hpsynapse\moduser\Facades\RoleRepo;
+use hpsynapse\moduser\Facades\AuthConfig;
 use hpsynapse\moduser\Facades\UserAuth;
 
 use App\Base\BaseController;
 use App\Facades\Export;
-use App\Mail\sendMailOtp;
-// use hpsynapse\moduser\Contracts\ExportUserFormater;
-use hpsynapse\moduser\Facades\ExportUserFormater;
 
-use hpsynapse\moduser\Channels\WhatsAppChannels;
-use hpsynapse\moduser\Models\User;
-use hpsynapse\moduser\Models\UserOTP;
-use Illuminate\Support\Facades\Mail;
+use hpsynapse\moduser\Facades\ExportUserFormater;
 
 class UserController extends BaseController
 {
     protected $accessRuleKey = 'moduser.user';
+
+    private function accessCheck($rw = 'r')
+    {
+        $access = (UserAuth::hasAccess($this->accessRuleKey, $rw)
+            || UserAuth::isWebDev());
+
+        $hasAccess = true;
+        if (!$access) {
+            $hasAccess = false;
+            $this->setError(__('alert.access_denied'), false, 403);
+        }
+
+        return $hasAccess;
+    }
 
     public function __construct()
     {
@@ -30,70 +38,57 @@ class UserController extends BaseController
     }
 
     /**
-     * GET /api/user
-     *
+     * GET - /api/user
+     * List user standard
+     * 
+     * @param \Illuminate\Http\Request $request
      */
     public function readList(Request $request)
     {
-        if (!UserAuth::hasAccess($this->accessRuleKey, 'r')) {
-            $this->setError(__('alert.access_denied'), false, 403);
+        if (!$this->accessCheck('r')) {
             return $this->done();
         }
 
-        $orderBy = [];
-        $filter = [];
+        $this->buildParams(true,['system_user','role','level','level_except']);
 
-        if ($request->input('q', false))
-            $filter['q'] = $request->input('q');
-
-        //jika menyertakan status
-        if ($request->input('status', false))
-            $filter[] = ['status', $request->input('status')];
-
-        $filter[] = ['system_user', false];
+        $this->output['params']['filter'][] = ['system_user', false];
 
         if (UserAuth::isLogin()) {
-            $filter[] = ['id', '!=', UserAuth::user('id')];
-            $filter[] = ['level', '>', UserAuth::user('level')];
+            $this->output['params']['filter'][] = ['id', '!=', UserAuth::user('id')];
+            $this->output['params']['filter'][] = ['level', '>', UserAuth::user('level')];
         }
 
         //jika menyertakan status
         if ($request->input('role', false))
-            $filter[] = ['role', 'LIKE', '%;' . $request->input('role') . ';%'];
+            $this->output['params']['filter'][] = ['role', 'LIKE', '%;' . $request->input('role') . ';%'];
 
         if ($request->input('level', false)) {
-            $filter[] = ['level', '!=', $request->input('level')];
+            $this->output['params']['filter'][] = ['level', '!=', $request->input('level')];
         } else if ($request->input('level_except', false)) {
-            $filter[] = ['level', '!=', $request->input('level_except')];
+            $this->output['params']['filter'][] = ['level', '!=', $request->input('level_except')];
         }
 
         //jika multitenant aktif dan bukan dari aplikasi owner maka filter berdasarkan tenant nya
         if (config('AppConfig.system.multitenant.active', false) && config('tenant.id', 0) > 1) {
-            $filter[] = ['tenant_id', config('tenant.id')];
+            $this->output['params']['filter'][] = ['tenant_id', config('tenant.id')];
         }
 
-        //jika menyertakan order by
-        if ($request->input('orderBy', false))
-            $orderBy = [$request->input('orderBy'), $request->input('orderType', 'ASC')];
-
-        $limit['offset'] = $request->input('offset', 0);
-        $limit['limit'] = $request->input('limit', 0);
-
         $this->output['data'] = UserRepo::listUser(
-            $filter,
-            $limit['offset'],
-            $limit['limit'],
-            $orderBy
+            $this->output['params']['filter'],
+            $this->output['params']['query']['offset'],
+            $this->output['params']['query']['limit'],
+            $this->output['params']['orderBy'],
         );
 
         return $this->done();
     }
 
     /**
-     * GET /api/user/{id}
+     * GET - /api/user/{id}
      *
-     * Route Param :
-     *      id : route id
+     * @param \Illuminate\Http\Request $request
+     * @param String $id        Route param user id
+     * 
      * @return Array default synapse api return
      *      data
      *          ...all user record
@@ -102,12 +97,19 @@ class UserController extends BaseController
      *          main_role Array record role utama user
      *
      */
-    public function readOne(Request $request)
+    public function readOne(Request $request, $id)
     {
+        if (!$this->accessCheck('r')) {
+            return $this->done();
+        }
 
-        $id = $request->route('id');
+        $this->buildParams();
+        $this->output['params']['filter'][] = ['id', $id];
 
-        $this->output['data'] = UserRepo::getUser($id);
+        if(!($this->output['data'] = UserRepo::getUser($this->output['params']['filter']))){
+            $this->setError(__('lang.data_not_found'));
+            return $this->done();
+        }
 
         if (!(UserAuth::hasAccess($this->accessRuleKey, 'r') || $this->output['data']['id'] == UserAuth::user('id'))) {
             $this->setError(__('alert.access_denied'), false, 403);
@@ -126,9 +128,9 @@ class UserController extends BaseController
     }
 
     /**
-     * POST /api/user/
+     * POST - /api/user/
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *      name
      *      email
      *      username
@@ -137,8 +139,7 @@ class UserController extends BaseController
      */
     public function create(Request $request)
     {
-        if (!UserAuth::hasAccess($this->accessRuleKey, 'c')) {
-            $this->setError(__('alert.access_denied'), false, 403);
+        if (!$this->accessCheck('c')) {
             return $this->done();
         }
 
@@ -182,16 +183,18 @@ class UserController extends BaseController
     }
 
     /**
+     * POST - /api/user/{userId}
+     * 
      * Update user
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param String $id
      */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-        // if(!UserAuth::hasAccess($this->accessRuleKey,'u')){
-        //     $this->setError(__('alert.access_denied'),false,403);
-        //     return $this->done();
-        // }
-
-        $id = $request->route('id');
+        if (!$this->accessCheck('u')) {
+            return $this->done();
+        }
 
         $input = $request->all();
 
@@ -439,6 +442,11 @@ class UserController extends BaseController
 
     public function validatePin(Request $request, $encryptedPin)
     {
+        if(!AuthConfig::isPINEnabled()){
+            $this->setError('PIN Disabled'); 
+            return $this->done();
+        }
+
         $pin = UserAuth::decryptCredential($encryptedPin);
 
         if (UserAuth::isPinValid($pin)) {
@@ -450,6 +458,9 @@ class UserController extends BaseController
         return $this->done();
     }
 
+    /**
+     * POST - /api/user/profile
+     */
     public function updateProfile(Request $request)
     {
         if (UserAuth::isLogin()) {
@@ -479,17 +490,16 @@ class UserController extends BaseController
         if (isset($input['phone'])) {
             $validator['phone'] = 'required|min:3|max:255';
         }
-        if (!empty($input['pin'])) {
+
+        if (AuthConfig::isPINEnabled() && !empty($input['pin'])) {
             $input['pin'] = UserAuth::decryptCredential($input['pin']);
             $validator['pin'] = 'digits:6';
         }
 
-        if (!empty($validator)) {
-            $validator = Validator::make($input, $validator);
-            if ($validator->fails()) {
-                $this->setError('Input Error :', $validator->messages(), 400, 400, true);
-                return $this->done();
-            }
+        $validator = Validator::make($input, $validator);
+        if ($validator->fails()) {
+            $this->setError('Input Error :', $validator->messages(), 400, 400, true);
+            return $this->done();
         }
 
         if (isset($input['role_code'])) unset($input['role_code']);
@@ -497,104 +507,133 @@ class UserController extends BaseController
 
         if ($request->file('avatar', false))
             $input['avatar'] = $request->file('avatar');
+            
+        if (AuthConfig::isPINEnabled() && AuthConfig::isOTPEnabled() && !empty($input['pin'])) {
 
-        if (isset($input['pin']) && !empty($input['pin'])) {
-            $userId = UserAuth::user('id');
-            $userToken = $input['token'];
-
-            // Mencari UserOtp dengan user_id yang sesuai
-            $userOtp = UserOTP::where('user_id', $userId)->first();
-
-            if ($userOtp && $userOtp->token === $userToken) {
-                if (UserRepo::updateUser($id, $input)) {
-                    $this->setAlert('Data Updated successfully', 'success');
-
-                    // Jika pembaruan berhasil, hapus token
-                    UserOTP::where('user_id', $userId)->delete();
-                } else {
-                    $this->setAlert(UserRepo::error(), 'danger');
-                    $this->setError(UserRepo::error());
-                }
-            } else {
-                $this->setAlert('Invalid token', 'danger');
-                $this->setError('Invalid token');
+            if (UserRepo::isOTPValid(UserAuth::user('id'),$input['token'])==false) {
+                $this->setError('OTP Keliru');
+                return $this->done();
             }
+        }
+
+        unset($input['token']);
+
+        if (UserRepo::updateUser($id, $input)) {
+            $this->setMessage('Data Updated successfully', 'success');
         } else {
-            if (UserRepo::updateUser($id, $input)) {
-                $this->setAlert('Data Updated successfully', 'success');
-            } else {
-                $this->setAlert(UserRepo::error(), 'danger');
-                $this->setError(UserRepo::error());
-            }
+            $this->setAlert(UserRepo::error(), 'danger');
+            $this->setError(UserRepo::error());
+        }        
+
+        return $this->done();
+    }
+
+    public function sendOtp()
+    {
+        if(!AuthConfig::isOTPEnabled()){
+            $this->setError('OTP Disabled'); 
+            return $this->done();
+        }
+
+        if($timeout = UserRepo::sendOTP(UserAuth::user('id'))){
+            $this->setData([
+                'timeout'=>$timeout
+            ])->setMessage('OTP berhasil dikirim', 'success');
+        }else{
+            $this->setError(UserRepo::error());            
+        }
+        return $this->done();
+    }
+
+    /**
+     * POST - /api/user/validateOtp
+     * 
+     * cek apakah otp valid
+     * 
+     * @param \Illuminate\Http\Request $request
+     *      token
+     */
+    public function validateOtp(Request $request)
+    {
+        if(!AuthConfig::isOTPEnabled()){
+            $this->setError('OTP Disabled'); 
+            return $this->done();
+        }
+
+        if(UserRepo::isOTPValid(UserAuth::user('id'),$request->input('token'))){
+            $this->setMessage('OTP valid', 'success');
+        }else{
+            $this->setError(UserRepo::error());            
         }
 
         return $this->done();
     }
 
     // kirim kode otp ke wa untuk mengubah pin
-    public function sendOtp()
-    {
-        $otp = str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT);
+    // public function sendOtp()
+    // {
+    //     $otp = str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT);
 
-        $userTenantId = UserAuth::user('tenant_id');
-        $userId = UserAuth::user('id');
-        $userPhone = UserAuth::user('phone');
+    //     $userTenantId = UserAuth::user('tenant_id');
+    //     $userId = UserAuth::user('id');
+    //     $userPhone = UserAuth::user('phone');
 
-        UserOTP::updateOrInsert(
-            ['tenant_id' => $userTenantId, 'user_id' => $userId, 'phone' => $userPhone],
-            ['token' => $otp]
-        );
+    //     UserOTP::updateOrInsert(
+    //         ['tenant_id' => $userTenantId, 'user_id' => $userId, 'phone' => $userPhone],
+    //         ['token' => $otp]
+    //     );
 
-        Mail::to(UserAuth::user('email'))->send(new sendMailOtp($otp));
+    //     Mail::to(UserAuth::user('email'))->send(new sendMailOtp($otp));
 
-        return true;
-    }
+    //     return true;
+    // }
 
     // update data pin
-    public function updateProfilePin(Request $request)
-    {
-        if (UserAuth::isLogin()) {
-            $id = UserAuth::user('id');
-        } else {
-            $this->setError('User belum login');
-            return $this->done();
-        }
+    // BELUM DIGUNAKAN
+    // public function updateProfilePin(Request $request)
+    // {
+    //     if (UserAuth::isLogin()) {
+    //         $id = UserAuth::user('id');
+    //     } else {
+    //         $this->setError('User belum login');
+    //         return $this->done();
+    //     }
 
-        $input = $request->all();
+    //     $input = $request->all();
 
-        if (isset($input['id'])) unset($input['id']);
-        if (isset($input['created_at'])) unset($input['created_at']);
-        if (isset($input['updated_at'])) unset($input['updated_at']);
+    //     if (isset($input['id'])) unset($input['id']);
+    //     if (isset($input['created_at'])) unset($input['created_at']);
+    //     if (isset($input['updated_at'])) unset($input['updated_at']);
 
-        $validator = [];
-        if (!empty($input['pin'])) {
-            $input['pin'] = UserAuth::decryptCredential($input['pin']);
-            $validator['pin'] = 'digits:6';
-        }
+    //     $validator = [];
+    //     if (!empty($input['pin'])) {
+    //         $input['pin'] = UserAuth::decryptCredential($input['pin']);
+    //         $validator['pin'] = 'digits:6';
+    //     }
 
-        if (!empty($validator)) {
-            $validator = Validator::make($input, $validator);
-            if ($validator->fails()) {
-                $this->setError('Input Error :', $validator->messages(), 400, 400, true);
-                return $this->done();
-            }
-        }
+    //     if (!empty($validator)) {
+    //         $validator = Validator::make($input, $validator);
+    //         if ($validator->fails()) {
+    //             $this->setError('Input Error :', $validator->messages(), 400, 400, true);
+    //             return $this->done();
+    //         }
+    //     }
 
-        if (isset($input['role_code'])) unset($input['role_code']);
-        if (isset($input['status'])) unset($input['status']);
+    //     if (isset($input['role_code'])) unset($input['role_code']);
+    //     if (isset($input['status'])) unset($input['status']);
 
-        if ($request->file('avatar', false))
-            $input['avatar'] = $request->file('avatar');
+    //     if ($request->file('avatar', false))
+    //         $input['avatar'] = $request->file('avatar');
 
-        if (UserRepo::updateUser($id, $input)) {
-            $this->setAlert('Data Updated successfully', 'success');
-        } else {
-            $this->setAlert(UserRepo::error(), 'danger');
-            $this->setError(UserRepo::error());
-        }
+    //     if (UserRepo::updateUser($id, $input)) {
+    //         $this->setAlert('Data Updated successfully', 'success');
+    //     } else {
+    //         $this->setAlert(UserRepo::error(), 'danger');
+    //         $this->setError(UserRepo::error());
+    //     }
 
-        return $this->done();
-    }
+    //     return $this->done();
+    // }
 
     /**
      * GET

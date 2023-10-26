@@ -77,7 +77,8 @@ return [
         'verification_mail' => [
             'subject' => ':website - Verifikasi email'
         ],
-        'alert' => [                        
+        'alert' => [     
+            'self_registration_disabled' => 'Fitur registrasi tidak aktif',                   
             'register_success' => 'Registrasi berhasil. Silahkan cek email Anda untuk melakukan verifikasi email.',
             'register_failed' => 'Registrasi gagal. Error : :error ',
             'password_not_match' => 'Password confirmation not match',

@@ -61,7 +61,7 @@
                     </div> -->
                     <div>
                         <span>
-                            <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-primary d-block" :to="{ name: 'systemuser.role.add' }">
+                            <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-sm btn-primary w-icon w-md-auto" :to="{ name: 'systemuser.role.add' }">
                                 <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("role.rolelist.add_new_role") }}
                             </router-link>
                         </span>
@@ -75,33 +75,35 @@
 
             <div class="table-responsive mb-0">
                 <b-table :items="listData.data" :fields="fields" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :striped="true" :bordered="true" class="card-table">
-                    <template v-slot:cell(tenant)="data">
+                    <!-- <template v-slot:cell(tenant)="data">
                         {{ data.item.tenant ? data.item.tenant.name : "" }}
                     </template>
 
                     <template v-slot:cell(tenant_group)="data">
                         {{ data.item.tenant_group ? data.item.tenant_group.name : "" }}
-                    </template>
+                    </template> -->
 
                     <template v-slot:cell(role_code)="data">
                         <b-badge variant="outline-default">{{ data.item.role_code }}</b-badge>
                     </template>
 
                     <template v-slot:cell(actions)="data">
-                        <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
-                        <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" :to="{ name: 'systemuser.role.edit', params: { roleId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
-                            <span class="ion ion-md-create"></span>
-                        </router-link>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
+                            <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" :to="{ name: 'systemuser.role.edit', params: { roleId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
+                                <span class="ion ion-md-create"></span>
+                            </router-link>
 
-                        <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteRole(data.item)" v-if="UserAuth.hasAccess(accessRuleKey, 'd')">
-                            <span class="ion ion-md-close"></span>
-                        </b-btn>
-                        <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
-                        <template slot="button-content">
-                            <i class="ion ion-ios-settings"></i>
-                        </template>
-                        <b-dropdown-item @click="deleteRole(data.item.id)">Remove</b-dropdown-item>
-                        </b-dropdown> -->
+                            <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteRole(data.item)" v-if="UserAuth.hasAccess(accessRuleKey, 'd')">
+                                <span class="ion ion-md-close"></span>
+                            </b-btn>
+                            <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
+                            <template slot="button-content">
+                                <i class="ion ion-ios-settings"></i>
+                            </template>
+                            <b-dropdown-item @click="deleteRole(data.item.id)">Remove</b-dropdown-item>
+                            </b-dropdown> -->
+                        </div>
                     </template>
                 </b-table>
             </div>
@@ -281,12 +283,13 @@
             initView() {
                 this.Web.setModule("moduser");
 
-                this.Web.setNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.caption));
+                this.Web.setNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption));
                 // this.Web.appendNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.PSBBI.access.children.module.caption));
 
                 this.Web.resetBreadcrumb();
                 this.Web.addBreadcrumb(this.Trans.get('lang.home'));
-                this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption));
+                this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.caption));
+                this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption),{name:'systemuser.list'});
                 this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.role.caption));
                 // this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.PSBBI.access.children.merchant.children.insurance.caption));
 
@@ -334,25 +337,25 @@
                     }
                 },
 
-                {
-                    key: "tenant",
-                    label: this.Trans.get("role.field_caption.tenant"),
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": this.Trans.get("role.field_caption.tenant")
-                    }
-                },
+                // {
+                //     key: "tenant",
+                //     label: this.Trans.get("role.field_caption.tenant"),
+                //     sortable: true,
+                //     tdClass: "align-middle",
+                //     tdAttr: {
+                //         "data-lable": this.Trans.get("role.field_caption.tenant")
+                //     }
+                // },
 
-                {
-                    key: "tenant_group",
-                    label: this.Trans.get("role.field_caption.tenant_group"),
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": this.Trans.get("role.field_caption.tenant_group")
-                    }
-                },
+                // {
+                //     key: "tenant_group",
+                //     label: this.Trans.get("role.field_caption.tenant_group"),
+                //     sortable: true,
+                //     tdClass: "align-middle",
+                //     tdAttr: {
+                //         "data-lable": this.Trans.get("role.field_caption.tenant_group")
+                //     }
+                // },
 
                 {
                     key: "role_code",

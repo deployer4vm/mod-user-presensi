@@ -23,7 +23,6 @@
                         </b-form-group>
                     </b-card-body>
 
-
                     <hr class="border-light m-0" v-if="!isAdd"/>
                 
                     <b-card-body class="pb-2" v-if="!isAdd">
@@ -202,10 +201,11 @@
             }
 
             //load data rolesystem
-            this.$store.dispatch("rolesystem/roleList", { system_role: 1 }).then(res => {
+            this.$store.dispatch("rolesystem/roleList").then(res => {
                 let tmpRoleItems = [];
-                _.forEach(res.data, (v, i) => {
-                    tmpRoleItems.push({ value: v.role_code, text: "[" + v.role_code + "] " + v.name });
+                _.forEach(res.data, (v, i) => {                    
+                    if(!v.role_group || v.role_group.can_selected_on_create==1)
+                        tmpRoleItems.push({ value: v.role_code, text: "[" + v.role_code + "] " + v.name });
                 });
                 this.roleItems = tmpRoleItems;
             });

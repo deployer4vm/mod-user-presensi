@@ -25,9 +25,9 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
-        'all_tenant', 'user_idcode', 'name', 'username', 'email', 'phone', 'password', 'auth_password',
+        'user_idcode','user_group_id', 'name', 'username', 'email', 'phone', 'password', 'auth_password',
         'socialauth_facebook_id', 'socialauth_facebook_token', 'socialauth_facebook_data',
-        'socialauth_google_id', 'socialauth_google_token', 'socialauth_google_data', 'level','user_type',
+        'socialauth_google_id', 'socialauth_google_token', 'socialauth_google_data', 'level','user_type','ip_address',
         'note', 'role',  'status', 'banned_note', 'system_user','dashboard_type', 'secret_key', 'tenant_id', 'pin'
     ];
 
@@ -46,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $casts = [
+        'ip_address' => 'array',
         'email_verified_at' => 'datetime',
         'phone_verified_at' => 'datetime',
     ];
@@ -58,6 +59,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function roles()
     {
         return $this->hasMany('hpsynapse\moduser\Models\UserRole', 'user_id');
+    }
+
+    public function userGroup()
+    {
+        return $this->hasOne('hpsynapse\moduser\Models\UserGroup', 'id','user_group_id');
     }
 
     public function otp()
@@ -97,5 +103,32 @@ class User extends Authenticatable implements MustVerifyEmail
     public function apiToken()
     {
         return $this->hasOne('hpsynapse\moduser\Models\ApiToken', 'user_id');
+    }
+
+    /**
+     * role_group_is_integrated : true/false, apakah user ini teringrasi dengan
+     * data eksternal lain, jika ya maka ini bisa digunakan sebagai penanda apakah
+     * user bisa dimanage via fitur manage user atau tidak.
+     * 
+     * @return Float path file
+     */
+    public function getRoleGroupIsIntegratedAttribute()
+    {
+        return UserRoleGroup::where('user_id',$this->id)->whereHas('roleGroup',function($m){
+            $m->where('has_model',1)->orWhere('can_selected_on_create',0);
+        })->exists();
+    }
+
+    
+    public function userRoleGroup()
+    {
+        return $this->hasManyThrough(
+            RoleGroup::class, // table tujuan
+            UserRoleGroup::class, // table transaksi
+            'user_id', // Foreign key on table transaksi (untuk berelasi dengan main model)
+            'id', // Foreign key on table tujuan (untuk berelasi dengan table transaksi)
+            'id', // Local key on main model table (untuk berelasi dengan table transaksi)
+            'role_group_id' // Local key on table transaksi (untuk berelasi dengan table tujuan)
+        );
     }
 }

@@ -7,10 +7,19 @@ return [
         'name' => 'Name',
         'username' => 'Username',
         'email' => 'Email',
+        'phone' => 'Phone',
+        'pin' => 'PIN',
+        'confirm_pin' => 'Konfirmasi PIN',
         'password' => 'Password',
         'confirm_password' => 'Confirm Password',
         'role' => 'Role',
         'status' => 'Status',
+        'user_type' => 'Tipe User',
+        'user_group_id' => 'User Group',
+        'otp_channel' => 'Pengiriman OTP',
+        'otp_channel_select_1' => 'Email',
+        'otp_channel_select_2' => 'SMS',
+        'otp_channel_select_3' => 'WhatsApp',
         'status_item' => [
             'guest' => 'User Baru',
             'active' => 'Active',
@@ -21,6 +30,10 @@ return [
         'client_key' => 'API Client Key',
         'client_secret' => 'API Client Secret',
         'copy_key' => 'Copy :key'
+    ],
+    'field_description' => [
+        'password' => 'Password minimal 8 karakter',
+        'pin' => '(6 Digit)',
     ],
     'userlist' => [
         'add_new_user' => 'Tambah User'
@@ -36,4 +49,35 @@ return [
     'systemuser' => [
         'role_list' => 'Manage Role System ',
     ],
+    'form_profile' => [
+        'label' => [
+            'tab' => [
+                'data' => 'Data',
+                'password' => 'Change password',
+                'pin' => 'Set Pin',
+            ],
+        ],
+        'input_caption' => [
+            
+        ],
+        'field_description' => [
+            
+        ],
+        'alert' => [ 
+
+        ],
+    ],
+    // user group
+    'user_group' => [
+        'name' => 'User Group',
+        'data_role_group' => [
+            'name' => '',
+            'field_name' => [
+                
+            ],
+            'field_description' => [],
+            'label' => []
+
+        ]
+    ]
 ];

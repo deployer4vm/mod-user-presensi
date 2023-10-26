@@ -65,11 +65,21 @@ return [
             'subject' => ':website - Verifikasi email'
         ],
         'alert' => [
+            'self_registration_disabled' => 'Fitur registrasi tidak aktif',
             'register_success' => 'Registrasi berhasil. Silahkan cek email Anda untuk melakukan verifikasi email.',
             'register_failed' => 'Registrasi gagal. Error : :error ',
             'password_not_match' => 'Konfirmasi password keliru',
             'tos_confirm_required' => 'Syarat dan ketentuan harus disetujui',
             'validation_error' => 'Validasi error',
+        ]
+    ],
+    'profile' => [
+        'otp_email' => [
+            'subject' => '[RAHASIA] :appName - OTP',
+            'message' => 'Jangan berikan kode OTP ini kepada siapapun.<br><br>Kode OTP Anda <b>:otp</b>',
+        ],
+        'otp_sms' => [
+            'message' => '[RAHASIA] :appName - OTP. Jangan berikan kode OTP ini kepada siapapun. Kode OTP Anda :otp',
         ]
     ],
 ];
