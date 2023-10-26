@@ -44,7 +44,9 @@ return [
         'tab_profile_caption' => 'Profile'
     ],
     'alert' => [
-        'password_not_match' => 'Password not match'
+        'password_not_match' => 'Password tidak sama',
+        'pin_not_match' => 'PIN tidak sama',
+        'email_invalid' => 'Email tidak valid',
     ],
     'systemuser' => [
         'role_list' => 'Manage Role System ',
