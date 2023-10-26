@@ -90,9 +90,16 @@
                             </b-form-group>
 
                             <hr class="border-light m-0" />
-                            
+
                             <div class="text-right mt-3">
-                                <b-btn @click="saveUser" variant="primary">Save changes</b-btn>
+                                <b-btn 
+                                    type="submit" 
+                                    @click="saveUser" 
+                                    variant="primary w-icon btn-sm"
+                                >
+                                    <i class="fi fi-rs-disk"></i>
+                                    <span>{{ Trans.get('lang.save_change') }}</span>
+                                </b-btn>
                             </div>
                         </b-card-body>
                     </div>
@@ -126,7 +133,14 @@
 
                             <hr class="border-light m-0" />
                             <div class="text-right mt-3">
-                                <b-btn @click="savePassword" variant="primary">Save changes</b-btn>
+                                <b-btn 
+                                    type="submit" 
+                                    @click="savePassword" 
+                                    variant="primary w-icon btn-sm"
+                                >
+                                    <i class="fi fi-rs-disk"></i>
+                                    <span>{{ Trans.get('lang.save_change') }}</span>
+                                </b-btn>
                             </div>
                         </b-card-body>
                     </div>
@@ -137,7 +151,7 @@
                         <b-card-body>
 
                             <!-- inputan pin baru -->
-                            <b-form-group :label="Trans.get('user.field_caption.pin')" label-align-md="right" label-class="pr-md-4" :label-cols-md="4">
+                            <b-form-group :label="Trans.get('user.field_caption.pin')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
                                 <b-input type="password" :class="{
                                     'form-control': true,
                                     'is-invalid': $v.pinForm.pin.$error ? true : false,
@@ -146,7 +160,7 @@
                                     :fieldName="Trans.get('user.field_caption.pin')" />
                             </b-form-group>
                             <!-- confirm pin baru -->
-                            <b-form-group :label="Trans.get('user.field_caption.confirm_pin')" label-align-md="right" label-class="pr-md-4" :label-cols-md="4">
+                            <b-form-group :label="Trans.get('user.field_caption.confirm_pin')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
                                 <b-input type="password" :class="{
                                     'form-control': true,
                                     'is-invalid': $v.pinForm.confirm_pin.$error ? true : false,
@@ -161,9 +175,14 @@
                             <hr class="border-light m-0" />
 
                             <div class="text-right mt-3 d-flex justify-content-end">
-                                <b-btn @click="savePin" variant="primary">{{
-                                    Trans.get("lang.save_change")
-                                }}</b-btn>
+                                <b-btn 
+                                    type="submit" 
+                                    @click="savePin" 
+                                    variant="primary w-icon btn-sm"
+                                >
+                                    <i class="fi fi-rs-disk"></i>
+                                    <span>{{ Trans.get('lang.save_change') }}</span>
+                                </b-btn>
                             </div>
                         </b-card-body>
                     </div>
@@ -190,7 +209,6 @@
 <style src="@/vendor/styles/pages/account.scss" lang="scss"></style>
 
 <script>
-import globals from "@/globals";
 import Multiselect from "node_modules/vue-multiselect";
 import {
     required,
@@ -266,7 +284,6 @@ export default {
             // pin: ""
         },
         pinForm: {
-            // token: "",
             pin: "",
             confirm_pin: ""
         },
@@ -286,7 +303,8 @@ export default {
     },
     created() {
         this.userForm = this.UserAuth.getUser();
-        this.pinForm.pin = this.userForm.pin;
+        this.pinForm.pin = '';
+        this.pinForm.confirm_pin = '';
         
         this.$store.dispatch("authConfig/loadPassword");
         this.$store.dispatch("authConfig/loadOtp");
@@ -311,7 +329,7 @@ export default {
             this.LocalApi.get(this.AppConfig.endpoint.api.moduser + "/" + id).then(
                 (res) => {
                     this.userForm = res.data.data;
-                    this.userForm.token = "";
+                    // this.userForm.token = "";
                     this.userForm.pin = "";
                     this.oldEmail = this.userForm.email;
                     return res.data.data;
@@ -334,7 +352,7 @@ export default {
 
             if (this.showUserField("avatar")) data.avatar = this.userForm.avatar;
 
-            var formData = globals().Helper.convertToFormData(data);
+            var formData = this.Helper.convertToFormData(data);
             this.LocalApi.post(
                 this.AppConfig.endpoint.api.moduser + "/profile",
                 formData,
@@ -432,7 +450,7 @@ export default {
                 pin: this.pinForm.pin != "" ? encryptor.encryptSync(this.pinForm.pin) : "",
             };
 
-            var formData = globals().Helper.convertToFormData(data);
+            var formData = this.Helper.convertToFormData(data);
             this.LocalApi.post(
                     this.AppConfig.endpoint.api.moduser + "/profile",
                     formData,
@@ -446,6 +464,7 @@ export default {
                     this.Web.showAlert({ text: "PIN berhasil diubah" });
                     this.pinForm.pin = '';
                     this.pinForm.confirm_pin = '';
+                    this.$v.pinForm.$reset();
                     this.hideOtpForm = this.hideOtpForm?false:true;// trigger tutup form otp
                 })
                 .catch((res) => {
