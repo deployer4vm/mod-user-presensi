@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'name' => 'User Management',
     'my_profile' => 'My Profile',
     'field_caption' => [ //digunakan di form dan list (kolom) manage user
         'avatar' => 'Avatar',

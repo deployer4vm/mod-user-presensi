@@ -152,6 +152,25 @@ const BroadcastForm = (resolve) => {
     });
 };
 
+/**
+ * CONFIG
+ * -----------------------------------------------------------------------------
+ */
+
+//--- auth
+const authConfig = (resolve) => {
+    require.ensure(["../views/admin/config/auth/index"], () => {
+        resolve(require("../views/admin/config/auth/index"));
+    });
+};
+
+//--- registration
+const registrationConfig = (resolve) => {
+    require.ensure(["../views/admin/config/registration/index"], () => {
+        resolve(require("../views/admin/config/registration/index"));
+    });
+};
+
 //style/tampilan auth page
 if (globals().AppConfig.packageLocal.moduser.auth_template.type == 1) {
     var authPage = [
@@ -334,6 +353,25 @@ export default [
                 path: "systemuser",
                 component: BlankRouterContainer,
                 children: systemUserPage,
+            },
+            //--- CONFIG
+            {
+                path: "config",
+                component: BlankRouterContainer,
+                children: [
+                    //--- auth
+                    {
+                        path: "auth",
+                        component: authConfig,
+                        name: "moduser.config.auth",
+                    },
+                    //--- registration
+                    {
+                        path: "registration",
+                        component: registrationConfig,
+                        name: "moduser.config.registration",
+                    },
+                ],
             },
         ],
     },
