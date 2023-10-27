@@ -440,7 +440,7 @@ export default {
             this.showOtpForm = this.showOtpForm?false:true;
         },
         doSavePin(otp){
-
+            this.Web.setLoadingPage(true);
             var encryptor = new Encryptor({
                 key: this.AppConfig.client.secret_key,
             });
@@ -466,6 +466,7 @@ export default {
                     this.pinForm.confirm_pin = '';
                     this.$v.pinForm.$reset();
                     this.hideOtpForm = this.hideOtpForm?false:true;// trigger tutup form otp
+                    this.Web.setLoadingPage(false);
                 })
                 .catch((res) => {
                     this.Web.showAlert({
@@ -476,6 +477,7 @@ export default {
                             res.message,
                         type: "warning",
                     });
+                    this.Web.setLoadingPage(false);
                 });
         },
         sendVerification(userId) {

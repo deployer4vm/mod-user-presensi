@@ -188,7 +188,7 @@ trait UserMessageTraits
         }
         
         //notifyNow
-        $user->notify(new \hpsynapse\moduser\Notifications\SendOTP($otp['otp'],config('AppConfig.client.app_name','')));
+        $user->notifyNow(new \hpsynapse\moduser\Notifications\SendOTP($otp['otp'],config('AppConfig.client.app_name','')));
         
         return $otp['timeout'];
     }
