@@ -88,6 +88,7 @@ export default {
     },
     methods: {
         loadNotif() {
+            clearTimeout(window.timeOut);
             var that = this;
             let filterParams = {params: {limit: 5}};
             this.LocalApi.get(this.AppConfig.endpoint.api.moduser + "/notification" , filterParams)
@@ -116,10 +117,12 @@ export default {
                             }
                         that.lastNotifCount = that.notif.summary.unread_count;
                     }
+
                     if(!(this.isUsingPusher && this.isNotifPusher))
                         window.timeOut = setTimeout(function(){                        
                             that.loadNotif();
                         },10000);
+
                 }).catch((res)=>{    
                     
                 });
