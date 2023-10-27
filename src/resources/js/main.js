@@ -6,6 +6,13 @@ EventBus.$on('onLogin', function () {
     this.$store.dispatch("authConfig/loadAll");
 });
 
+window.Vue.component(
+    "v-select-user",
+    require("./views/admin/components/vSelectUser.vue")
+        .default
+);
+
+
 // jika fitur notifikasi aktif maka registerkan component navbar notifikasi
 if(
     globals().AppConfig.packageLocal.moduser.notification.enable==1 && 

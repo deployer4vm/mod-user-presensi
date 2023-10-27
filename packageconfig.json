@@ -407,7 +407,7 @@
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "moduser.config" },
                 "class": "",
-                "is_navbar": 0,
+                "is_navbar": 1,
                 "enable": 1,
                 "tenant_group_id": 0,
                 "active_acl": {
@@ -457,6 +457,31 @@
                             }
                         },
                         "children": {
+                            "password": {
+                                "acl_caption": {"en":"Can manage Password Config","id":"Can manage Password Config"},
+                                "acl_description": {"en":"","id":""},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
+                            },
                             "otp": {
                                 "acl_caption": {"en":"Can manage OTP Config","id":"Can manage OTP Config"},
                                 "acl_description": {"en":"","id":""},
