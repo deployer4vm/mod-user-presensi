@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Log;
 
 use hpsynapse\moduser\Channels\SmsChannels;
 use hpsynapse\moduser\Channels\WhatsAppChannels;
@@ -29,7 +30,8 @@ class SendOTP extends Notification implements ShouldQueue
         $this->otpcode = $otpcode;
         $this->appName = $appName;
         
-        $this->queue = 'high';
+        $this->queue = 'verification';
+        // Log::info('__construct');
     }
 
     /**
@@ -40,6 +42,8 @@ class SendOTP extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {        
+        // Log::info(['via channel',$notifiable->otp_channel,$notifiable]);
+        // echo 'channel : '.$notifiable->otp_channel."\n\n";
         //1 email, 2 sms, 3 wa
         return [$notifiable->otp_channel==1?'mail':($notifiable->otp_channel==2?SmsChannels::class:WhatsAppChannels::class)];
     }
@@ -80,6 +84,8 @@ class SendOTP extends Notification implements ShouldQueue
             $this->otpcode,
             $this->appName
         );
+        // echo 'email : '.$notifiable->email."\n\n";
+        // Log::info(['toMail',$notifiable->email,$notifiable]);
         return $email->to($notifiable->email);
     }
 }
