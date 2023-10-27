@@ -92,8 +92,12 @@
                     </template>
 
                     <template v-slot:cell(role_group)="data">                        
-                        <b-badge v-if="data.item.role_group" variant="outline-info">{{ data.item.role_group.name }}</b-badge>
+                        <b-badge v-if="data.item.role_group" variant="outline-success">{{ data.item.role_group.name }}</b-badge>
                         <template v-else>not grouped</template>
+                    </template>
+                    <template v-slot:cell(role_type)="data">                        
+                        <b-badge v-if="data.item.role_type==1" variant="outline-info">Standard</b-badge>
+                        <b-badge v-else variant="outline-warning">Non-Login role</b-badge>
                     </template>
 
                     <template v-slot:cell(actions)="data">
@@ -188,6 +192,10 @@
             totalPages() {
                 return Math.ceil(this.listData.count / this.perPage);
             },
+            //            
+            canEditRoleType() {
+                return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_type') || this.UserAuth.isWebdev();
+            },
         },
         watch: {
             curPage(v) {
@@ -251,6 +259,11 @@
 
                 this.Web.setLoadingPage(true);
                 this.isLoadingData = true;
+                if(this.canEditRoleType){
+                    this.loadParams.role_type = 1;
+                }else{
+                    delete this.loadParams.role_type;
+                }
 
                 this.$store.dispatch("role/roleList", this.loadParams)
                     .then((res)=>{
@@ -385,6 +398,14 @@
                     }
                 },
                 {
+                    key: "role_type",
+                    sortable: true,
+                    tdClass: "align-middle",
+                    tdAttr: {
+                        "data-lable": this.Trans.get("")
+                    }
+                },
+                {
                     key: "actions",
                     label: " ",
                     sortable: false,
@@ -394,8 +415,11 @@
             ];
 
             if (!(this.UserAuth.hasAccess(this.accessRuleKey, "u") || this.UserAuth.hasAccess(this.accessRuleKey, "d"))) {
-                this.fields.splice(5, 1);
+                this.fields.splice(6, 1);
             }
+
+            if(!this.canEditRoleType)
+                this.fields.splice(5, 1);
 
             //jika tidak menggunakan system tenant maka hilangkan kolom tenant
             if (this.AppConfig.system.multitenant.active == 0) {

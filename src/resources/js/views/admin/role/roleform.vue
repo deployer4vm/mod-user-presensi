@@ -34,6 +34,11 @@
                     <b-select :disabled="isDisabled || !canEditRoleGroupId" v-model="roleForm.role_group_id" :options="selectRoleGroup" />
                 </b-form-group>
 
+                <!-- Role Type -->
+                <b-form-group v-if="canEditRoleType" :label="Trans.get('role.field_caption.role_type')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                    <b-select v-model="roleForm.role_type" :options="selectRoleType" />
+                </b-form-group>
+
                 <!-- Locked Data -->
                 <b-form-group v-if="canEditLockedDataMode" :label="Trans.get('role.field_caption.locked_data_mode')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
                     <b-select v-model="roleForm.locked_data_mode" :options="selectLockedDataMode" />
@@ -43,7 +48,7 @@
         </b-card>
 
         <!-- input Rule -->
-        <div class="m-2 mt-4" v-if="roleForm.role_type==1 && canEditRoleRule">
+        <div class="m-2 mt-4" v-if="roleForm.role_type==1 && canEditRoleRule && pageLoaded">
             <b-card no-body class="overflow-hidden">
                 <div class="row no-gutters row-bordered row-border-light">
                     <div class="col-md-3 pt-0">
@@ -157,6 +162,7 @@ export default {
         return { title: this.pageTitle };
     },
     data: () => ({
+        pageLoaded: false,
         curTab:'',
         accessRuleKey: "moduser.role",
         permissions: [], //data acl
@@ -167,6 +173,11 @@ export default {
             {text:'Tidak bisa didelete',value:1},
             {text:'Tidak bisa diedit dan didelete',value:2},
         ],
+        selectRoleType: [
+            {text:'Standard',value:1},
+            {text:'Non-Login role',value:2},
+        ],
+        
         roleForm: {
             id: 0,
             name: "",
@@ -221,6 +232,9 @@ export default {
         //
         isDisabled() {
             return this.roleForm.locked_data_mode == 2;
+        },
+        canEditRoleType() {
+            return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_type') || this.UserAuth.isWebdev();
         },
         canEditRoleRule() {
             return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_code') || this.UserAuth.isWebdev();
@@ -302,8 +316,12 @@ export default {
         },
         //load data role yang akan diedit
         loadRole() {
+            let params = {};
+            if(!this.canEditRoleType)
+                params.role_type = 1;
+
             this.$store
-                .dispatch("role/getRole", {id: this.$route.params.roleId,params:{role_type:1}})
+                .dispatch("role/getRole", {id: this.$route.params.roleId,params:params})
                 .then((res) => {
                     this.checkSystemRole(res);
 
@@ -329,10 +347,11 @@ export default {
                     }
 
                     this.roleForm.rule = tmp;
+                    this.pageLoaded = true;
                 })
                 .catch((res) => {
-                    console.log("get role error : ", res);
-                    this.Web.showAlert({ text: "Get role Error", style: "warning" });
+                    this.Web.showAlert({ text: "Role not found", style: "warning" });
+                    this.$router.push({ name: "role.list" });
                 });
         },
         //enable/disable pilihan rule per module
@@ -542,7 +561,8 @@ export default {
     created() {
         if (!this.UserAuth.hasAccess(this.accessRuleKey)) {
             //goto dashboard current tenant
-            this.Web.goToCurrentTenant();
+            // this.Web.goToCurrentTenant();
+            this.$router.push({ name: "role.list" });
             this.Web.showAlert({ text: this.Trans.get("alert.access_denied"), style: "warning" });
             return false;
         }
