@@ -103,21 +103,24 @@ class RoleController extends BaseController
     /**
      * GET /api/user/role/{id}
      * 
-     * Route Param : 
-     *      id : route id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id   Route Param {id}
      */
-    public function readOne(Request $request)
+    public function readOne(Request $request, $id)
     {
         if (!UserAuth::hasAccess($this->accessRuleKey, 'r')) {
             $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         } 
+        
+        $this->buildParams();
+        $this->output['params']['filter'][] = ['id', $id];
+        $data = RoleRepo::getRole($this->output['params']['filter']);
 
-        $id = $request->route('id');
-        $this->output['data'] = RoleRepo::getRole($id);
-
-        if (!$this->output['data']) {
-            $this->setError('Data Not Found');
+        if (!$data) {
+            $this->setError(__('lang.data_not_found'));
+        } else {
+            $this->setData($data);
         }
         return $this->done();
     }

@@ -109,7 +109,7 @@
                     },
                     "group" : {
                         "caption": {"en":"Manage User Group","id":"Manage User Group"},
-                        "acl_caption": {"en":"Manager User Group Data","id":"Manager User Group Data"},
+                        "acl_caption": {"en":"Manage User Group Data","id":"Manage User Group Data"},
                         "acl_description": {"en":"","id":""},
                         "route": { "name": "user.group.list" },
                         "class": "",
@@ -166,7 +166,7 @@
             },
             "role": {
                 "caption": {"en":"Manage Role","id":"Manage Role"},
-                "acl_caption": {"en":"Manager User Role Data","id":"Manager User Role Data"},
+                "acl_caption": {"en":"Manage User Role Data","id":"Manage User Role Data"},
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "role.list" },
                 "class": "",
@@ -194,6 +194,31 @@
                 "children": {
                     "can_edit_role_code": {
                         "acl_caption": {"en":"Can Edit 'role_code'","id":"Bisa edit 'role_code'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
+                    "can_edit_role_type": {
+                        "acl_caption": {"en":"Can Edit 'role_type'","id":"Bisa edit 'role_type'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
                         "is_navbar": 0,
                         "enable": 1,
@@ -319,7 +344,7 @@
                     },
                     "group" : {
                         "caption": {"en":"Manage Role Group","id":"Manage Role Group"},
-                        "acl_caption": {"en":"Manager Role Group Data","id":"Manager Role Group Data"},
+                        "acl_caption": {"en":"Manage Role Group Data","id":"Manage Role Group Data"},
                         "acl_description": {"en":"","id":""},
                         "route": { "name": "role.group.list" },
                         "class": "",

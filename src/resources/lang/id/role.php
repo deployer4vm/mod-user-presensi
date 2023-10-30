@@ -8,7 +8,8 @@ return [
         'role_code' => 'Role Code',
         'level' => 'Level',
         'locked_data_mode' => 'Accessibility',
-        'role_group_id' => 'Role Group'
+        'role_group_id' => 'Role Group',
+        'role_type' => 'Role Type',
     ],
     'rolelist' => [
         'add_new_role' => 'Tambah Role'
