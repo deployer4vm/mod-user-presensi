@@ -59,6 +59,32 @@
                             </b-btn>
                         </b-form-group>
                     </div> -->
+                    <b-dropdown
+                        v-if="UserAuth.hasAccess(accessRuleKey+'.group', 'has_access') ||
+                            UserAuth.hasAccess(accessRuleKey+'.levelGroup', 'has_access')"
+                        class="w-50 w-md-auto"
+                        variant="info btn-sm w-icon"
+                        :right="!isRTL"
+                    >
+                        <template slot="button-content">
+                            <i class="fi fi-rs-apps"></i><span>{{ Trans.get('lang.menu') }}</span>
+                        </template>
+
+                        <b-dropdown-item
+                            v-if="UserAuth.hasAccess(accessRuleKey+'.group', 'has_access')"
+                            :to="{name: 'role.group.list'}">
+                            <i class="fi fi-rr-list"></i>
+                            <span> {{ Trans.get('role.group.name') }}</span>
+                        </b-dropdown-item>
+
+                        <b-dropdown-item
+                            v-if="UserAuth.hasAccess(accessRuleKey+'.levelGroup', 'has_access')"
+                            :to="{name: 'role.levelGroup.list'}">
+                            <i class="fi fi-rr-list"></i>
+                            <span> {{ Trans.get('role.level_group.name') }}</span>
+                        </b-dropdown-item>
+
+                    </b-dropdown>
                     <router-link 
                         v-if="UserAuth.hasAccess(accessRuleKey, 'c')" 
                         class="btn btn-sm btn-primary w-icon w-50 w-md-auto"

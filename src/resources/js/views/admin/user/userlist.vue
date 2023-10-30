@@ -82,6 +82,12 @@
                         </b-form-group>
                     </div> -->
                     <router-link 
+                        v-if="UserAuth.hasAccess(accessRuleKey+'.group')" 
+                        class="btn btn-sm btn-info w-icon w-50 w-md-auto"
+                        :to="{ name: 'user.group.list' }">
+                        <i class="fi fi-rr-list"></i>&nbsp; {{ Trans.get("user.user_group.name") }}
+                    </router-link>
+                    <router-link 
                         v-if="UserAuth.hasAccess(accessRuleKey, 'c')" 
                         class="btn btn-sm btn-primary w-icon w-50 w-md-auto"
                         :to="{ name: 'user.add' }">

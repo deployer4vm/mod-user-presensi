@@ -70,17 +70,34 @@ return [
 
         ],
     ],
+    
     // user group
     'user_group' => [
-        'name' => 'User Group',
-        'data_role_group' => [
-            'name' => '',
+        'name' => 'Manage User Group',
+        'data_group' => [
+            'name' => 'User Group',
             'field_name' => [
-                
+                'code' => 'Kode',
+                'name' => 'Nama',
+                'description' => 'Keterangan',
+                'locked_data_mode' => 'Accessibility',
             ],
-            'field_description' => [],
-            'label' => []
-
-        ]
+            'label' => [
+                'locked_data_mode_0' => 'Public',
+                'locked_data_mode_1' => 'Tidak bisa didelete',
+                'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
+            ],
+        ],
+        'table_group' => [
+            'name' => 'List User Group'
+        ],
+        'form_group' => [
+            'name' => 'Form User Group',
+            'input_description' => [
+                'code' => 'Masukan kode...',
+                'name' => 'Masukan nama...',
+                'description' => 'Masukan keterangan (opsional)...'
+            ],
+        ],
     ]
 ];

@@ -133,6 +133,33 @@
                                 "u": 1,
                                 "d": 1
                             }
+                        },
+                        "children": {
+                            "can_edit_locked_data_mode": {
+                                "acl_caption": {"en":"Can Edit 'locked_data_mode'","id":"Bisa edit 'locked_data_mode'"},
+                                "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -315,6 +342,88 @@
                                 "r": 1,
                                 "u": 1,
                                 "d": 1
+                            }
+                        },
+                        "children": {
+                            "can_edit_locked_data_mode": {
+                                "acl_caption": {"en":"Can Edit 'locked_data_mode'","id":"Bisa edit 'locked_data_mode'"},
+                                "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "levelGroup" : {
+                        "caption": {"en":"Manage Role Level Group","id":"Manage Role Level Group"},
+                        "acl_caption": {"en":"Manager Role Level Group Data","id":"Manager Role Level Group Data"},
+                        "acl_description": {"en":"","id":""},
+                        "route": { "name": "role.levelGroup.list" },
+                        "class": "",
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
+                            }
+                        },
+                        "children": {
+                            "can_edit_locked_data_mode": {
+                                "acl_caption": {"en":"Can Edit 'locked_data_mode'","id":"Bisa edit 'locked_data_mode'"},
+                                "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
                             }
                         }
                     }

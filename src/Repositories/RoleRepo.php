@@ -10,7 +10,9 @@ namespace hpsynapse\moduser\Repositories;
 
 // 4. Import level Synapse Core
 use App\Base\BaseRepository;
-
+use App\Facades\Tenant;
+use Exception;
+use hpsynapse\moduser\Facades\UserAuth;
 // 5. Import level Synapse Module Package
 
 // 6. Import level Synapse MainApp & Module MainApp
@@ -21,7 +23,9 @@ use hpsynapse\moduser\Models\Role;
 use hpsynapse\moduser\Models\RoleGroup;
 // class
 use hpsynapse\moduser\Facades\UserRepo;
-
+use hpsynapse\moduser\Models\RoleLevelGroup;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\RoleRepo
 {
@@ -30,10 +34,15 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             'r' => RoleGroup::class,
             'w' => RoleGroup::class
         ],
+        'LevelGroup' => [
+            'r' => RoleLevelGroup::class,
+            'w' => RoleLevelGroup::class
+        ],
     ];
 
     protected $autoResourceSearchField = [
         'Group' => ['name', 'description', 'code'],
+        'LevelGroup' => ['code', 'name', 'description'],
     ];
 
     protected $autoResourceCreateValidate = [
@@ -42,10 +51,20 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             'name' => 'required',
             'code' => 'required'
         ],
+        'LevelGroup' => [
+            'tenant_id' => 'required',
+            'name' => 'required',
+            'code' => 'required'
+        ],
     ];
 
     protected $autoResourceUpdateValidate = [
         'Group' => [
+            'tenant_id' => false,
+            'name' => 'required',
+            'code' => 'required'
+        ],
+        'LevelGroup' => [
             'tenant_id' => false,
             'name' => 'required',
             'code' => 'required'
@@ -122,5 +141,415 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
         return false;
     }
    
-    
+    /**
+     * ROLE GROUP
+     * -------------------------------------------------------------------------
+     */
+
+    /**
+     * create role group
+     * 
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function createGroup(array $input = []) : bool
+    {
+        // cek kode
+        $checkCode = $this->groupExists(['code', $input['code']]);
+        if ($checkCode) {
+            $this->error = __('validation.unique', [
+                'attribute' => __('role.group.data_group.field_name.code')
+            ]);
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            $create = $this->_autoResourceCreate('createGroup', [$input]);
+            if ($create == false) {
+                throw new Exception($this->errorFull());
+                return false;
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+            
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories RoleRepo::createGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
+
+    /**
+     * update role group
+     * 
+     * @param int|array $where
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function updateGroup($where, array $input = []) : bool 
+    {
+        $oldGroup = $this->getGroup($where);
+        if (!$oldGroup) {
+            $this->error =  __('lang.data_attribute_not_found', [
+                'attribute' => __('role.group.data_group.name')
+            ]);
+            return false;
+        }
+
+        if (!UserAuth::user()['level'] == 0 && $oldGroup['locked_data_mode'] == 2) {
+            $this->error = 'Data tidak bisa diedit';
+            return false;
+        }
+
+        // cek kode
+        $checkCode = $this->groupExists(['code', $input['code']]);
+        if ($input['code'] != $oldGroup['code'] && $checkCode) {
+            $this->error = __('validation.unique', [
+                'attribute' => __('role.group.data_group.field_name.code')
+            ]);
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            $update = $this->_autoResourceUpdate('updateGroup', [$where, $input]);
+            if ($update == false) {
+                throw new Exception($this->errorFull());
+                return false;
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+            
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories RoleGroup::updateGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
+
+    /**
+     * delete role group
+     * 
+     * @param int|array $where
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function deleteGroup($where) : bool 
+    {
+        $oldData = $this->getGroup($where);
+        if (!$oldData) {
+            $this->error = __('lang.data_attribute_not_found', [
+                'attribute' => __('role.group.data_group.name')
+            ]);
+            return false;
+        }
+
+        if (!UserAuth::user()['level'] == 0 && $oldData['locked_data_mode'] != 0) {
+            $this->error = 'Data tidak bisa didelete';
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            if (!$this->_autoResourceDelete('deleteGroup', [$where])) {
+                throw new \Exception($this->errorFull());
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories UserRepo::deleteGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
+
+    /**
+     * ROLE LEVEL GROUP
+     * -------------------------------------------------------------------------
+     */
+
+    /**
+     * create role level group
+     * 
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function createLevelGroup(array $input = []) : bool
+    {
+        // cek kode
+        $checkCode = $this->levelGroupExists(['code', $input['code']]);
+        if ($checkCode) {
+            $this->error = __('validation.unique', [
+                'attribute' => __('role.level_group.data_level.field_name.code')
+            ]);
+            return false;
+        }
+
+        // cek level
+        $minMaxValues = RoleLevelGroup::select(
+            DB::raw('MIN(level_start) as level_start'),
+            DB::raw('MAX(level_end) as level_end')
+        )->first();
+        
+        $minValue = $minMaxValues->level_start;
+        $maxValue = $minMaxValues->level_end;
+        $range = range($minValue, $maxValue);
+
+        // start
+        if (in_array($input['level_start'], $range) ) {
+            $this->error = 'Level awal sudah digunakan';
+            return false;
+        }
+
+        // end
+        if (in_array($input['level_end'], $range) ) {
+            $this->error = 'Level akhir sudah digunakan';
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            $create = $this->_autoResourceCreate('createLevelGroup', [$input]);
+            if ($create == false) {
+                throw new Exception($this->errorFull());
+                return false;
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+            
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories RoleRepo::createLevelGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
+
+    /**
+     * update role level group
+     * 
+     * @param int|array $where
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function updateLevelGroup($where, array $input = []) : bool 
+    {
+        $oldGroup = $this->getGroup($where);
+        if (!$oldGroup) {
+            $this->error =  __('lang.data_attribute_not_found', [
+                'attribute' => __('role.level_group.data_level.name')
+            ]);
+            return false;
+        }
+
+        if (!UserAuth::user()['level'] == 0 && $oldGroup['locked_data_mode'] == 2) {
+            $this->error = 'Data tidak bisa diedit';
+            return false;
+        }
+
+        // cek kode
+        $checkCode = $this->levelGroupExists(['code', $input['code']]);
+        if ($input['code'] != $oldGroup['code'] && $checkCode) {
+            $this->error = __('validation.unique', [
+                'attribute' => __('role.level_group.data_level.field_name.code')
+            ]);
+            return false;
+        }
+
+        // cek level
+        $minMaxValues = RoleLevelGroup::select(
+            DB::raw('MIN(level_start) as level_start'),
+            DB::raw('MAX(level_end) as level_end')
+        )->first();
+        
+        $minValue = $minMaxValues->level_start;
+        $maxValue = $minMaxValues->level_end;
+        $range = range($minValue, $maxValue);
+
+        // start
+        if ($input['level_start'] != $oldGroup && in_array($input['level_start'], $range) ) {
+            $this->error = 'Level awal sudah digunakan';
+            return false;
+        }
+
+        // end
+        if ($input['level_end'] != $oldGroup && in_array($input['level_end'], $range) ) {
+            $this->error = 'Level akhir sudah digunakan';
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            $update = $this->_autoResourceUpdate('updateLevelGroup', [$where, $input]);
+            if ($update == false) {
+                throw new Exception($this->errorFull());
+                return false;
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+            
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories RoleGroup::updateLevelGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
+
+    /**
+     * delete role level group
+     * 
+     * @param int|array $where
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function deleteLevelGroup($where) : bool 
+    {
+        $oldData = $this->getGroup($where);
+        if (!$oldData) {
+            $this->error = __('lang.data_attribute_not_found', [
+                'attribute' => __('role.level_group.data_level.name')
+            ]);
+            return false;
+        }
+
+        if (!UserAuth::user()['level'] == 0 && $oldData['locked_data_mode'] != 0) {
+            $this->error = 'Data tidak bisa didelete';
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            if (!$this->_autoResourceDelete('deleteLevelGroup', [$where])) {
+                throw new \Exception($this->errorFull());
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories UserRepo::deleteLevelGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
 }

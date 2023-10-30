@@ -83,6 +83,23 @@ Route::group($groupUser,function(){
             //delete resource
             Route::delete('/{id}', 'RoleGroupController@delete')->name('user.role.group.delete');
         });
+
+        /**
+         * Role Level Group
+         */
+        Route::group(['prefix'=>'level-group'],function(){
+            //read list resource
+            Route::get('/', 'RoleLevelGroupController@readList')->name('user.role.levelGroup.readList');
+            //read one resource
+            Route::get('/{id}', 'RoleLevelGroupController@readOne')->name('user.role.levelGroup.readOne');
+
+            //create resource
+            Route::post('/', 'RoleLevelGroupController@create')->name('user.role.levelGroup.create');
+            //update resource
+            Route::put('/{id}', 'RoleLevelGroupController@update')->name('user.role.levelGroup.update');
+            //delete resource
+            Route::delete('/{id}', 'RoleLevelGroupController@delete')->name('user.role.levelGroup.delete');
+        });
         
         //read list resource
         Route::get('/', 'RoleController@readList')->name('user.role.readList');

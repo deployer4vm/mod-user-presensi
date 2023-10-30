@@ -84,6 +84,12 @@ const UserForm = (resolve) => {
         resolve(require("../views/admin/user/userform"));
     });
 };
+// user -> group
+const UserGroupList = (resolve) => {
+    require.ensure(["../views/admin/user/usergroup"], () => {
+        resolve(require("../views/admin/user/usergroup"));
+    });
+};
 
 const RoleList = (resolve) => {
     require.ensure(["../views/admin/role/rolelist"], () => {
@@ -93,6 +99,18 @@ const RoleList = (resolve) => {
 const RoleForm = (resolve) => {
     require.ensure(["../views/admin/role/roleform"], () => {
         resolve(require("../views/admin/role/roleform"));
+    });
+};
+// role -> group
+const RoleGroupList = (resolve) => {
+    require.ensure(["../views/admin/role/rolegroup"], () => {
+        resolve(require("../views/admin/role/rolegroup"));
+    });
+};
+// role -> level group
+const RoleLevelGroupList = (resolve) => {
+    require.ensure(["../views/admin/role/rolelevelgroup"], () => {
+        resolve(require("../views/admin/role/rolelevelgroup"));
     });
 };
 
@@ -318,6 +336,12 @@ export default [
                 component: UserView,
                 name: "user.view",
             },
+            // user -> group
+            {
+                path: "group",
+                component: UserGroupList,
+                name: "user.group.list",
+            },
             {
                 path: "broadcast",
                 component: BroadcastList,
@@ -328,6 +352,7 @@ export default [
                 component: BroadcastForm,
                 name: "broadcast.form",
             },
+            //--- ROLE
             {
                 path: "role",
                 component: BlankRouterContainer,
@@ -346,6 +371,16 @@ export default [
                         path: "edit/:roleId",
                         component: RoleForm,
                         name: "role.edit",
+                    },
+                    {
+                        path: "group",
+                        component: RoleGroupList,
+                        name: "role.group.list",
+                    },
+                    {
+                        path: "level-group",
+                        component: RoleLevelGroupList,
+                        name: "role.levelGroup.list",
                     },
                 ],
             },

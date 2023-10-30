@@ -56,11 +56,6 @@ class RoleGroupController extends BaseController
         }
 
         $this->buildParams();
-        // $this->mergeParams([
-        //     'filter'=>[
-        //         'append'=>['store_user_count','site_count','cashier_count','kiosk_count']
-        //     ]
-        // ]);
 
         $this->setData(RoleRepo::listGroup(
             $this->output['params']['filter'],
@@ -93,7 +88,7 @@ class RoleGroupController extends BaseController
         if ($data) {
             $this->setData($data)
                 ->setMessage(__('alert.update_success', [
-                    'attribute' => __('role.role_group.data_role_group.name')
+                    'attribute' => __('role.group.data_group.name')
                 ]));
         } else {
             $this->setError(
@@ -153,7 +148,7 @@ class RoleGroupController extends BaseController
         if ($data) {
             $this->setData($data)
                 ->setMessage(__('alert.update_success', [
-                    'attribute' => __('role.role_group.data_role_group.name')
+                    'attribute' => __('role.group.data_group.name')
                 ]));
         } else {
             $this->setError(
@@ -180,7 +175,7 @@ class RoleGroupController extends BaseController
 
         if (RoleRepo::deleteGroup($id)) {
             $this->setMessage(__('alert.delete_success', [
-                'attribute' => __('role.role_group.data_role_group.name')
+                'attribute' => __('role.group.data_group.name')
             ]));
         } else {
             $this->setError(RoleRepo::error());

@@ -27,17 +27,76 @@ return [
         'check_all' => 'Check All',
         'uncheck_all' => 'Uncheck All',
     ],
-    // rule group
-    'role_group' => [
-        'name' => 'Role Group',
-        'data_role_group' => [
-            'name' => '',
-            'field_name' => [
-                
-            ],
-            'field_description' => [],
-            'label' => []
 
-        ]
-    ]
+    // rule group
+    'group' => [
+        'name' => 'Manage Role Group',
+        'data_group' => [
+            'name' => 'Role Group',
+            'field_name' => [
+                'code' => 'Kode',
+                'name' => 'Nama',
+                'has_model' => 'Has Model',
+                'model' => 'Model',
+                'dashboard_type' => 'Tipe Dashboard',
+                'can_selected_on_create' => 'Bisa Dipilih Saat Create User',
+                'description' => 'Keterangan',
+                'locked_data_mode' => 'Accessibility',
+            ],
+            'label' => [
+                'locked_data_mode_0' => 'Public',
+                'locked_data_mode_1' => 'Tidak bisa didelete',
+                'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
+            ],
+        ],
+        'table_group' => [
+            'name' => 'List Role Group'
+        ],
+        'form_group' => [
+            'name' => 'Form Role Group',
+            'input_description' => [
+                'code' => 'Masukan kode...',
+                'name' => 'Masukan nama...',
+                'has_model' => 'Masukan namespace model...',
+                'description' => 'Masukan keterangan (opsional)...'
+            ],
+        ],
+    ],
+
+    // role level group
+    'level_group' => [
+        'name' => 'Manage Role Level Group',
+        'data_level' => [
+            'name' => 'Role Level Group',
+            'field_name' => [
+                'code' => 'Kode',
+                'level_start' => 'Level Awal',
+                'level_end' => 'Level Akhir',
+                'name' => 'Nama',
+                'description' => 'Keterangan',
+                'locked_data_mode' => 'Accessibility',
+            ],
+            'label' => [
+                'locked_data_mode_0' => 'Public',
+                'locked_data_mode_1' => 'Tidak bisa didelete',
+                'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
+            ],
+        ],
+        'table_level' => [
+            'name' => 'List Role Level Group',
+            'column_name' => [
+                'level' => 'Level'
+            ],
+        ],
+        'form_level' => [
+            'name' => 'FormRole Level Group',
+            'input_description' => [
+                'code' => 'Masukan kode...',
+                'level_start' => '',
+                'level_end' => '',
+                'name' => 'Masukan nama...',
+                'description' => 'Masukan keterangan (opsional)...'
+            ],
+        ],
+    ],
 ];

@@ -18,15 +18,15 @@ use App\Base\BaseController;
 
 // 7. Import level Synapse - Current Module
 use hpsynapse\moduser\Facades\UserAuth;
-use hpsynapse\moduser\Facades\UserRepo;
+use hpsynapse\moduser\Facades\RoleRepo;
 
 /**
  * @SuppressWarnings(PHPMD.ShortMethodNames)
  * @SuppressWarnings(PHPMD.StaticAccess)
  */
-class UserGroupController extends BaseController
+class RoleLevelGroupController extends BaseController
 {
-    private $accessRuleKey = 'moduser.user.group';
+    private $accessRuleKey = 'moduser.role.levelGroup';
 
     private function accessCheck($rw = 'r')
     {
@@ -57,7 +57,7 @@ class UserGroupController extends BaseController
 
         $this->buildParams();
 
-        $this->setData(UserRepo::listGroup(
+        $this->setData(RoleRepo::listLevelGroup(
             $this->output['params']['filter'],
             $this->output['params']['query']['offset'],
             $this->output['params']['query']['limit'],
@@ -84,16 +84,16 @@ class UserGroupController extends BaseController
         $input['tenant_id'] = config('tenant.id',0);
         $input['created_by'] = UserAuth::user('id');
 
-        $data = UserRepo::createGroup($input);
+        $data = RoleRepo::createLevelGroup($input);
         if ($data) {
             $this->setData($data)
                 ->setMessage(__('alert.update_success', [
-                    'attribute' => __('user.user_group.data_group.name')
+                    'attribute' => __('role.level_group.data_level.name')
                 ]));
         } else {
             $this->setError(
-                UserRepo::error(),
-                UserRepo::errorValidator()
+                RoleRepo::error(),
+                RoleRepo::errorValidator()
             );
         }
 
@@ -117,7 +117,7 @@ class UserGroupController extends BaseController
         $this->buildParams();
         $this->output['params']['filter'][] = ['id', $id];
 
-        $data = UserRepo::getGroup($this->output['params']['filter']);
+        $data = RoleRepo::getLevelGroup($this->output['params']['filter']);
         if (!$data) {
             $this->setError(__('lang.data_not_found'));
         } else {
@@ -144,16 +144,16 @@ class UserGroupController extends BaseController
         $input = $request->all();
         $input['updated_by'] = UserAuth::user('id');
 
-        $data = UserRepo::updateGroup(['id', $id], $input);
+        $data = RoleRepo::updateLevelGroup(['id', $id], $input);
         if ($data) {
             $this->setData($data)
                 ->setMessage(__('alert.update_success', [
-                    'attribute' => __('user.user_group.data_group.name')
+                    'attribute' => __('role.level_group.data_level.name')
                 ]));
         } else {
             $this->setError(
-                UserRepo::error(),
-                UserRepo::errorValidator()
+                RoleRepo::error(),
+                RoleRepo::errorValidator()
             );
         }
 
@@ -173,12 +173,12 @@ class UserGroupController extends BaseController
             return $this->done();
         }
 
-        if (UserRepo::deleteGroup($id)) {
+        if (RoleRepo::deleteLevelGroup($id)) {
             $this->setMessage(__('alert.delete_success', [
-                'attribute' => __('user.user_group.data_group.name')
+                'attribute' => __('role.level_group.data_level.name')
             ]));
         } else {
-            $this->setError(UserRepo::error());
+            $this->setError(RoleRepo::error());
         }
 
         return $this->done();

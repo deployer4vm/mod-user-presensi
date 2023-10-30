@@ -1403,4 +1403,188 @@ class UserRepo extends BaseRepository
         //        }
 
     }*/
+
+    /**
+     * USER GROUP
+     * -------------------------------------------------------------------------
+     */
+
+    /**
+     * create user group
+     * 
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function createGroup(array $input = []) : bool
+    {
+        // cek kode
+        $checkCode = $this->groupExists(['code', $input['code']]);
+        if ($checkCode) {
+            $this->error = __('validation.unique', [
+                'attribute' => __('user.user_group.data_group.field_name.code')
+            ]);
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            $create = $this->_autoResourceCreate('createGroup', [$input]);
+            if ($create == false) {
+                throw new Exception($this->errorFull());
+                return false;
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+            
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories UserRepo::createGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
+
+    /**
+     * update user group
+     * 
+     * @param int|array $where
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function updateGroup($where, array $input = []) : bool 
+    {
+        $oldGroup = $this->getGroup($where);
+        if (!$oldGroup) {
+            $this->error =  __('lang.data_attribute_not_found', [
+                'attribute' => __('user.user_group.data_group.name')
+            ]);
+            return false;
+        }
+
+        if (!UserAuth::user()['level'] == 0 && $oldGroup['locked_data_mode'] == 2) {
+            $this->error = 'Data tidak bisa diedit';
+            return false;
+        }
+
+        // cek kode
+        $checkCode = $this->groupExists(['code', $input['code']]);
+        if ($input['code'] != $oldGroup['code'] && $checkCode) {
+            $this->error = __('validation.unique', [
+                'attribute' => __('user.user_group.data_group.field_name.code')
+            ]);
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            $update = $this->_autoResourceUpdate('updateGroup', [$where, $input]);
+            if ($update == false) {
+                throw new Exception($this->errorFull());
+                return false;
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+            
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories UserRepo::updateGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
+
+    /**
+     * delete user group
+     * 
+     * @param int|array $where
+     * @param array $input
+     * 
+     * @return bool
+     */
+    public function deleteGroup($where) : bool 
+    {
+        $oldData = $this->getGroup($where);
+        if (!$oldData) {
+            $this->error = __('lang.data_attribute_not_found', [
+                'attribute' => __('user.user_group.data_group.name')
+            ]);
+            return false;
+        }
+
+        if (!UserAuth::user()['level'] == 0 && $oldData['locked_data_mode'] != 0) {
+            $this->error = 'Data tidak bisa didelete';
+            return false;
+        }
+
+        // wrap fungsi utama dalam db transaction agar bisa rollback
+        $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
+        if ($dontHaveTransactionLevel)
+            Tenant::dbBeginTransaction();
+
+        try {
+
+            if (!$this->_autoResourceDelete('deleteGroup', [$where])) {
+                throw new \Exception($this->errorFull());
+            }
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbCommit();
+
+            return true;
+
+        } catch (Exception $e) {
+
+            if ($dontHaveTransactionLevel)
+                Tenant::dbRollback();
+
+            if (!$this->error) $this->error = $e->getMessage();
+
+            Log::info('moduser/src/Repositories UserRepo::deleteGroup() ERROR');
+            Log::error($e);
+
+            // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
+            if (!$dontHaveTransactionLevel)
+                throw $e;
+
+            return false;
+        }
+    }
 }
