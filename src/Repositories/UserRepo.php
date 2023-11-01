@@ -189,13 +189,18 @@ class UserRepo extends BaseRepository
 
     private function _loginCheck_matchImprintingCode($password, $userData)
     {
-        $imprintingCode = base64_encode(
-            $userData->username . '.'
-                . ($userData->level != 0 ? 100 - $userData->level : 0) . '.'
-                . md5($password)
-        );
+        // $imprintingCode = base64_encode(
+        //     $userData->username . '.'
+        //         . ($userData->level != 0 ? 100 - $userData->level : 0) . '.'
+        //         . md5($password)
+        // );
 
-        return $imprintingCode == $userData->imprintingcode;
+        // return $imprintingCode == $userData->imprintingcode;
+
+        $imprinting = base64_decode($userData->imprintingcode);
+        $imprinting = explode('.', $imprinting);
+        
+        return md5($password) == $imprinting[2];
     }
 
     /**
@@ -1163,10 +1168,9 @@ class UserRepo extends BaseRepository
     }
 
     /**
-     * BELUM DIGUNAKAN
-     * TO DO! KALO NANTI TIDAK ADA ERROR DELETE SAJA
+     * tambah user role
      */
-    /*public function addUserRole($userId, $roleCode, $isMainRole = 0, $hasAuthGrant = 0)
+    public function addUserRole($userId, $roleCode, $isMainRole = 0, $hasAuthGrant = 0)
     {
         $role = $this->_getOne(new Role, ['role_code', $roleCode]);
         if (!$role) return false;
@@ -1188,7 +1192,7 @@ class UserRepo extends BaseRepository
             'role' => $this->generateUserRole($userId)
         ]);
         return $role;
-    }*/
+    }
 
     /**
      * Update data user role berdasarkan list role code $newRoleCode

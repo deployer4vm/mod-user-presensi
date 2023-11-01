@@ -23,6 +23,7 @@ return [
         'otp_channel_select_3' => 'WhatsApp',
         'status_item' => [
             'guest' => 'User Baru',
+            'inactive' => 'Tidak Aktif',
             'active' => 'Aktif',
             'banned' => 'Diblokir'
         ],

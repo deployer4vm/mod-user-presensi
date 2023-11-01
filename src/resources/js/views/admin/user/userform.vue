@@ -120,7 +120,7 @@
 
                         <!-- status -->
                         <b-form-group :label="Trans.get('user.field_caption.status')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
-                            <b-select v-model="form.status" :options="{ 1: Trans.get('user.field_caption.status_item.active'), 2: Trans.get('user.field_caption.status_item.banned') }" />
+                            <b-select v-model="form.status" :options="{ 0: Trans.get('user.field_caption.status_item.inactive'), 1: Trans.get('user.field_caption.status_item.active'), 2: Trans.get('user.field_caption.status_item.banned') }" />
                         </b-form-group>
                     </b-card-body>
 

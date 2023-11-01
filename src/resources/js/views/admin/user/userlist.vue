@@ -13,6 +13,7 @@
                     <b-form-group :label="Trans.get('user.field_caption.status')" class="d-inline-block col-md mt-1">
                         <b-select v-model="filterStatus" :options="{
                             'all': Trans.get('lang.view_all'),
+                            '0': Trans.get('user.field_caption.status_item.inactive'),
                             '1': Trans.get('user.field_caption.status_item.active'),
                             '2': Trans.get('user.field_caption.status_item.banned')
                         }"/>
@@ -169,7 +170,8 @@
                     </template>
 
                     <template v-slot:cell(status)="data">
-                        <b-badge variant="outline-success" v-if="data.item.status === 1 || data.item.status === 0">{{ Trans.get("user.field_caption.status_item.active") }}</b-badge>
+                        <b-badge variant="outline-warning" v-if="data.item.status === 0">{{ Trans.get("user.field_caption.status_item.inactive") }}</b-badge>
+                        <b-badge variant="outline-success" v-if="data.item.status === 1">{{ Trans.get("user.field_caption.status_item.active") }}</b-badge>
                         <b-badge variant="outline-danger" v-if="data.item.status === 2">{{ Trans.get("user.field_caption.status_item.banned") }}</b-badge>
                         <!-- <b-badge variant="outline-default" v-if="data.item.status === 0">Guest</b-badge> -->
                     </template>
