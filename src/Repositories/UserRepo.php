@@ -39,6 +39,10 @@ class UserRepo extends BaseRepository
     use ApiTokenTraits, UserMessageTraits;
 
     protected $autoResource = [
+        'User' => [
+            'r' => User::class,
+            'w' => User::class
+        ],
         'Group' => [
             'r' => UserGroup::class,
             'w' => UserGroup::class
@@ -703,6 +707,7 @@ class UserRepo extends BaseRepository
         $this->_delete(new User, [['id', $userId]]);
         $this->_delete(new UserProfile, [['user_id', $userId]]);
         $this->_delete(new UserRole, [['user_id', $userId]]);
+        $this->_delete(new UserRoleGroup(), [['user_id', $userId]]);
         return true;
     }
     /**
@@ -1168,11 +1173,11 @@ class UserRepo extends BaseRepository
     }
 
     /**
-     * tambah user role
+     * tambah/assign role baru ke user
      */
     public function addUserRole($userId, $roleCode, $isMainRole = 0, $hasAuthGrant = 0)
     {
-        $role = $this->_getOne(new Role, ['role_code', $roleCode]);
+        $role = $this->_getOne(Role::with('roleGroup'), ['role_code', $roleCode]);
         if (!$role) return false;
 
         //cek pastikan user role belum terdaftar, jika sudah terdaftar maka tolak
@@ -1186,11 +1191,22 @@ class UserRepo extends BaseRepository
             'is_main_role' => $isMainRole,
             'has_auth_grant' => $hasAuthGrant,
         ]);
+        
+        if($role['role_group']){
+            $this->_create(new UserRoleGroup, [
+                'tenant_id' => $role['tenant_id'],
+                'user_id' => $userId,
+                'role_group_id' => $role['role_group_id'],
+                'role_group_code' => $role['role_group']['code'],
+                'created_at'=>now(),
+            ]);
+        }
 
         //update role di table user
         $this->updateUser($userId, [
             'role' => $this->generateUserRole($userId)
         ]);
+
         return $role;
     }
 
@@ -1268,6 +1284,33 @@ class UserRepo extends BaseRepository
             'level' => $role->level
         ]);
     }
+    
+    /**
+     * Un-assign role dari user
+     */
+    public function deleteUserRole($userId, $roleCode)
+    {
+        $role = $this->_getOne(Role::with('roleGroup'), ['role_code', $roleCode]);
+        if (!$role) return false;
+
+        //delete role dari user role
+        $roleData = $this->_delete(new UserRole, [
+            ['user_id',$userId],
+            ['role_id',$role['id']]
+        ]);
+        
+        if($role['role_group']){
+            $this->_delete(new UserRoleGroup, [
+                ['user_id',$userId],
+                ['role_group_id',$role['role_group_id']]
+            ]);
+        }
+
+        //delete role di table user
+        $this->updateUser($userId, ['role' => $this->generateUserRole($userId)]);
+
+        return $roleData;
+    }
 
     public function checkSystemUser($id)
     {
@@ -1301,22 +1344,6 @@ class UserRepo extends BaseRepository
     //     return $roleData;
     // }
 
-    // public function deleteUserRole($userId, $roleCode)
-    // {
-    //     $role = $this->getOne(['role_code', $roleCode]);
-    //     if (!$role) return false;
-
-    //     //delete role dari user role
-    //     $roleData = $this->_delete(new UserRole, [
-    //         'user_id' => $userId,
-    //         'role_code' => $role['role_code']
-    //     ]);
-
-    //     //delete role di table user
-    //     $this->updateUser($userId, ['role' => $this->generateUserRole($userId)]);
-
-    //     return $roleData;
-    // }
     /**
      * Belum selesai
      */

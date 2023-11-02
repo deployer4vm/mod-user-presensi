@@ -117,8 +117,8 @@
                         <b-badge variant="outline-default">{{ data.item.role_code }}</b-badge>
                     </template>
 
-                    <template v-slot:cell(role_group)="data">                        
-                        <b-badge v-if="data.item.role_group" variant="outline-success">{{ data.item.role_group.name }}</b-badge>
+                    <template v-slot:cell(role_group_id)="data">                        
+                        <b-badge v-if="data.item.role_group" variant="outline-success">{{ data.item.role_group.code }}</b-badge>
                         <template v-else>not grouped</template>
                     </template>
                     <template v-slot:cell(role_type)="data">                        
@@ -416,7 +416,8 @@
                     }
                 },
                 {
-                    key: "role_group",
+                    key: "role_group_id",
+                    label: this.Trans.get("role.field_caption.role_group_id"),
                     sortable: true,
                     tdClass: "align-middle",
                     tdAttr: {
