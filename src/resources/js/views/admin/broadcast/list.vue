@@ -60,7 +60,7 @@
               <i class="fi fi-rs-edit"></i>
             </b-btn>
             <b-btn @click="deleteData(data.item.id)" variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Remove" v-if="UserAuth.hasAccess('moduser.broadcast','d')">
-              <i class="ion ion-md-close"></i>
+              <i class="fi fi-rs-trash"></i>
             </b-btn>
           </template>
 
