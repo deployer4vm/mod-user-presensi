@@ -3,8 +3,8 @@
         <header-breadcrumb :pageTitle="title" :backPath="{ name: 'home' }" />
 
         <b-container>
-            <b-card no-body class="my-4 overflow-hidden">
-                <div class="row no-gutters row-bordered row-border-light">
+            <div class="my-3">
+                <b-row>
                     <div class="col-md-3 pt-0">
                         <b-list-group class="account-settings-links" flush>
                             <b-list-group-item button :active="curTab === 'general'"
@@ -30,161 +30,184 @@
 
                     <!-- Tab General / Profile -->
                     <div class="col-md-9" v-show="curTab === 'general'">
-                        <b-card-body v-if="showUserField('avatar')">
-                            <!-- <img :src="`${publicUrl}images/avatars/${userForm.id}/${userForm.avatar}`" alt class="d-block ui-w-80" />
-                            <div class="media-body ml-4">
-                                <b-btn variant="outline-primary">Upload new photo</b-btn>&nbsp;
-                                <b-btn variant="default md-btn-flat">Reset</b-btn>
-                                <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
-                            </div> -->
-
-                            <!-- <image-crop-upload v-if="userForm.id" :imagePath="userForm.avatar"
-                                @setValue="userForm.avatar = $event" maxSize="800000"
-                                :fieldCaption="Trans.get('user.field_caption.avatar')" fieldName="avatar">
-                            </image-crop-upload> -->
-
-                            <!-- Foto -->
-                            <b-form-group
-                                :label="Trans.get('user.field_caption.avatar')"
-                            >
-                                <upload-file-list
-                                    :files="userForm.avatar"
-                                    @onFiles="userForm.avatar = $event"
-                                    :firstFileAsCover="true"
-                                    :canMovePos="false"
-                                    :multiple="false"
-                                    :title="''"                    
-                                />
-                            </b-form-group>
-                        </b-card-body>
-
-                        <hr class="border-light m-0" />
-                        <b-card-body>
-                            <b-form-group :label="Trans.get('user.field_caption.username')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
-                                <b-input v-model="userForm.username" :readonly="true" />
-                            </b-form-group>
-
-                            <b-form-group :label="Trans.get('user.field_caption.name')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
-                                <b-input v-model="userForm.name" />
-                            </b-form-group>
-
-                            <b-form-group :label="Trans.get('user.field_caption.email')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
-                                <b-input v-model="userForm.email" />
-                                <b-alert variant="warning" show class="mt-3 mb-0" v-if="!userForm.email_verified_at && userForm.email == oldEmail
-                                    ">
-                                    Email Anda belum terverifikasi, silahkan cek email verifikasi
-                                    yang kami kirim, atau
-                                    <a href="javascript:void(0)" @click="sendVerification(userForm.id)" class="small">
-                                        kirim ulang email verifikasi
-                                    </a>
-                                </b-alert>
-                            </b-form-group>
-
-                            <b-form-group :label="Trans.get('user.field_caption.phone')" v-if="showUserField('phone')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
-                                <b-input v-model="userForm.phone" />
-                                <b-alert variant="warning" show class="mt-3 mb-0" v-if="false">
-                                    Your phone is not confirmed.
-                                    <br />
-                                    <a href="javascript:void(0)" v-if="false">Resend confirmation</a>
-                                </b-alert>
-                            </b-form-group>
-
-                            <hr class="border-light m-0" />
-
-                            <div class="text-right mt-3">
-                                <b-btn 
-                                    type="submit" 
-                                    @click="saveUser" 
-                                    variant="primary w-icon btn-sm"
+                        <b-card no-body class="overflow-hidden position-relative mb-0 ml-md-3 ml-md-3">
+                            <b-card-header>
+                                <h5 class="my-1">Data</h5>
+                            </b-card-header>
+                            <b-card-body class="pb-0" v-if="showUserField('avatar')">
+                                <!-- <img :src="`${publicUrl}images/avatars/${userForm.id}/${userForm.avatar}`" alt class="d-block ui-w-80" />
+                                <div class="media-body ml-4">
+                                    <b-btn variant="outline-primary">Upload new photo</b-btn>&nbsp;
+                                    <b-btn variant="default md-btn-flat">Reset</b-btn>
+                                    <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                                </div> -->
+    
+                                <!-- <image-crop-upload v-if="userForm.id" :imagePath="userForm.avatar"
+                                    @setValue="userForm.avatar = $event" maxSize="800000"
+                                    :fieldCaption="Trans.get('user.field_caption.avatar')" fieldName="avatar">
+                                </image-crop-upload> -->
+    
+                                <!-- Foto -->
+                                <b-form-group
+                                    :label="Trans.get('user.field_caption.avatar')"
+                                    label-align-md="right"
+                                    label-class="pr-md-3"
+                                    :label-cols-md="3"
+                                    :content-cols-md="9"
                                 >
-                                    <i class="fi fi-rs-disk"></i>
-                                    <span>{{ Trans.get('lang.save_change') }}</span>
-                                </b-btn>
-                            </div>
-                        </b-card-body>
+                                    <upload-file-list
+                                        :files="userForm.avatar"
+                                        @onFiles="userForm.avatar = $event"
+                                        :firstFileAsCover="true"
+                                        :canMovePos="false"
+                                        :multiple="false"
+                                        :title="''"                    
+                                    />
+                                </b-form-group>
+                                <b-form-group :label="Trans.get('user.field_caption.username')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                                    <b-input v-model="userForm.username" :readonly="true" />
+                                </b-form-group>
+    
+                                <b-form-group :label="Trans.get('user.field_caption.name')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                                    <b-input v-model="userForm.name" />
+                                </b-form-group>
+    
+                                <b-form-group :label="Trans.get('user.field_caption.email')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                                    <b-input v-model="userForm.email" />
+                                    <b-alert variant="warning" show class="mt-3 mb-0" v-if="!userForm.email_verified_at && userForm.email == oldEmail
+                                        ">
+                                        Email Anda belum terverifikasi, silahkan cek email verifikasi
+                                        yang kami kirim, atau
+                                        <a href="javascript:void(0)" @click="sendVerification(userForm.id)" class="small">
+                                            kirim ulang email verifikasi
+                                        </a>
+                                    </b-alert>
+                                </b-form-group>
+    
+                                <b-form-group :label="Trans.get('user.field_caption.phone')" v-if="showUserField('phone')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                                    <b-input v-model="userForm.phone" />
+                                    <b-alert variant="warning" show class="mt-3 mb-0" v-if="false">
+                                        Your phone is not confirmed.
+                                        <br />
+                                        <a href="javascript:void(0)" v-if="false">Resend confirmation</a>
+                                    </b-alert>
+                                </b-form-group>
+                            </b-card-body>
+                            <b-card-footer>
+                                <b-row class="w-100">
+                                    <b-col md="3"></b-col>
+                                    <b-col>
+                                        <b-btn 
+                                            type="submit" 
+                                            @click="saveUser" 
+                                            variant="primary w-icon btn-sm"
+                                        >
+                                            <i class="fi fi-rs-disk"></i>
+                                            <span>{{ Trans.get('lang.save_change') }}</span>
+                                        </b-btn>
+                                    </b-col>
+                                </b-row>
+                            </b-card-footer>
+                        </b-card>
+
                     </div>
                     <!-- / Tab General / Profile -->
 
                     <!-- Tab Change Password -->
                     <div class="col-md-9" v-show="curTab === 'password'">
-                        <b-card-body>
-                            <!-- password -->
-                            <b-form-group label="New password" label-align-md="right" label-class="pr-md-4" :label-cols-md="4">
-                                <b-input :class="{
-                                    'form-control': true,
-                                    'is-invalid': $v.passwordForm.password.$error ? true : false,
-                                }" type="password" v-model="passwordForm.password" />
-                                <small>{{
-                                    Trans.get("user.field_description.password")
-                                }}</small>
-                                <invalid-tooltip :inputItem="$v.passwordForm.password"
-                                    :fieldName="Trans.get('user.field_caption.password')" />
-                            </b-form-group>
-                            <!-- confirm password -->
-                            <b-form-group label="Repeat new password" label-align-md="right" label-class="pr-md-4" :label-cols-md="4">
-                                <b-input :class="{
-                                    'form-control': true,
-                                    'is-invalid': $v.passwordForm.password_confirmation.$error ? true : false,
-                                }" type="password" v-model="passwordForm.password_confirmation" />
-                                <invalid-tooltip :inputItem="$v.passwordForm.password_confirmation"
-                                    :fieldName="Trans.get('user.field_caption.confirm_password')"
-                                    :customAlert="{ sameAsPassword: Trans.get('user.alert.password_not_match') }" />
-                            </b-form-group>
-
-                            <hr class="border-light m-0" />
-                            <div class="text-right mt-3">
-                                <b-btn 
-                                    type="submit" 
-                                    @click="savePassword" 
-                                    variant="primary w-icon btn-sm"
-                                >
-                                    <i class="fi fi-rs-disk"></i>
-                                    <span>{{ Trans.get('lang.save_change') }}</span>
-                                </b-btn>
-                            </div>
-                        </b-card-body>
+                        <b-card no-body class="overflow-hidden position-relative mb-0 ml-md-3 ml-md-3">
+                            <b-card-header>
+                                <h5 class="my-1">Change Password</h5>
+                            </b-card-header>
+                            <b-card-body class="pb-0">
+                                <!-- password -->
+                                <b-form-group label="New password" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                                    <b-input :class="{
+                                        'form-control': true,
+                                        'is-invalid': $v.passwordForm.password.$error ? true : false,
+                                    }" type="password" v-model="passwordForm.password" />
+                                    <small class="text-muted">{{
+                                        Trans.get("user.field_description.password")
+                                    }}</small>
+                                    <invalid-tooltip :inputItem="$v.passwordForm.password"
+                                        :fieldName="Trans.get('user.field_caption.password')" />
+                                </b-form-group>
+                                <!-- confirm password -->
+                                <b-form-group label="Repeat new password" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                                    <b-input :class="{
+                                        'form-control': true,
+                                        'is-invalid': $v.passwordForm.password_confirmation.$error ? true : false,
+                                    }" type="password" v-model="passwordForm.password_confirmation" />
+                                    <invalid-tooltip :inputItem="$v.passwordForm.password_confirmation"
+                                        :fieldName="Trans.get('user.field_caption.confirm_password')"
+                                        :customAlert="{ sameAsPassword: Trans.get('user.alert.password_not_match') }" />
+                                </b-form-group>
+                            </b-card-body>
+                            <b-card-footer>
+                                <b-row class="w-100">
+                                    <b-col md="3"></b-col>
+                                    <b-col>
+                                        <b-btn 
+                                            type="submit" 
+                                            @click="savePassword" 
+                                            variant="primary w-icon btn-sm"
+                                        >
+                                            <i class="fi fi-rs-disk"></i>
+                                            <span>{{ Trans.get('lang.save_change') }}</span>
+                                        </b-btn>
+                                    </b-col>
+                                </b-row>
+                            </b-card-footer>
+                        </b-card>
                     </div>
                     <!-- / Tab Change Password -->
 
                     <!-- Tab Set PIN -->
                     <div class="col-md-9" v-if="authConfig.pin.enable" v-show="curTab === 'pin'">
-                        <b-card-body>
-
-                            <!-- inputan pin baru -->
-                            <b-form-group :label="Trans.get('user.field_caption.pin')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
-                                <b-input type="password" :class="{
-                                    'form-control': true,
-                                    'is-invalid': $v.pinForm.pin.$error ? true : false,
-                                }" :maxlength="authConfig.pin.digit" v-model="pinForm.pin" />
-                                <invalid-tooltip :inputItem="$v.pinForm.pin"
-                                    :fieldName="Trans.get('user.field_caption.pin')" />
-                            </b-form-group>
-                            <!-- confirm pin baru -->
-                            <b-form-group :label="Trans.get('user.field_caption.confirm_pin')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
-                                <b-input type="password" :class="{
-                                    'form-control': true,
-                                    'is-invalid': $v.pinForm.confirm_pin.$error ? true : false,
-                                }" :maxlength="authConfig.pin.digit" v-model="pinForm.confirm_pin" />
-
-                                <invalid-tooltip :inputItem="$v.pinForm.confirm_pin"
-                                    :fieldName="Trans.get('user.field_caption.confirm_pin')"
-                                    :customAlert="{ sameAsPin: Trans.get('user.alert.pin_not_match') }" />
-                            </b-form-group>
-                            <!-- / inputan pin baru -->
-
-                            <hr class="border-light m-0" />
-
-                            <div class="text-right mt-3 d-flex justify-content-end">
-                                <b-btn 
-                                    type="submit" 
-                                    @click="savePin" 
-                                    variant="primary w-icon btn-sm"
-                                >
-                                    <i class="fi fi-rs-disk"></i>
-                                    <span>{{ Trans.get('lang.save_change') }}</span>
-                                </b-btn>
-                            </div>
-                        </b-card-body>
+                        <b-card no-body class="overflow-hidden position-relative mb-0 ml-md-3 ml-md-3">
+                            <b-card-header>
+                                <h5 class="my-1">Set Pin</h5>
+                            </b-card-header>
+                            <b-card-body class="pb-0">
+    
+                                <!-- inputan pin baru -->
+                                <b-form-group :label="Trans.get('user.field_caption.pin')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                                    <b-input type="password" :class="{
+                                        'form-control': true,
+                                        'is-invalid': $v.pinForm.pin.$error ? true : false,
+                                    }" :maxlength="authConfig.pin.digit" v-model="pinForm.pin" />
+                                    <invalid-tooltip :inputItem="$v.pinForm.pin"
+                                        :fieldName="Trans.get('user.field_caption.pin')" />
+                                </b-form-group>
+                                <!-- confirm pin baru -->
+                                <b-form-group :label="Trans.get('user.field_caption.confirm_pin')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                                    <b-input type="password" :class="{
+                                        'form-control': true,
+                                        'is-invalid': $v.pinForm.confirm_pin.$error ? true : false,
+                                    }" :maxlength="authConfig.pin.digit" v-model="pinForm.confirm_pin" />
+    
+                                    <invalid-tooltip :inputItem="$v.pinForm.confirm_pin"
+                                        :fieldName="Trans.get('user.field_caption.confirm_pin')"
+                                        :customAlert="{ sameAsPin: Trans.get('user.alert.pin_not_match') }" />
+                                </b-form-group>
+                                <!-- / inputan pin baru -->
+                            </b-card-body>
+                            <b-card-footer>
+                                <b-row class="w-100">
+                                    <b-col md="3"></b-col>
+                                    <b-col>
+                                        <b-btn 
+                                            type="submit" 
+                                            @click="savePin" 
+                                            variant="primary w-icon btn-sm"
+                                        >
+                                            <i class="fi fi-rs-disk"></i>
+                                            <span>{{ Trans.get('lang.save_change') }}</span>
+                                        </b-btn>
+                                    </b-col>
+                                </b-row>
+                            </b-card-footer>
+                        </b-card>
                     </div>
                     <!-- / Tab Set PIN -->
 
@@ -193,20 +216,20 @@
                             <component :is="component.component"></component>
                         </div>
                     </template>
-                </div>
-            </b-card>
+                </b-row>
+            </div>
         </b-container>
         <user-otp :showForm="showOtpForm" :hideForm="hideOtpForm" @submitOtp="doSavePin"></user-otp>
     </div>
 </template>
 
-<style src="node_modules/vue-multiselect/dist/vue-multiselect.min.css"></style>
+<!-- <style src="node_modules/vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style
   src="@/vendor/libs/vue-multiselect/vue-multiselect.scss"
   lang="scss"
-></style>
+></style> -->
 <!-- Page -->
-<style src="@/vendor/styles/pages/account.scss" lang="scss"></style>
+<!-- <style src="@/vendor/styles/pages/account.scss" lang="scss"></style> -->
 
 <script>
 import Multiselect from "node_modules/vue-multiselect";
