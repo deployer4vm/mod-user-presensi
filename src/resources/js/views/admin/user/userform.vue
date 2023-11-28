@@ -103,12 +103,12 @@
                         
                             <!-- OTP channel -->
                             <b-form-group v-if="authConfig.otp.enable" :label="Trans.get('user.field_caption.otp_channel')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
-                                <b-select :disabled="isDisabled" v-model="form.otp_channel" :options="selectOtpChannel" />
+                                <b-select :disabled="isDisabled" v-model="form.otp_channel" :options="selectOtpChannel" class="form-control"/>
                             </b-form-group>
     
                             <!-- User Group -->
                             <b-form-group :label="Trans.get('user.field_caption.user_group_id')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
-                                <b-select :disabled="isDisabled" v-model="form.user_group_id" :options="selectUserGroup" />
+                                <b-select :disabled="isDisabled" v-model="form.user_group_id" :options="selectUserGroup" class="form-control"/>
                             </b-form-group>
     
                             <!-- select role -->
@@ -124,7 +124,7 @@
     
                             <!-- status -->
                             <b-form-group :label="Trans.get('user.field_caption.status')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
-                                <b-select v-model="form.status" :options="{ 0: Trans.get('user.field_caption.status_item.inactive'), 1: Trans.get('user.field_caption.status_item.active'), 2: Trans.get('user.field_caption.status_item.banned') }" />
+                                <b-select v-model="form.status" :options="{ 0: Trans.get('user.field_caption.status_item.inactive'), 1: Trans.get('user.field_caption.status_item.active'), 2: Trans.get('user.field_caption.status_item.banned') }" class="form-control"/>
                             </b-form-group>
                         </b-card-body>
     

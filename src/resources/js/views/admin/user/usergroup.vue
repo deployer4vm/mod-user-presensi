@@ -103,7 +103,7 @@
                         </template>
 
                         <template v-slot:cell(code)="row">
-                            <b-badge variant="outline-dark">{{ row.item.code }}</b-badge>
+                            <b-badge variant="outline-info">{{ row.item.code }}</b-badge>
                         </template>
 
                         <template v-slot:cell(actions)="row">
