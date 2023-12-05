@@ -9,11 +9,11 @@
         <b-container fluid>
             <b-card class="my-3" no-body>
                 <b-card-body>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex flex-column flex-md-row justify-content-between">
                         <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
                             <b-btn
                                 v-b-toggle.filter-block
-                                variant="default w-100 w-xl-auto btn-sm btn-collapse">
+                                variant="default w-icon btn-sm btn-collapse">
                                 <i class="fi fi-rs-filter"></i>
                                 <span>{{ Trans.get("lang.filter") }}</span>
                             </b-btn>
@@ -68,11 +68,11 @@
                 </b-card-body>
             </b-card>
 
-            <b-card class="my-4" no-body>
+            <b-card class="my-3" no-body>
                 <!-- Header -->
 				<b-card-header>
 					<div class="d-flex justify-content-between align-items-center flex-wrap">
-						<h5 class="my-2">
+						<h5 class="my-1">
                             {{ Trans.get('role.level_group.table_level.name') }}
                         </h5>
 					</div>
@@ -103,13 +103,11 @@
                         </template>
 
                         <template v-slot:cell(code)="row">
-                            <b-badge variant="dark">{{ row.item.code }}</b-badge>
+                            <b-badge variant="outline-secondary">{{ row.item.code }}</b-badge>
                         </template>
 
                         <template v-slot:cell(level)="row">
-                            <b-badge variant="info">{{ row.item.level_start }}</b-badge>
-                            <b>s/d</b>
-                            <b-badge variant="info">{{ row.item.level_end }}</b-badge>
+                            <b-badge variant="outline-info">{{ row.item.level_start }} s/d {{ row.item.level_end }}</b-badge>
                         </template>
 
                         <template v-slot:cell(actions)="row">
@@ -276,6 +274,7 @@
                 <b-select 
                     v-model="data.formData.form.locked_data_mode" 
                     :options="selectLockedDataMode"
+                    class="form-control"
                 />
             </b-form-group>
 
