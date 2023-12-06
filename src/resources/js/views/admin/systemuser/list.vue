@@ -1,40 +1,80 @@
 <template>
     <div>
         <header-breadcrumb :pageTitle="pageTitle" :showBack="false" />
-        <b-card class="m-3" no-body>
+        <b-card class="my-3" no-body>
             <b-card-body>
-                <div class="d-flex form-row flex-xl-row align-items-end">
-                    <b-form-group :label="Trans.get('pagination.per_page')" class="d-inline-block col-md mt-1">
-                        <b-select v-model="perPage" :options="[10, 20, 30, 40, 50]"/>
-                    </b-form-group>
-                    <b-form-group :label="Trans.get('user.field_caption.role')" class="d-inline-block col-md mt-1">
-                        <b-select v-model="filterRole" :options="roleItems"/>
-                    </b-form-group>
-                    <b-form-group :label="Trans.get('user.field_caption.status')" class="d-inline-block col-md mt-1">
-                        <b-select v-model="filterStatus" :options="{
-                            'all': Trans.get('lang.view_all'),
-                            '1': Trans.get('user.field_caption.status_item.active'),
-                            '2': Trans.get('user.field_caption.status_item.banned')
-                        }"/>
-                    </b-form-group>
-                    <b-form-group :label="Trans.get('lang.search')" class="d-inline-block col-md mt-1">
-                        <b-input-group>
-                            <b-input placeholder="Search..." @keyup.enter="doSearch" v-model="searchString" />
-                            <b-btn variant="secondary" @click="doSearch">
-                                <i class="fi fi-rs-search"></i>
-                            </b-btn>
-                        </b-input-group>
-                    </b-form-group>
-                    <!-- <b-form-group :label="''" class="d-inline-block w-auto mt-1">
-                    </b-form-group> -->
+
+                <div class="d-flex flex-column flex-md-row justify-content-between">
+                    <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+                        <b-btn 
+                            v-b-toggle.filter-block
+                            variant="default btn-sm w-icon btn-collapse">
+                            <i class="fi fi-rs-filter"></i>
+                            <span>{{ Trans.get('lang.filter') }}</span>
+                        </b-btn>
+                    </div>
+                    <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+                        <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-sm btn-primary w-icon w-50 w-md-auto" :to="{ name: 'systemuser.add' }">
+                            <i class="fi fi-rs-add"></i>
+                            <span>{{ Trans.get("user.userlist.add_new_user") }}</span>
+                        </router-link>
+                        <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'r')" class="btn btn-sm btn-secondary w-icon w-50 w-md-auto" :to="{ name: 'systemuser.role' }">
+                            <i class="fi fi-rs-add"></i>
+                            <span>{{ Trans.get("user.systemuser.role_list") }}</span>
+                        </router-link>
+                    </div>
                 </div>
+
+                <b-collapse id="filter-block">
+                    <hr />
+                    <b-row>
+                        <b-col md="6" xl>
+                            <b-form-group :label="Trans.get('pagination.per_page')">
+                                <b-select v-model="perPage" :options="[10, 20, 30, 40, 50]" class="form-control"/>
+                            </b-form-group>
+                        </b-col>
+                        <b-col md="6" xl>
+                            <b-form-group :label="Trans.get('user.field_caption.role')">
+                                <b-select v-model="filterRole" :options="roleItems" class="form-control"/>
+                            </b-form-group>
+                        </b-col>
+                        <b-col md="6" xl>
+                            <b-form-group :label="Trans.get('user.field_caption.status')">
+                                <b-select v-model="filterStatus" :options="{
+                                    'all': Trans.get('lang.view_all'),
+                                    '1': Trans.get('user.field_caption.status_item.active'),
+                                    '2': Trans.get('user.field_caption.status_item.banned')
+                                }" class="form-control"/>
+                            </b-form-group>
+                        </b-col>
+                        <!-- Pencarian -->
+                        <b-col md="6" xl>
+                            <b-form-group :label="Trans.get('lang.search')">
+                                <b-input-group>
+                                    <b-input
+                                        placeholder="Search..." @keyup.enter="doSearch" v-model="searchString"/>
+                                        <b-input-group-append>
+                                            <b-btn
+                                                variant="secondary"
+                                                @click="doSearch"
+                                                class="btn-icon">
+                                                <i class="fi fi-rs-search"></i>
+                                            </b-btn>
+                                        </b-input-group-append>
+                                </b-input-group>
+                            </b-form-group>
+                        </b-col>
+                         <!-- <b-form-group :label="''" class="d-inline-block w-auto mt-1">
+                        </b-form-group> -->
+                    </b-row>
+                </b-collapse>
             </b-card-body>
         </b-card>
         <b-card class="m-3" no-body>
             <!-- Table controls -->
-            <b-card-body>
+            <!--<b-card-body>
                 <div class="d-flex justify-content-end">
-                    <!-- <div>
+                     <div>
                         <b-form-group :label="Trans.get('pagination.per_page')" class="d-inline-block w-auto mt-1">
                             <b-select v-model="perPage" :options="[10, 20, 30, 40, 50]"/>
                         </b-form-group>
@@ -56,7 +96,7 @@
                                 <i class="fi fi-rs-search"></i>
                             </b-btn>
                         </b-form-group>
-                    </div> -->
+                    </div> 
                     <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-sm btn-primary w-icon w-md-auto" :to="{ name: 'systemuser.add' }">
                         <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.userlist.add_new_user") }}
                     </router-link>
@@ -64,11 +104,16 @@
                         <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("user.systemuser.role_list") }}
                     </router-link>
                 </div>
-            </b-card-body>
+            </b-card-body>-->
             <!-- / Table controls -->
 
+            <b-card-header>
+                <h5 class="my-1">
+                    Manage API Client
+                </h5>
+            </b-card-header>
+
             <!-- Table -->
-            <hr class="border-light m-0" />
             <div class="table-responsive mb-0">
                 <b-table
                     :items="listData.data"
@@ -76,7 +121,7 @@
                     :sort-by.sync="sortBy"
                     :sort-desc.sync="sortDesc"
                     :striped="true"
-                    :bordered="true"
+                    hover
                     class="card-table"
                 >
 
@@ -89,23 +134,25 @@
                         <div class="d-flex align-items-center justify-content-center">
                             
                             <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
-                            <router-link class="btn btn-success icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" v-b-tooltip.hover :to="{ name: 'systemuser.edit', params: { userId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
-                                <span class="ion ion-md-create"></span>
+                            <router-link class="btn btn-dark icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" v-b-tooltip.hover :to="{ name: 'systemuser.edit', params: { userId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
+                                <i class="fi fi-rs-edit"></i>
                             </router-link>
                             <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteUser(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.linked_id == 0" v-b-tooltip.hover>
-                                <span class="ion ion-md-close"></span>
+                                <i class="fi fi-rs-trash"></i>
                             </b-btn>
 
-                            <b-btn class="btn btn-info btn-sm md-btn-flat" v-if="data.item.api_token" 
+                            <b-btn class="btn btn-info btn-xs w-icon md-btn-flat" v-if="data.item.api_token" 
                                 v-clipboard:copy="data.item.api_token.api_token" v-clipboard:success="copySuccess"
                                 v-clipboard:error="copyFail"
-                            >
-                                Copy Token
+                            >   
+                                <i class="fi fi-rs-copy"></i>
+                                <span>Copy Token</span>
                             </b-btn>
-                            <b-btn class="btn btn-primary btn-sm md-btn-flat" v-if="!data.item.api_token"
+                            <b-btn class="btn btn-primary btn-xs w-icon md-btn-flat" v-if="!data.item.api_token"
                                 @click="generateToken(data.item.id)"
                             >
-                                Generate Token
+                                <i class="fi fi-rs-refresh"></i>
+                                <span>Generate Token</span>
                             </b-btn>
                         </div>
                         <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
@@ -121,16 +168,16 @@
             </div>
 
             <!-- Pagination -->
-            <b-card-body class="pt-0 pb-3">
+            <b-card-footer class="flex-md-row flex-column justify-content-center justify-content-md-between align-items-center flex-wrap">
+                <span class="text-muted" v-if="listData.count">{{ Trans.get("pagination.page_of", { curPage: curPage, totalPages: totalPages }) }}</span>
+                <b-pagination class="justify-content-center justify-content-sm-end m-0" v-if="listData.count" v-model="curPage" :total-rows="listData.count" :per-page="perPage" size="sm" />
                 <div class="row">
                     <div class="col-sm text-sm-left text-center pt-3">
-                        <span class="text-muted" v-if="listData.count">{{ Trans.get("pagination.page_of", { curPage: curPage, totalPages: totalPages }) }}</span>
                     </div>
                     <div class="col-sm pt-3">
-                        <b-pagination class="justify-content-center justify-content-sm-end m-0" v-if="listData.count" v-model="curPage" :total-rows="listData.count" :per-page="perPage" size="sm" />
                     </div>
                 </div>
-            </b-card-body>
+            </b-card-footer>
             <!-- / Pagination -->
         </b-card>
     </div>
@@ -169,7 +216,7 @@
                 {
                     key: "id",
                     sortable: true,
-                    tdClass: "align-middle",
+                    tdClass: "align-middle text-center",
                     tdAttr: {
                         "data-lable": "ID"
                     }

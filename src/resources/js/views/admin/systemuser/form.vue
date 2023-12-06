@@ -1,103 +1,127 @@
 <template>
     <div>
         <header-breadcrumb :pageTitle="pageTitle" :backPath="{name: 'systemuser.list'}" />
-
-        <div class="m-3" v-if="isDataLoaded">
-            <b-tabs class="nav-tabs-top nav-responsive-sm">
-                <b-tab :title="Trans.get('user.userform.tab_account_caption')" active>
-                    <b-card-body class="pb-2">
-                        <!-- Nama -->
-                        <b-form-group :label="Trans.get('user.field_caption.name')" class="col position-relative">
-                            <b-input :state="$v.form.name.$error ? 'invalid' : ''" @blur="$v.form.name.$touch()" v-model="form.name" placeholder="Name" />
-                            <invalid-tooltip :inputItem="$v.form.name" :fieldName="'Name'" />
-                        </b-form-group>
-                        
-                        <b-form-group :label="Trans.get('user.field_caption.role')" class="col position-relative">
-                            <template v-if="AppConfig.packageLocal.moduser.user_role.multi_role">
-                                <b-check-group :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" class="custom-controls-stacked" />
-                            </template>
-                            <template v-else>
-                                <b-select :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" @blur="$v.form.role_code.$touch()" />
-                            </template>
-                            <invalid-tooltip :inputItem="$v.form.role_code" :fieldName="Trans.get('user.field_caption.role')" />
-                        </b-form-group>
-                    </b-card-body>
-
-                    <hr class="border-light m-0" v-if="!isAdd"/>
-                
-                    <b-card-body class="pb-2" v-if="!isAdd">
-                        <b-form-group :label="Trans.get('user.field_caption.client_key')" class="col position-relative">
-                            <div class="input-group mb-3">
-                              <input type="text" class="form-control" v-model="form.username" :placeholder="Trans.get('user.field_caption.client_key')" readonly>
-                              <div class="input-group-append">
-                                <button class="btn btn-outline-info" type="button" v-if="form.username"
-                                    v-clipboard:copy="form.username" v-clipboard:success="copySuccess"
-                                    v-clipboard:error="copyFail">
-                                    {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.client_key')}) }}
-                                </button>
-                              </div>
-                            </div>
-                        </b-form-group>
-                        <b-form-group :label="Trans.get('user.field_caption.client_secret')" class="col position-relative">
-                            <div class="input-group mb-3">
-                              <input type="text" class="form-control" v-model="form.secret_key" :placeholder="Trans.get('user.field_caption.client_key')" readonly>
-                              <div class="input-group-append">
-                                <button class="btn btn-outline-info" type="button" v-if="form.secret_key"
-                                    v-clipboard:copy="form.secret_key" v-clipboard:success="copySuccess"
-                                    v-clipboard:error="copyFail">
-                                    {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.client_secret')}) }}
-                                </button>
-                              </div>
-                            </div>
-                        </b-form-group>
-                        <b-form-group :label="Trans.get('user.field_caption.h2h_key')" class="col position-relative">
-                            <div class="input-group mb-3">
-                              <input type="text" class="form-control" v-model="form.api_token.api_token" :placeholder="Trans.get('user.field_caption.h2h_key')" readonly>
-                              <div class="input-group-append">
-                                <button class="btn btn-outline-warning" type="button" @click="generateTokenSystem(form.id)">{{ Trans.get('user.field_caption.generate_token') }}</button>
-                              </div>
-                              <div class="input-group-append">
-                                <button class="btn btn-outline-info" type="button" v-if="form.api_token.api_token"
-                                    v-clipboard:copy="form.api_token.api_token" v-clipboard:success="copySuccess"
-                                    v-clipboard:error="copyFail">
-                                    {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.h2h_key')}) }}
-                                </button>
-                              </div>
-                            </div>
-                        </b-form-group>
-                    </b-card-body>
-                </b-tab>
-
-                <b-tab :title="Trans.get('user.userform.tab_profile_caption')" v-if="showProfile">
-                    <b-card-body>
-                        -
-                    </b-card-body>
-                </b-tab>
-            </b-tabs>
-
-            <div class="text-right mt-3">
-                <b-btn variant="primary" @click="onSubmit">{{ Trans.get("lang.save_change") }}</b-btn
-                >&nbsp;
-                <!-- <b-btn variant="default">Cancel</b-btn> -->
+        <b-container>
+            <div class="my-3" v-if="isDataLoaded">
+                <b-tabs class="nav-tabs-top nav-responsive-sm">
+                    <b-tab :title="Trans.get('user.userform.tab_account_caption')" active>
+                        <b-card-body class="pb-0">
+                            <!-- Nama -->
+                            <b-form-group 
+                                label-align-md="right"
+                                label-class="pr-md-3"
+                                :label-cols-md="3"
+                                :label="Trans.get('user.field_caption.name')" class="col position-relative">
+                                <b-input :state="$v.form.name.$error ? 'invalid' : ''" @blur="$v.form.name.$touch()" v-model="form.name" placeholder="Name" />
+                                <invalid-tooltip :inputItem="$v.form.name" :fieldName="'Name'" />
+                            </b-form-group>
+                            
+                            <b-form-group 
+                                label-align-md="right"
+                                label-class="pr-md-3"
+                                :label-cols-md="3"
+                                :label="Trans.get('user.field_caption.role')" class="col position-relative">
+                                <template v-if="AppConfig.packageLocal.moduser.user_role.multi_role">
+                                    <b-check-group :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" class="custom-controls-stacked" />
+                                </template>
+                                <template v-else>
+                                    <b-select :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" @blur="$v.form.role_code.$touch()" />
+                                </template>
+                                <invalid-tooltip :inputItem="$v.form.role_code" :fieldName="Trans.get('user.field_caption.role')" />
+                            </b-form-group>
+                        </b-card-body>
+    
+                        <hr class="border-light m-0" v-if="!isAdd"/>
+                    
+                        <b-card-body class="pb-0" v-if="!isAdd">
+                            <b-form-group 
+                                label-align-md="right"
+                                label-class="pr-md-3"
+                                :label-cols-md="3"
+                                :label="Trans.get('user.field_caption.client_key')" class="col position-relative">
+                                <div class="input-group mb-3">
+                                  <input type="text" class="form-control" v-model="form.username" :placeholder="Trans.get('user.field_caption.client_key')" readonly>
+                                  <div class="input-group-append">
+                                    <button class="btn btn-outline-info" type="button" v-if="form.username"
+                                        v-clipboard:copy="form.username" v-clipboard:success="copySuccess"
+                                        v-clipboard:error="copyFail">
+                                        {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.client_key')}) }}
+                                    </button>
+                                  </div>
+                                </div>
+                            </b-form-group>
+                            <b-form-group 
+                                label-align-md="right"
+                                label-class="pr-md-3"
+                                :label-cols-md="3"
+                                :label="Trans.get('user.field_caption.client_secret')" class="col position-relative">
+                                <div class="input-group mb-3">
+                                  <input type="text" class="form-control" v-model="form.secret_key" :placeholder="Trans.get('user.field_caption.client_key')" readonly>
+                                  <div class="input-group-append">
+                                    <button class="btn btn-outline-info" type="button" v-if="form.secret_key"
+                                        v-clipboard:copy="form.secret_key" v-clipboard:success="copySuccess"
+                                        v-clipboard:error="copyFail">
+                                        {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.client_secret')}) }}
+                                    </button>
+                                  </div>
+                                </div>
+                            </b-form-group>
+                        <b-form-group 
+                                label-align-md="right"
+                                label-class="pr-md-3"
+                                :label-cols-md="3"
+                                :label="Trans.get('user.field_caption.h2h_key')" class="col position-relative">
+                                <div class="input-group mb-3">
+                                  <input type="text" class="form-control" v-model="form.api_token.api_token" :placeholder="Trans.get('user.field_caption.h2h_key')" readonly>
+                                  <div class="input-group-append">
+                                    <button class="btn btn-outline-warning" type="button" @click="generateTokenSystem(form.id)">{{ Trans.get('user.field_caption.generate_token') }}</button>
+                                  </div>
+                                  <div class="input-group-append">
+                                    <button class="btn btn-outline-info" type="button" v-if="form.api_token.api_token"
+                                        v-clipboard:copy="form.api_token.api_token" v-clipboard:success="copySuccess"
+                                        v-clipboard:error="copyFail">
+                                        {{ Trans.get('user.field_caption.copy_key', {key: Trans.get('user.field_caption.h2h_key')}) }}
+                                    </button>
+                                  </div>
+                                </div>
+                            </b-form-group>
+                        </b-card-body>
+                    </b-tab>
+    
+                    <b-tab :title="Trans.get('user.userform.tab_profile_caption')" v-if="showProfile">
+                        <b-card-body>
+                            -
+                        </b-card-body>
+                    </b-tab>
+                </b-tabs>
+    
+                <div class="text-right mt-3">
+                    <b-btn variant="primary w-icon" @click="onSubmit">
+                        <i class="fi fi-rs-disk"></i>
+                        <span>{{ Trans.get("lang.save_change") }}</span>    
+                    </b-btn
+                    >
+                    <!-- <b-btn variant="default">Cancel</b-btn> -->
+                </div>
             </div>
-        </div>
-        <div v-else>
-            <div class="text-mutted h-row align-items-center" style="width: 100%;">
-                <div class="col">
-                    <div class="sk-cube-grid sk-primary">
-                        <div class="sk-cube sk-cube1"></div>
-                        <div class="sk-cube sk-cube2"></div>
-                        <div class="sk-cube sk-cube3"></div>
-                        <div class="sk-cube sk-cube4"></div>
-                        <div class="sk-cube sk-cube5"></div>
-                        <div class="sk-cube sk-cube6"></div>
-                        <div class="sk-cube sk-cube7"></div>
-                        <div class="sk-cube sk-cube8"></div>
-                        <div class="sk-cube sk-cube9"></div>
+            <div v-else>
+                <div class="text-mutted h-row align-items-center" style="width: 100%;">
+                    <div class="col">
+                        <div class="sk-cube-grid sk-primary">
+                            <div class="sk-cube sk-cube1"></div>
+                            <div class="sk-cube sk-cube2"></div>
+                            <div class="sk-cube sk-cube3"></div>
+                            <div class="sk-cube sk-cube4"></div>
+                            <div class="sk-cube sk-cube5"></div>
+                            <div class="sk-cube sk-cube6"></div>
+                            <div class="sk-cube sk-cube7"></div>
+                            <div class="sk-cube sk-cube8"></div>
+                            <div class="sk-cube sk-cube9"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </b-container>
     </div>
 </template>
 <!-- Page -->

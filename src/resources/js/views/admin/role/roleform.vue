@@ -2,8 +2,8 @@
     <div>
         <header-breadcrumb :pageTitle="pageTitle" :backPath="{ name: 'role.list' }" />
         <b-container>
-            <b-card class="my-3">
-                <b-card-body class="p-0">
+            <b-card class="my-3" no-body>
+                <b-card-body class="pb-0">
     
                     <!-- Role Name -->
                     <b-form-group :label="Trans.get('role.field_caption.name')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
@@ -56,8 +56,12 @@
                                 <h4 class="font-weight-normal mb-0">{{ Trans.get("role.roleform.module") }}</h4>
                             </b-list-group-item> -->
                             <b-list-group-item button :active="curTab == key || (curTab == '' && i==0)" @click="curTab = key" v-for="(moduleRule, key, i) in AppConfig.acl" :key="'role-judul-' + i">
-                                {{ i + 1 }}. {{Trans.chose(moduleRule.acl_caption)}} 
-                                <i v-if="roleForm.rule[key].has_access" class="text-info ion ion-md-checkbox"></i>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span>{{ i + 1 }}. {{Trans.chose(moduleRule.acl_caption)}} </span>
+                                    <span v-if="roleForm.rule[key].has_access" class="d-flex align-items-center justify-content-center rounded-circle overflow-hiddens p-1 bg-success" style="width: 20px; height: 20px;">
+                                        <i class="text-white fi fi-rs-check-circle"></i>
+                                    </span>
+                                </div>
                             </b-list-group-item>
                         </b-list-group>
                     </div>                    
@@ -69,10 +73,10 @@
                                 <b-card no-body class="overflow-hidden position-relative mb-0 ml-md-3 ml-md-3">
                                     <!-- header -->
                                     <b-card-header>
-                                        <div class="d-flex justify-content-between w-100">  
+                                        <div class="d-flex align-items-center justify-content-between w-100">  
                                             <div>
-                                                <b-check class="mt-2" size="xl" :disabled="isDisabled" :value="1" :unchecked-value="0" v-model="roleForm.rule[key].has_access" @change="setModule(key, $event)">
-                                                    <h5 class="font-weight-normal my-1">{{ i + 1 }}. {{ Trans.get("role.roleform.rule") }} <b>{{Trans.chose(moduleRule.acl_caption)}}</b></h5>
+                                                <b-check class="my-1" :disabled="isDisabled" :value="1" :unchecked-value="0" v-model="roleForm.rule[key].has_access" @change="setModule(key, $event)">
+                                                    <h5 class="font-weight-normal m-0">{{ i + 1 }}. {{ Trans.get("role.roleform.rule") }} <b>{{Trans.chose(moduleRule.acl_caption)}}</b></h5>
                                                     <!-- {{ Trans.get("role.roleform.has_access") }} -->
                                                 </b-check>
                                                 <div v-if="moduleRule.acl_description != ''">
