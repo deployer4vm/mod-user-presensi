@@ -789,7 +789,7 @@ class UserRepo extends BaseRepository
 
             //upload avatar jika menyertakan avatar
             if (isset($userData['avatar']) && !empty($userData['avatar']) && !is_string($userData['avatar'])) {
-                $userData['avatar'] = $userData['avatar']->store('images/avatar/' . $oldUser['id']);
+                $userData['avatar'] = $userData[0]['avatar']->store('images/avatar/' . $oldUser['id']);
                 $hasUploadAvatar = true;
                 if (!empty($oldUser['avatar'])) {
                     Storage::delete($oldUser['avatar']);

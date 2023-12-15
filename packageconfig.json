@@ -511,8 +511,8 @@
                 }
             },
             "config": {
-                "caption": {"en":"Config","id":"Config"},
-                "acl_caption": {"en":"Config","id":"Config"},
+                "caption": {"en":"Config","id":"Konfigurasi"},
+                "acl_caption": {"en":"Config","id":"Konfigurasi"},
                 "acl_description": {"en":"","id":""},
                 "route": { "name": "moduser.config" },
                 "class": "",
@@ -539,9 +539,9 @@
                 },
                 "children": {
                     "auth": {
-                        "caption": {"en":"Auth Config","id":"Auth Config"},
-                        "acl_caption": {"en":"Auth Config","id":"Auth Config"},
-                        "acl_description": {"en":"","id":""},
+                        "caption": {"en":"Auth Config","id":"Autentikasi"},
+                        "acl_caption": {"en":"Authentication","id":"Autentikasi"},
+                        "acl_description": {"en":"Has access to Authentication config","id":"Memiliki akses konfigurasi autentikasi"},
                         "route": { "name": "moduser.config.auth" },
                         "class": "",
                         "is_navbar": 1,
@@ -567,7 +567,7 @@
                         },
                         "children": {
                             "password": {
-                                "acl_caption": {"en":"Can manage Password Config","id":"Can manage Password Config"},
+                                "acl_caption": {"en":"Has access to registration config","id":"Bisa akses konfigurasi password"},
                                 "acl_description": {"en":"","id":""},
                                 "is_navbar": 0,
                                 "enable": 1,
@@ -592,7 +592,7 @@
                                 }
                             },
                             "otp": {
-                                "acl_caption": {"en":"Can manage OTP Config","id":"Can manage OTP Config"},
+                                "acl_caption": {"en":"Has access to OTP config","id":"Bisa akses konfigurasi OTP"},
                                 "acl_description": {"en":"","id":""},
                                 "is_navbar": 0,
                                 "enable": 1,
@@ -617,7 +617,7 @@
                                 }
                             },
                             "pin": {
-                                "acl_caption": {"en":"Can manage PIN Config","id":"Can manage PIN Config"},
+                                "acl_caption": {"en":"Has access to PIN config","id":"Bisa akses konfigurasi PIN"},
                                 "acl_description": {"en":"","id":""},
                                 "is_navbar": 0,
                                 "enable": 1,
@@ -642,7 +642,7 @@
                                 }
                             },
                             "login": {
-                                "acl_caption": {"en":"Can manage Login Config","id":"Can manage Login Config"},
+                                "acl_caption": {"en":"Has access to login config","id":"Bisa akses konfigurasi login"},
                                 "acl_description": {"en":"","id":""},
                                 "is_navbar": 0,
                                 "enable": 1,
@@ -670,8 +670,8 @@
                     },                    
                     "registration": {
                         "caption": {"en":"Registration Config","id":"Registration Config"},
-                        "acl_caption": {"en":"Has access to registration config","id":"Has access to registration config"},
-                        "acl_description": {"en":"","id":""},
+                        "acl_caption": {"en":"Registration","id":"Registrasi"},
+                        "acl_description": {"en":"Has access to registration config","id":"Memiliki akses konfigurasi pendaftaran"},
                         "route": { "name": "moduser.config.registration" },
                         "class": "",
                         "is_navbar": 1,

@@ -8,7 +8,6 @@ use Illuminate\Notifications\Notification;
 
 class DbChannels
 {
-
     /**
      * Send the given notification.
      *
@@ -23,7 +22,7 @@ class DbChannels
         $link_web = '';
         $link_apps = '';
         
-        if(isset($data['link_web'])){
+        if (isset($data['link_web'])) {
             $link_web = $data['link_web'];
             // if ($link_web['link']) {
             //     $link_web['link'] = $link_web['link'];
@@ -34,25 +33,27 @@ class DbChannels
             // }
             unset($data['link_web']);
         }
-        if(isset($data['link_apps'])){
+
+        if (isset($data['link_apps'])) {
             $link_apps = $data['link_apps'];
             unset($data['link_apps']);
         }
 
-        $tenantId = config('tenant.id',0);
-        if($notification->tenantId && !$tenantId){
+        $tenantId = config('tenant.id', 0);
+        if ($notification->tenantId && !$tenantId) {
             // $model = $notifiable->routeNotificationFor('database')->setTenantId($notification->tenantId);
             // $model = (new \hpsynapse\moduser\Models\Notification())->setTenantId($notification->tenantId);
             \App\Facades\Tenant::setActiveTenantById($notification->tenantId);
-        }else{
+        } else {
             // $model = $notifiable->routeNotificationFor('database');
         }
         
-        $model = $notifiable->routeNotificationFor('database');
+        // $model = $notifiable->routeNotificationFor('database');
+        $model = (new \hpsynapse\moduser\Models\Notification());
 
         return $model->create([
             'id' => $notification->id,
-            'tenant_id' => $notifiable->tenant_id,
+            'tenant_id' => $notification->tenantId,
 
             'link_web' => $link_web,
             'link_apps' => $link_apps,
@@ -86,5 +87,4 @@ class DbChannels
             'link_apps' => 'STRING'
         ];
     }
-
 }

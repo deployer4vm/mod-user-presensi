@@ -2,15 +2,12 @@
 
 namespace hpsynapse\moduser\Services;
 
-use Kreait\Firebase;
 use Kreait\Firebase\Factory;
-use Kreait\Firebase\ServiceAccount;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 
 class FirebaseApi
 {
-
     protected static $config;
     protected static $firebase = false;
     protected static $messaging = false;
@@ -20,17 +17,23 @@ class FirebaseApi
         // 
     }
 
+    /**
+     * init service
+     * 
+     * @return firebase object
+     */
     public static function initService()
     {
         if (!self::$firebase) {
             self::$config = config('AppConfig.packageLocal.moduser.notification');
-            $serviceAccountPath = base_path('/firebase_credentials.json');
-            $serviceAccount = ServiceAccount::fromValue($serviceAccountPath);
+            // $serviceAccount = ServiceAccount::fromJsonFile(base_path(self::$config['firebase_config_path']));
+            // $serviceAccount = ServiceAccount::fromArray(self::$config['services']['firebase']['config']['firebasejson']);
 
             self::$firebase = (new Factory)
-                ->withServiceAccount($serviceAccount)
+                ->withServiceAccount(base_path(config('AppConfig.system.broadcast.firebase_config_path')))
                 ->withDatabaseUri(self::$config['services']['firebase']['config']['realtime_database_url']);
         }
+
         return self::$firebase;
     }
 
@@ -39,10 +42,10 @@ class FirebaseApi
      * 
      * @return messageing object
      */
-    public static function getMessaging()
+    public static function createMessaging()
     {
         if (!self::$firebase) self::initService();
-        if (!self::$messaging) self::$messaging = self::$firebase->getMessaging();
+        if (!self::$messaging) self::$messaging = self::$firebase->createMessaging();
 
         return self::$messaging;
     }
@@ -58,7 +61,7 @@ class FirebaseApi
     public static function sendMessageToToken($token, $message)
     {
         $messageToToken = self::messageToToken($token, $message);
-        self::getMessaging()->send($messageToToken);
+        self::createMessaging()->send($messageToToken);
     }
 
     /**
@@ -71,7 +74,7 @@ class FirebaseApi
     public static function sendMessageToTopic($topic, $message)
     {
         $messageToTopic = self::messageToTopic($topic, $message);
-        self::getMessaging()->send($messageToTopic);
+        self::createMessaging()->send($messageToTopic);
     }
 
     /**
@@ -104,6 +107,7 @@ class FirebaseApi
             $data['notification']['title'],
             $data['notification']['body']
         );
+
         return CloudMessage::withTarget($type, $id)
             ->withNotification($notification) // optional
             ->withData($data['data']) // optional
@@ -121,8 +125,9 @@ class FirebaseApi
      */
     public static function subscribeToTopic($topic, $token)
     {
-        self::getMessaging()->subscribeToTopic($topic, $token);
+        self::createMessaging()->subscribeToTopic($topic, $token);
     }
+    
     /**
      * 
      * @param type $topic
@@ -130,6 +135,6 @@ class FirebaseApi
      */
     public static function unsubscribeFromTopic($topic, $token)
     {
-        self::getMessaging()->unsubscribeFromTopic($topic, $token);
+        self::createMessaging()->unsubscribeFromTopic($topic, $token);
     }
 }
