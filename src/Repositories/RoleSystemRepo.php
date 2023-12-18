@@ -38,11 +38,14 @@ class RoleSystemRepo extends BaseRepository
     
     public function updateRole($where, $data)
     {
-        if(isset($data['rule']) && is_array($data['rule']))$data['rule'] = json_encode($data['rule'],JSON_PRETTY_PRINT);
+        $getRole = $this->roleRepo->getRole($where);
+
+        if (isset($data['rule']) && is_array($data['rule'])) $data['rule'] = json_encode($data['rule'], JSON_PRETTY_PRINT);
         $data['level'] = 2;
         $data['system_role'] = true;
 
-        if ($this->model->where('role_code', $data['role_code'])->count() > 0) {
+        $checkRole = $this->model->where('role_code', $data['role_code'])->count() > 0;
+        if ($data['role_code'] != $getRole['role_code'] && $checkRole) {
             $this->error = 'Role code already exists';
             return false;
         }
