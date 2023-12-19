@@ -25,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app['router']->pushMiddlewareToGroup('api', \hpsynapse\moduser\Middleware\InitAuthAPI::class);
         $this->app['router']->aliasMiddleware('auth.useronly', \hpsynapse\moduser\Middleware\APIUserOnly::class);
         $this->app['router']->aliasMiddleware('auth.h2honly', \hpsynapse\moduser\Middleware\APIH2HOnly::class);
+        $this->app['router']->aliasMiddleware('auth.webToken', \hpsynapse\moduser\Middleware\WebTokenAuth::class);
+        
         if ($this->app->runningInConsole()) {
             $this->commands([
                 UpdateRoleFromJson::class,

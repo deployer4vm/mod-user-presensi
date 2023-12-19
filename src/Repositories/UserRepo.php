@@ -1092,7 +1092,6 @@ class UserRepo extends BaseRepository
             $roleData = Role::with(['roleGroup'])->where('id', $value->role_id)->first();
             if ($roleData) {
                 $roleData = $roleData->toArray();
-                // dd($roleData);
                 if (!UserAuth::isH2H() && $filterByClient) {
                     $roleData = $this->_getUserRole_filterByClient($roleData);
                 }
@@ -1118,6 +1117,7 @@ class UserRepo extends BaseRepository
     private function _getUserRole_filterByClient($roleData)
     {
         $clientData = UserAuth::getClient();
+        if(empty($clientData))return $roleData;
         $clientRoles = $this->getUserRole($clientData['id'], true, true, false);
         $firstRole = reset($clientRoles);
         if (!is_array($firstRole['rule'])) {
@@ -1291,7 +1291,10 @@ class UserRepo extends BaseRepository
     public function deleteUserRole($userId, $roleCode)
     {
         $role = $this->_getOne(Role::with('roleGroup'), ['role_code', $roleCode]);
-        if (!$role) return false;
+        if (!$role) {
+            $this->error = __('lang.data_attribute_not_found',['attribute'=>__('role.role.name')]);
+            return false;
+        }
 
         //delete role dari user role
         $roleData = $this->_delete(new UserRole, [

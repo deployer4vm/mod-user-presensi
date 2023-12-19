@@ -72,6 +72,7 @@ const mutations = {
     },
     setActiveRoleCode(state, roleCode) {
         state.role_code = roleCode;
+        state.role_group_code = state.role[roleCode].role_group.code;
     },
     setAuthData(state, userData) {
         eval('state.' + userData.key + ' = userData.value;');

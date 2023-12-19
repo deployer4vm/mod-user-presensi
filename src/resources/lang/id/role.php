@@ -28,6 +28,9 @@ return [
         'check_all' => 'Check All',
         'uncheck_all' => 'Uncheck All',
     ],
+    'role'=>[
+        'name'=>'Role',
+    ],
 
     // rule group
     'group' => [
