@@ -2,6 +2,7 @@
 namespace hpsynapse\moduser\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\AliasLoader;
 use hpsynapse\moduser\Facades\UserAuth;
 use hpsynapse\moduser\Console\Commands\DefaultSysUser;
@@ -18,11 +19,11 @@ class AppServiceProvider extends ServiceProvider
      * @param  \Illuminate\Routing\Router  $router
      * @return void
      */
-    public function boot()
+    public function boot(Kernel $kernel)
     {
-        $this->app['router']->pushMiddlewareToGroup('web', \hpsynapse\moduser\Middleware\InitAuthWeb::class);
-        $this->app['router']->pushMiddlewareToGroup('api', \hpsynapse\moduser\Middleware\ValidateClientKey::class);
-        $this->app['router']->pushMiddlewareToGroup('api', \hpsynapse\moduser\Middleware\InitAuthAPI::class);
+        $kernel->appendMiddlewareToGroup('web', \hpsynapse\moduser\Middleware\InitAuthWeb::class);
+        $kernel->appendMiddlewareToGroup('api', \hpsynapse\moduser\Middleware\ValidateClientKey::class);
+        $kernel->appendMiddlewareToGroup('api', \hpsynapse\moduser\Middleware\InitAuthAPI::class);
         $this->app['router']->aliasMiddleware('auth.useronly', \hpsynapse\moduser\Middleware\APIUserOnly::class);
         $this->app['router']->aliasMiddleware('auth.h2honly', \hpsynapse\moduser\Middleware\APIH2HOnly::class);
         $this->app['router']->aliasMiddleware('auth.webToken', \hpsynapse\moduser\Middleware\WebTokenAuth::class);
