@@ -112,7 +112,7 @@
                                                 <tbody>
                                                     <!-- Loop Rule -->
                                                     <template v-for="(rule, ruleKey, index) in moduleRule.children">
-                                                        <tr :key="'rulekey' + ruleKey" v-if="isInGroup(rule.tenant_group_id) && (UserAuth.hasAccess(ruleKey, 'has_access') || UserAuth.hasAccess(ruleKey, 'c') || UserAuth.hasAccess(ruleKey, 'r') || UserAuth.hasAccess(ruleKey, 'u') || UserAuth.hasAccess(ruleKey, 'd'))">
+                                                        <tr :key="'rulekey' + ruleKey" v-if="isInGroup(rule.tenant_group_id) && ((UserAuth.hasAccess(ruleKey, 'has_access') && calcPadding(ruleKey) == 0) || UserAuth.hasAccess(ruleKey, 'c') || UserAuth.hasAccess(ruleKey, 'r') || UserAuth.hasAccess(ruleKey, 'u') || UserAuth.hasAccess(ruleKey, 'd'))">
                                                             <th scope="row">{{ i + 1 }}.{{ index + 1 }}</th>
                                                             <td>
                                                                 <div :style="'padding-left: ' + calcPadding(ruleKey) + 'px;'">
