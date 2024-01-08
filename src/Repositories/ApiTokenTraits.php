@@ -3,6 +3,7 @@
 namespace hpsynapse\moduser\Repositories;
 
 use hpsynapse\moduser\Models\ApiToken;
+use Illuminate\Support\Facades\Log;
 
 trait ApiTokenTraits
 {
@@ -59,20 +60,25 @@ trait ApiTokenTraits
      * 
      * @param type $userId , user id atau apps id
      * @param type $ssoId
-     * @param type $isPemanent
+     * @param type $isPermanent
      * @param type $deviceId
      * @param mixed $pushDetail false jika tidak ada push, atau array jika ada push
      *      type
      *      token
      * @return type
      */
-    public function generateToken($userId, $roleCode = '', $isPemanent = 0, $deviceId = '', $pushDetail = false)
+    public function generateToken($userId, $roleCode = '', $isPermanent = 0, $deviceId = '', $pushDetail = false)
     {
-        $data['api_token'] = hash('sha256', 'token' . $userId . '.' . now());
-        $data['session_id'] = session()->exists('_token') ? session()->getId() : '';
-        $data['is_permanent'] = $isPemanent;
+        if (!$isPermanent && config('AppConfig.packageLocal.moduser.auth.single_login')) {
+            ApiToken::where('user_id', $userId)->where('is_permanent', 0)->delete();
+            Log::info('Logging out from other device');
+        }
 
-        if ($isPemanent && $deviceId) $data['device_id'] = $deviceId;
+        $data['api_token'] = hash('sha256', 'token' . $userId . '.' . now());
+        $data['session_id'] = session()->exists('_token') ? session()->getId() : null;
+        $data['is_permanent'] = $isPermanent;
+
+        if ($isPermanent && $deviceId) $data['device_id'] = $deviceId;
 
         if ($pushDetail && is_array($pushDetail)) {
             if (isset($pushDetail['type'])) $data['push_type'] = $pushDetail['type'];

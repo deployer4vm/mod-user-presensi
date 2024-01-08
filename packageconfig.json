@@ -768,7 +768,8 @@
         "pin": {
             "enable":1
         },
-        "auth_grant" : 1
+        "auth_grant" : 1,
+        "single_login": 0
     },
     "session_lifetime": 60,
     "users_hidden_field": [],
