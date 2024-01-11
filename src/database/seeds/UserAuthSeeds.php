@@ -132,6 +132,7 @@ class UserAuthSeeds extends Seeder
                     'password' => Hash::make(uniqid()),
                     'role' => ';system;',
                     'system_user' => true,
+                    'secret_key' => base64_encode(random_bytes(32)),
                     'level' => 2,
                     'created_at' => $now,
                     'updated_at' => $now,

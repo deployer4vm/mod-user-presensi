@@ -69,6 +69,9 @@ class DefaultSysUser extends Command
         } else {
             if (!$user['secret_key']) {
                 $user['secret_key'] = config('AppConfig.client.secret_key');//base64_encode(random_bytes(32));
+                if (empty($user['secret_key'])) {
+                    $user['secret_key'] = base64_encode(random_bytes(32));
+                }
                 UserSystemRepo::updateUser($user['id'], ['secret_key' => $user['secret_key']]);
             }
         }
