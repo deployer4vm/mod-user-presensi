@@ -125,6 +125,15 @@ const NotifDetail = (resolve) => {
     });
 };
 
+/**
+ * SYSTEM PAGE
+ */
+const ForceReset = (resolve) => {
+    require.ensure(["../views/admin/system/forcereset"], () => {
+        resolve(require("../views/admin/system/forcereset"));
+    });
+};
+
 /*
 System User
 ----------------------------------------------------------------
@@ -292,6 +301,18 @@ if (globals().AppConfig.packageLocal.moduser.system_user.enable == 1) {
 }
 
 export default [
+    // system endpoint untuk keperluan apps system
+    {
+        path: globals().AppConfig.endpoint.admin.app + '/system',
+        component: LayoutBlank,
+        children:  [
+            {
+                path: "force-reset",
+                component: ForceReset,
+                name: "system.forceReset",
+            },
+        ],
+    },
     {
         path: globals().AppConfig.endpoint.admin.auth,
         component: LayoutBlank,

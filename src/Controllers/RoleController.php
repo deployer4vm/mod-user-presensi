@@ -4,12 +4,13 @@ namespace hpsynapse\moduser\Controllers;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 use hpsynapse\moduser\Facades\RoleRepo;
 use hpsynapse\moduser\Facades\UserAuth;
+use hpsynapse\moduser\Facades\UserLog;
 
 use App\Base\BaseController;
-use Illuminate\Support\Facades\Log;
 
 class RoleController extends BaseController
 {
@@ -179,7 +180,10 @@ class RoleController extends BaseController
         }
 
         //jika berhasil
-        if ($user = RoleRepo::createRole($input)) {
+        if ($newRole = RoleRepo::createRole($input)) {
+            UserLog::addLog(UserAuth::user('id'), 'moduser_role', 'create_role', [
+                'new_role' => $newRole
+            ]);
             $this->setAlert('Data Inserted successfully', 'success');
         } else {
             $this->setError(RoleRepo::error(), 'success');
@@ -220,12 +224,18 @@ class RoleController extends BaseController
             if (isset($input['tenant_group_id'])) unset($input['tenant_group_id']);
         }
 
+        $logData = ['old_role'=>RoleRepo::getRole(['id', $id])];
+
         $this->output['message'] = 'Data berhasil diupdate';
         $this->output['data'] = RoleRepo::updateRole(['id', $id], $input);
+
+        $logData['new_role'] = RoleRepo::getRole(['id', $id]);
 
         if (!$this->output['data']) {
             $this->setError('Update failed : ' . RoleRepo::error());
         }
+        UserLog::addLog(UserAuth::user('id'), 'moduser_role', 'update_role', $logData);
+
         return $this->done();
     }
 
@@ -249,9 +259,12 @@ class RoleController extends BaseController
             }
         }
 
+        $logData = ['deleted_role'=>RoleRepo::getRole(['id', $id])];
         if (!RoleRepo::deleteRole($id)) {
             $this->setError('Error : ' . RoleRepo::error());
-        }
+        }        
+        UserLog::addLog(UserAuth::user('id'), 'moduser_role', 'delete_role', $logData);
+
         return $this->done();
     }
 }

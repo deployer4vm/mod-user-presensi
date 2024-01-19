@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use hpsynapse\moduser\Facades\UserRepo;
 use hpsynapse\moduser\Facades\UserNotifRepo;
 use hpsynapse\moduser\Facades\RoleRepo;
+use hpsynapse\moduser\Facades\UserLog;
 
 use hpsynapse\moduser\Facades\UserAuth;
 use hpsynapse\moduser\Facades\AuthConfig;
