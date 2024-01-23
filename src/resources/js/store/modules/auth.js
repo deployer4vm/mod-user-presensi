@@ -101,7 +101,7 @@ const actions = {
         return globals().LocalApi
             .post(authPath + "/login", {
                 username: authData.username,
-                password: encryptor.encryptSync(authData.password)
+                password: authData.password?encryptor.encryptSync(authData.password):authData.encryptedPassword
             })
             .then(res => {
                 // const now = new Date();
