@@ -783,15 +783,14 @@ class UserRepo extends BaseRepository
                 unset($userData['profile']);
             }
 
-            //pastikan tidak ada parameter yang ksosong
+            //pastikan tidak ada parameter yang kosong
             foreach ($userData as $key => $value) {
                 if (empty($value)) unset($userData[$key]);
             }
 
             //upload avatar jika menyertakan avatar
             if (isset($userData['avatar']) && !empty($userData['avatar']) && !is_string($userData['avatar'])) {
-                // Log::info($userData['avatar']);
-                $userData['avatar'] = $userData['avatar'][0]['filepath']->store('images/avatar/' . $oldUser['id']);
+                $userData['avatar'] = $userData['avatar']->store('images/avatar/' . $oldUser['id']);
                 $hasUploadAvatar = true;
                 if (!empty($oldUser['avatar'])) {
                     Storage::delete($oldUser['avatar']);
