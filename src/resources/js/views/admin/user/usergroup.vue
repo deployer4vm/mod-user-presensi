@@ -131,7 +131,7 @@
                   v-b-tooltip.hover.left
                   :title="Trans.get('lang.edit')"
                 >
-                  <i class="fi fi-rs-edit"></i>
+                  <i class="ion ion-md-create"></i>
                 </b-btn>
                 <b-btn
                   v-if="
@@ -142,7 +142,7 @@
                   variant="danger btn-sm icon-btn md-btn-flat"
                   :title="Trans.get('lang.delete')"
                 >
-                  <i class="fi fi-rs-trash"></i>
+                  <i class="ion ion-md-trash"></i>
                 </b-btn>
               </div>
             </template>

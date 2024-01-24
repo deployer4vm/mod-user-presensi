@@ -189,13 +189,14 @@
 
           <template v-slot:cell(avatar)="data">
             <a
-              :href="publicUrl + 'upload/' + data.item.avatar"
+              :href="publicUrl + 'storage/' + data.item.avatar"
               target="_blank"
               class="d-inline-block ui-w-40 mr-2 rounded-circle overflow-hidden box-avatar bg-transparent"
+              style="height: 40px;"
               v-if="data.item.avatar"
             >
               <div class="thumb-img">
-                <img :src="publicUrl + 'upload/' + data.item.avatar" />
+                <img :src="publicUrl + 'storage/' + data.item.avatar" />
               </div>
             </a>
             <div
@@ -298,7 +299,7 @@
                 :to="{ name: 'user.edit', params: { userId: data.item.id } }"
                 v-if="UserAuth.hasAccess(accessRuleKey, 'u')"
               >
-                <i class="fi fi-rs-edit"></i>
+                <i class="ion ion-md-create"></i>
               </router-link>
               <b-btn
                 class="btn btn-danger icon-btn btn-sm md-btn-flat"
@@ -310,7 +311,7 @@
                 "
                 v-b-tooltip.hover
               >
-                <i class="fi fi-rs-trash"></i>
+                <i class="ion ion-md-trash"></i>
               </b-btn>
               <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
                                 <template slot="button-content">
