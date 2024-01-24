@@ -172,10 +172,14 @@ class LoginController extends BaseController
      * create token user
      * 
      * @param Request $request
+     *      auth            encrypted JSON string {"username":"username","password":"encrypted_password"}
+     *                      jika menyertakan "auth" maka tidak perlu menyertakan username dan password
+     * 
      *      username
      *      password
      *      role_code       *optional, string role code yg diset sebagai 
      *                      role code active di session ini
+     * 
      * 
      *      deviceId
      *      pushNotifToken
@@ -199,16 +203,22 @@ class LoginController extends BaseController
     {
         $this->forceApiOutput();
         
-        $authParam = $request->only('username', 'password','role_code');
+        $authParam = $request->only('username', 'password','role_code', 'auth');
         // Log::debug($authParam);
-
-        if (!isset($authParam['username']) || !isset($authParam['password'])) {
+        if(!empty($authParam['auth'])){            
+            $tmpAuth = json_decode(UserAuth::decryptCredential($authParam['auth']),true);
+            if (!isset($tmpAuth['username']) || !isset($tmpAuth['password'])) {
+                $this->setError(__('alert.incorect_parameter'));
+                return $this->done();
+            }
+            $authParam['username'] = $tmpAuth['username'];
+            $authParam['password'] = $tmpAuth['password'];
+        }else if (!isset($authParam['username']) || !isset($authParam['password'])) {
             $this->setError(__('alert.incorect_parameter'));
             return $this->done();
         }
 
         $authParam['password'] = UserAuth::decryptCredential($authParam['password']);
-        // Log::debug($authParam);
 
         $tenantId = config('tenant.id');
         if (config('AppConfig.system.multitenant.autodetect_login') == 1)
