@@ -437,6 +437,8 @@
                             return false;
                         }
 
+                        console.log(this.form);
+
                         this.$store
                             .dispatch("user/register", this.form)
                             .then(res => {

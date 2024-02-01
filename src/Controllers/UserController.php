@@ -380,9 +380,9 @@ class UserController extends BaseController
                 // $to_email = $userData['email'];
                 // $data = ['message' => 'Ini adalah pesan uji dari Laravel.'];
 
-                // Mail::to($to_email)->send(new SampleMail($data));
+                // Mail::to('abdulmalikmuzakir55@gmil.com')->send(new SAMPLEMAIL(auth()->user()));
 
-                UserRepo::sendUserActivationEmail($id);
+                // UserRepo::sendUserActivationEmail($id);
                 $this->setAlert('Email sent', 'success');
             } else {
                 $this->setError(__('lang.data_attribute_not_found', ['attribute' => 'Email']));

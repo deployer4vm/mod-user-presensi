@@ -96,12 +96,29 @@ const mutations = {
 };
 
 const actions = {
+    /**
+     * 
+     * @param {*} param0 
+     * @param {*} authData 
+     *      username
+     *      password
+     *      encryptedPassword
+     *      auth
+     *      
+     * @returns 
+     */
     login({ commit, dispatch, state }, authData) {
+        
+        var authParam = {};
+        if(authData.auth){
+            authParam.auth = authData.auth;
+        }else{
+            authParam.username = authData.username;
+            authParam.password = authData.password?encryptor.encryptSync(authData.password):authData.encryptedPassword;
+        }
+        
         return globals().LocalApi
-            .post(authPath + "/login", {
-                username: authData.username,
-                password: encryptor.encryptSync(authData.password)
-            })
+            .post(authPath + "/login", authParam)
             .then(res => {
                 // const now = new Date();
                 // const expirationDate = new Date(

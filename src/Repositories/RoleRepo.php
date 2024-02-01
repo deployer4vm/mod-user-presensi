@@ -123,6 +123,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
 
         return $this->_update(new Role, $where, $data);
     }
+    
     public function deleteRole($id)
     {
         if ($this->checkSystemRole($id)){

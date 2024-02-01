@@ -33,16 +33,16 @@ class ModuserAddPinAndSecretKeyToUsers extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasColumn('moduser_users', 'pin')) {
-            Schema::table('moduser_users', function (Blueprint $table) {
-                $table->dropColumn('pin');
-                $table->dropColumn('secret_key');
-            });
-        }
+        // if (Schema::hasColumn('moduser_users', 'pin')) {
+        //     Schema::table('moduser_users', function (Blueprint $table) {
+        //         $table->dropColumn('pin');
+        //         $table->dropColumn('secret_key');
+        //     });
+        // }
 
-        $this->tablePerTenant('moduser_users', function (Blueprint $table) {
-            $table->dropColumn('pin');
-            $table->dropColumn('secret_key');
-        });
+        // $this->tablePerTenant('moduser_users', function (Blueprint $table) {
+        //     $table->dropColumn('pin');
+        //     $table->dropColumn('secret_key');
+        // });
     }
 };

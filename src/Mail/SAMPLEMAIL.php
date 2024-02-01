@@ -9,8 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SAMPLEMAIL extends Mailable
 {
-
-    use SerializesModels;
+    use Queueable, SerializesModels;
 
     protected $user;
     
@@ -31,9 +30,9 @@ class SAMPLEMAIL extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.verify_account')->with([
-                'email_token' => $this->user->email_token
-        ]);
+        return $this->from(config('mail.mailers.smtp.username'), env('APP_NAME'))
+            ->subject('SMARTLMS')
+            ->view('user.emails.testemail');
     }
 
 }
