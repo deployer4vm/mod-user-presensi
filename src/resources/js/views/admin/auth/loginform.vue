@@ -77,7 +77,7 @@
 <!-- Page -->
 <style src="@/vendor/styles/pages/authentication.scss" lang="scss"></style>
 <style>
-  @import url("/assets/css/themes-login.css");
+  /* @import url("/assets/css/themes-login.css"); */
 </style>
 
 <script>

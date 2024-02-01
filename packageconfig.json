@@ -21,6 +21,22 @@
             "admin": "user"
         }
     },
+    "dependency": {
+        "npm": {
+            "dev": [],
+            "prod": {
+                "node-laravel-encryptor": "^3.0.2",
+                "vuelidate": "^0.7.5",
+                "vue-quill-editor": "~3.0.5",
+                "vue-text-mask": "~6.1.1",
+                "vue-flatpickr-component": "^8.1.5",
+                "vue-clipboard2": "^0.3.1",
+                "vue-multiselect": "~2.1.0",
+                "text-mask-addons": "~3.8.0",
+                "numeral": "~2.0.6"
+            }
+        }
+    },
     "enable": 1,
     "mode": "prod",
     "binding":{
