@@ -784,9 +784,9 @@ class UserRepo extends BaseRepository
             }
 
             //pastikan tidak ada parameter yang ksosong
-            foreach ($userData as $key => $value) {
-                if (empty($value)) unset($userData[$key]);
-            }
+            // foreach ($userData as $key => $value) {
+            //     if (empty($value)) unset($userData[$key]);
+            // }
 
             //upload avatar jika menyertakan avatar
             if (isset($userData['avatar']) && !empty($userData['avatar']) && !is_string($userData['avatar'])) {
