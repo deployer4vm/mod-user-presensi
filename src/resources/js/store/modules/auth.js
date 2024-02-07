@@ -1,5 +1,4 @@
 import globals from "@/globals";
-import CryptoJS from "node_modules/crypto-js";
 import { Encryptor } from "node_modules/node-laravel-encryptor";
 
 var authPath = globals().AppConfig.endpoint.api.auth;

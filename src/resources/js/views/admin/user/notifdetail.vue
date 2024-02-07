@@ -1,47 +1,53 @@
 <template>
-    <div>
-		<b-container fluid>
-            <b-card class="mt-4" :header="Trans.get('notif.notification_title') + ' / ' + title">
-                <!-- <h3>{{ notif.data.subject}}</h3>  -->
-                <b-card-text>
-                    <div v-html="notif.data.body"></div>
-                </b-card-text>
-                <hr>
-                <b-button :to="{name: 'notification'}" variant="primary">{{Trans.get('lang.back')}}</b-button>
-            </b-card>
-        </b-container>
-    </div>
+  <div>
+    <b-container fluid>
+      <b-card
+        class="mt-4"
+        :header="Trans.get('notif.notification_title') + ' / ' + title"
+      >
+        <!-- <h3>{{ notif.data.subject}}</h3>  -->
+        <b-card-text>
+          <div v-html="notif.data.body"></div>
+        </b-card-text>
+        <hr />
+        <b-button :to="{ name: 'notification' }" variant="primary">{{
+          Trans.get("lang.back")
+        }}</b-button>
+      </b-card>
+    </b-container>
+  </div>
 </template>
 <script>
 export default {
-    data() {
-        return {
-            notif:{
-                data:{
-                    subject: '',
-                    body: ''
-                }
-            }            
-        };
-    },
-    computed: {
-        title() {
-            return this.notif.data.subject;
+  data() {
+    return {
+      notif: {
+        data: {
+          subject: "",
+          body: "",
         },
-        notifId() {
-            return this.$route.params.notifId;
-        }
+      },
+    };
+  },
+  computed: {
+    title() {
+      return this.notif.data.subject;
     },
-    created() {
-        this.loadNotif();
+    notifId() {
+      return this.$route.params.notifId;
     },
-    methods: {
-        loadNotif(offset=0) {
-          this.LocalApi.get(this.AppConfig.endpoint.api.moduser + "/notification/" + this.notifId)
-            .then(res => {
-                this.notif = res.data.data;
-            });
-        }
-    }
+  },
+  created() {
+    this.loadNotif();
+  },
+  methods: {
+    loadNotif(offset = 0) {
+      this.LocalApi.get(
+        this.AppConfig.endpoint.api.moduser + "/notification/" + this.notifId
+      ).then((res) => {
+        this.notif = res.data.data;
+      });
+    },
+  },
 };
 </script>

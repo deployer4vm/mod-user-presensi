@@ -86,7 +86,7 @@
                     if(!isAdd){
                         window.location.href = ("{{route('user.edit',['id'=>'USER_ID'])}}").replace("USER_ID",id);
                     }else{    
-                        window.location.href = ("{{route('user.view',['id'=>'USER_ID'])}}").replace("USER_ID",id);
+                        w{{ indow.location.href = ("route('user.vi }}ew',['id'=>'USER_ID'])}}").replace("USER_ID",id);
                     }
                 },
                 goSearch()

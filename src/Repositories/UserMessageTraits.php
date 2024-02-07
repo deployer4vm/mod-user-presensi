@@ -101,7 +101,6 @@ trait UserMessageTraits
      */
     public function verificationEmailDataFormat($userId,$isSecondary=false)
     {
-        
         $user = User::find($userId);
         if(!$user)return false; 
         $userData = $user->toArray();
