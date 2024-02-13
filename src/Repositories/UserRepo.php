@@ -533,7 +533,7 @@ class UserRepo extends BaseRepository
     public function registerFilter(array $userData)
     {
         $validatorRule = [
-            'name' => 'required|min:5|max:255',
+            'name' => 'required|min:2|max:255',
         ];
 
         $userData['user_type'] = empty($userData['user_type'])?1:$userData['user_type'];
