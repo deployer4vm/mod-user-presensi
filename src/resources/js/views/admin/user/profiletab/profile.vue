@@ -1,6 +1,8 @@
 <template>
-  <h1>user form profile</h1>
+    <h1>user form profile</h1>
 </template>
 <script>
-export default {};
+export default {
+    
+}
 </script>

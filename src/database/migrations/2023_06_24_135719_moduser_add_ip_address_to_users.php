@@ -31,14 +31,14 @@ class ModuserAddIpAddressToUsers extends Migration
      */
     public function down(): void
     {
-        // if (Schema::hasColumn('moduser_users', 'ip_address')) {
-        //     Schema::table('moduser_users', function (Blueprint $table) {
-        //         $table->dropColumn('ip_address');
-        //     });
-        // }
+        if (Schema::hasColumn('moduser_users', 'ip_address')) {
+            Schema::table('moduser_users', function (Blueprint $table) {
+                $table->dropColumn('ip_address');
+            });
+        }
 
-        // $this->tablePerTenant('moduser_users', function (Blueprint $table) {
-        //     $table->dropColumn('ip_address');
-        // });
+        $this->tablePerTenant('moduser_users', function (Blueprint $table) {
+            $table->dropColumn('ip_address');
+        });
     }
 };
