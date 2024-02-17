@@ -119,7 +119,7 @@
                                     v-b-tooltip.hover.left
                                     :title="Trans.get('lang.edit')"
                                 >
-                                    <i class="ion ion-md-create"></i>
+                                    <i class="fi fi-rs-edit"></i>
                                 </b-btn>
                                 <b-btn
                                     v-if="UserAuth.hasAccess(data.accessRuleKey, 'd') && row.item.locked_data_mode == 0"
@@ -127,7 +127,7 @@
                                     variant="danger btn-sm icon-btn md-btn-flat"
                                     :title="Trans.get('lang.delete')"
                                 >
-                                    <i class="ion ion-md-trash"></i>
+                                    <i class="fi fi-rs-trash"></i>
                                 </b-btn>
                             </div>
                         </template>

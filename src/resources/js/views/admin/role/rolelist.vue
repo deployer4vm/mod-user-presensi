@@ -157,11 +157,11 @@
                         <div class="d-flex align-items-center justify-content-center">
                             <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
                             <router-link class="btn btn-dark icon-btn btn-sm" :title="Trans.get('lang.edit')" :to="{ name: 'role.edit', params: { roleId: data.item.id } }" v-if="(UserAuth.hasAccess(accessRuleKey, 'u') && data.item.locked_data_mode!=2) || UserAuth.isWebdev()">
-                                <i class="ion ion-md-create"></i>
+                                <i class="fi fi-rs-edit"></i>
                             </router-link>
 
                             <b-btn class="btn btn-danger icon-btn btn-sm" :title="Trans.get('lang.delete')" @click="deleteRole(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.locked_data_mode==0">
-                                <i class="ion ion-md-trash"></i>
+                                <i class="fi fi-rs-trash"></i>
                             </b-btn>
                             <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
                             <template slot="button-content">
