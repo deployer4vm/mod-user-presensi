@@ -23,14 +23,17 @@ class UserAuthSeeds extends Seeder
      */
     public function run()
     {
-        $this->dbTable('moduser_users')->truncate();
-        $this->dbTable('moduser_user_profiles')->truncate();
-        $this->dbTable('moduser_roles')->truncate();
-        $this->dbTable('moduser_user_roles')->truncate();
-        // $this->dbTable('moduser_user_tenants')->truncate(); sudah tidak digunakan
+
+        if($this->dbTable('moduser_users')->count())
+            return true;
+
+        // $this->dbTable('moduser_users')->truncate();
+        // $this->dbTable('moduser_user_profiles')->truncate();
+        // $this->dbTable('moduser_roles')->truncate();
+        // $this->dbTable('moduser_user_roles')->truncate();
         
         $now = Now();
-                
+
         $this->dbTable('moduser_roles')->insert([
             [
                 'tenant_id' => $this->tenantId,
