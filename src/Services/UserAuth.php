@@ -47,6 +47,8 @@ class UserAuth
                     $this->userData = UserRepo::getUser($userId);
                     $this->userRole = UserRepo::getUserRole($userId);
                     $this->userRoleCode = Auth::user()->active_role_code;
+                    if($this->userRole)
+                        $this->userData['level'] = $this->userRole[$this->userRoleCode]['level'];
                     $this->token = Auth::user()->api_token;
                 }
             }
@@ -54,6 +56,8 @@ class UserAuth
             $this->userData = $this->getUserSessionData();
             $this->userRole = $this->getUserSessionRole();
             $this->userRoleCode = $this->getActiveUserRoleCode();
+            if($this->userRole)
+                $this->userData['level'] = $this->userRole[$this->userRoleCode]['level'];
             $this->token = $this->getSesionToken();
         }
     }
@@ -146,6 +150,9 @@ class UserAuth
             $apiTokenData = UserRepo::generateToken($userId, $roleCode);
         }
 
+        if($role)
+            $userData['level'] = $role[$roleCode]['level'];
+        
         $this->setSession([
             'token' => $apiTokenData,
             'user' => $userData,
