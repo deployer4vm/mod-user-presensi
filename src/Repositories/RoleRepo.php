@@ -109,15 +109,32 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
         //     $data['rule'] = json_encode($data['rule'],JSON_PRETTY_PRINT);
         if(!isset($data['tenant_id']))
             $data['tenant_id'] = config('tenant.id',0);
+
+        $checkRole = Role::where('tenant_id', $data['tenant_id'])->where('role_code', $data['role_code'])->count();
+        if ($checkRole > 0) {
+            $this->error = 'Role code already exists';
+            return false;
+        }
+
         return $this->_create(new Role, $data);
     }
 
     public function updateRole($where, $data)
     {
+        $oldRole = $this->getRole($where);
         // if(isset($data['rule']) && is_array($data['rule']))
         //     $data['rule'] = json_encode($data['rule'],JSON_PRETTY_PRINT);
         if ($this->checkSystemRole($where)){
             $this->error = 'Cannot update system role in here';
+            return false;
+        }
+
+        if (!isset($data['tenant_id']))
+            $data['tenant_id'] = config('tenant.id',0);
+
+        $checkRole = Role::where('tenant_id', $data['tenant_id'])->where('role_code', $data['role_code'])->count();
+        if ($data['role_code'] != $oldRole['role_code'] && $checkRole > 0) {
+            $this->error = 'Role code already exists';
             return false;
         }
 
