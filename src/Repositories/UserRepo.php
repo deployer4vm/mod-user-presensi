@@ -921,8 +921,7 @@ class UserRepo extends BaseRepository
             $this->error = __('User tidak ditemukan');
             return false;
         }
-        $user->password = Hash::make($newPassword);
-        $user->save();
+        User::where('id',$userId)->update(['password' => Hash::make($newPassword)]);
         return true;
     }
 
@@ -1001,16 +1000,25 @@ class UserRepo extends BaseRepository
         //jika match
         if ($this->generateEmailVerfifyCode($email) == $verifyCode) {
 
-            $passwordReset = PasswordReset::where('email', $email)->where('token', $verifyCode)->first();
+            $passwordReset = PasswordReset::where('tenant_id',config('tenant.id',0))
+                ->where('email', $email)->where('token', $verifyCode)->first();
             if (!$passwordReset) {
                 $this->error = __('auth.resetpassword_fail_mailnotfound');
                 return false;
             }
+            $return = $passwordReset->toArray(); 
             if ($delete) $passwordReset->delete();
-            return true;
+            return $return;
         }
         $this->error = __('auth.resetpassword_fail_verificationcodeinvalid');
         return false;
+    }
+
+    
+    public function deleteResetPasswordToken($email)
+    {
+        PasswordReset::where('tenant_id',config('tenant.id',0))
+                ->where('email', $email)->first()->delete();
     }
 
 

@@ -49,7 +49,7 @@ class RegisterController extends BaseController
     // {
     //     if(!AuthConfig::isSelfRegistrationEnabled()){
     //         $this->setError(__('auth.register.alert.self_registration_disabled'));
-    //         return redirect()->route('auth.register')->with('alert', ['type' => 'warning', 'message' => __('auth.registerfailed', ['error' => UserRepo::error()])])->withInput();
+    //         return redirect()->route('register')->with('alert', ['type' => 'warning', 'message' => __('auth.registerfailed', ['error' => UserRepo::error()])])->withInput();
     //     }
 
     //     $returnParam['backlink'] = $response['backlink'] = $request->input('backlink') ? $request->input('backlink') : config('cur_apps.home_url');

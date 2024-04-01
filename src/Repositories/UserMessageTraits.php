@@ -68,7 +68,8 @@ trait UserMessageTraits
                 $isSecondary,
                 config('AppConfig.client.app_name'),
                 Request::getHost(),
-                url(config('AppConfig.endpoint.home'))
+                // url(config('AppConfig.endpoint.home'))
+                url('/')
             )
         );
     }    
@@ -83,7 +84,8 @@ trait UserMessageTraits
                 false,
                 config('AppConfig.client.app_name'),
                 Request::getHost(),
-                url(config('AppConfig.endpoint.home'))
+                // url(config('AppConfig.endpoint.home'))
+                url('/')
             )
         );
     }
@@ -112,7 +114,7 @@ trait UserMessageTraits
         }
         
         $userData['verifyCode'] = $this->generateEmailVerfifyCode($userData['email']);
-        $userData['verifyUrl'] = route('auth.emailVerification',[
+        $userData['verifyUrl'] = route('emailVerification',[
             'email' => $userData['email'],
             'verifyCode' => $userData['verifyCode']
             ]);
@@ -128,7 +130,8 @@ trait UserMessageTraits
                 $userId,
                 config('AppConfig.client.app_name'),
                 Request::getHost(),
-                url(config('AppConfig.endpoint.home'))
+                // url(config('AppConfig.endpoint.home'))
+                url('/')
             ) 
         );
     }
@@ -141,15 +144,27 @@ trait UserMessageTraits
         
         $userData['verifyCode'] = $this->generateEmailVerfifyCode($userData['email']);
         
-        $userData['resetPasswordUrl'] = route('auth.resetPassword',[
+        $userData['resetPasswordUrl'] = route('resetPassword',[
             'email' => $userData['email'],
             'verifyCode' => $userData['verifyCode']
         ]);
-        PasswordReset::create([
-            'tenant_id' => config('tenant.id',0),
-            'email' => $userData['email'],
-            'token' => $userData['verifyCode']            
-        ]);
+
+        $modelEmail = PasswordReset::where('tenant_id',config('tenant.id',0))
+            ->where('email',$userData['email']);
+
+        if($modelEmail->exists()){
+            $modelEmail->update([
+                'created_at' => now()         
+            ]);
+        }else{
+            PasswordReset::create([
+                'tenant_id' => config('tenant.id',0),
+                'email' => $userData['email'],
+                'token' => $userData['verifyCode']            
+            ]);
+
+        }
+
         return $userData;
     }
 

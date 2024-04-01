@@ -59,7 +59,7 @@ class SocialSignOnController extends BaseController
         //jika ditolak
         if (!$request->has('code') || $request->has('denied')) {
             return redirect()->route(
-                    'auth.login', 
+                    'login', 
                     $returnParam)->with('alert', ['type' => 'warning', 'message' => 'Authentification with <b>'.strtoupper($provider).'</b> Denied']
                 );
         }
@@ -77,7 +77,7 @@ class SocialSignOnController extends BaseController
             //jika tidak allow_register maka maka tolak
             if(!$appsData['allow_register']){
                 $response['isNotRegistered'] = 1;
-                //return redirect()->route('auth.login', $returnParam)->with('alert', ['type' => 'warning', 'message' => 'Login Failed, user not registered.']);
+                //return redirect()->route('login', $returnParam)->with('alert', ['type' => 'warning', 'message' => 'Login Failed, user not registered.']);
             }else{            
                 AppsRepo::addUserToApps($user->id,config('cur_apps.id'));
                 $response['isRegistered'] = 1;

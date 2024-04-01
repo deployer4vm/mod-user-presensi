@@ -14,7 +14,20 @@ return [
     'logout' => 'Log Out',
     //text lang di halaman forgot password
     'forgotpassword' => [
-        'title' => 'Reset Password',
+        'title' => 'Reset Your Password',
+        'label'=>[
+            'login' => 'Login',
+            // 'enter_your_email'=>'Enter your email address and we will send you a link to reset your password.',
+        ],
+        'input_caption' => [            
+            'email' => 'Email',
+        ],
+        // 'input_description' => [            
+        //     'email' => 'Enter your email address',
+        // ],
+        // 'action' => [
+        //     'send_password'=>'Send password reset email'
+        // ],
         'description' => 'Masukan email yang terdaftar, kami akan mengirimkan link reset password ke email tersebut',
         'emailcaption' => 'Masukan email Anda',
         'button' => 'Kirim reset password email',

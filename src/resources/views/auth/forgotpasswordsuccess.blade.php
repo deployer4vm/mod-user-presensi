@@ -52,7 +52,7 @@
                         </p>
 
                         <!-- Form -->
-                        <form class="my-5" action="{{route('auth.forgotPassword')}}" method="post">
+                        <form class="my-5" action="{{route('forgotPassword')}}" method="post">
                             @include('alert')
                         </form>
                         <!-- / Form -->

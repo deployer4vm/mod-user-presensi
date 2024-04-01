@@ -212,7 +212,7 @@ if (globals().AppConfig.packageLocal.moduser.auth_template.type == 1) {
             name: "register",
         },
         {
-            path: "forgot",
+            path: "forgotpassword",
             component: ForgotPasswordPage2,
             name: "forgotpassword",
         },
@@ -230,7 +230,7 @@ if (globals().AppConfig.packageLocal.moduser.auth_template.type == 1) {
             name: "register",
         },
         {
-            path: "forgot",
+            path: "forgotpassword",
             component: ForgotPasswordPage3,
             name: "forgotpassword",
         },
@@ -248,7 +248,7 @@ if (globals().AppConfig.packageLocal.moduser.auth_template.type == 1) {
             name: "register",
         },
         {
-            path: "forgot",
+            path: "forgotpassword",
             component: ForgotPasswordPage,
             name: "forgotpassword",
         },

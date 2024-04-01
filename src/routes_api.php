@@ -12,12 +12,11 @@ Route::group($groupAuth,function(){
     //Auth/LoginController
     Route::post('/login', 'Auth\LoginController@apiLogin')->name('auth.api.login');
 
-
     //Auth/RegisterController
     Route::post('/register', 'Auth\RegisterController@apiRegister')->name('auth.api.register');
 
     //Auth/ForgotPasswordController
-    Route::post('/forgotpassword', 'Auth\ForgotPasswordController@doForgotPassword')->name('auth.api.register');
+    Route::post('/forgotpassword', 'Auth\ForgotPasswordController@doForgotPassword')->name('auth.api.forgotpassword');
 
     //Auth/TokenApiController - generate token akses tanpa user
     // Route::post('/token', 'Auth\TokenApiController@generateToken')->name('auth.api.generatetoken');
@@ -59,8 +58,6 @@ $groupUser = [
 ];
 Route::get('/notification/setnotif', 'NotificationController@setnotif')->name('user.notification.setnotif');
 Route::group($groupUser,function(){
-
-
 
     /**
      * Role
@@ -130,7 +127,6 @@ Route::group($groupUser,function(){
     /**
      * Module Role System
      */
-
     Route::group(['prefix'=>'rolesystem'],function(){
         Route::get('/', 'RoleSystemController@readList')->name('user.rolesystem.readList');
         Route::get('/{id}', 'RoleSystemController@readOne')->name('user.rolesystem.readOne');
@@ -152,6 +148,7 @@ Route::group($groupUser,function(){
         Route::post('/notification/unread', 'NotificationController@setUnread')->name('user.api.notification.setUnreadBulk');
         Route::post('/notification/{notificationId}/unread', 'NotificationController@setUnread')->name('user.api.notification.setUnread');
     });
+
     /**
      * fitur Broadcast notif
      */

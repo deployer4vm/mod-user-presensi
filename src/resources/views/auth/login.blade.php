@@ -45,7 +45,7 @@
                         <h4 class="text-center text-lighter font-weight-normal mt-5 mb-0">{{config('tenant.name')?config('tenant.name'):config('AppConfig.system.template.admin.title')}}</h4>
                         @include('alert')
                         <!-- Form -->
-                        <form class="my-5" action="{{route('auth.login')}}" method="POST">
+                        <form class="my-5" action="{{route('login')}}" method="POST">
                             @csrf
 
                             <div class="form-group">
@@ -69,7 +69,7 @@
                                 @endif
                                 <button type="submit" class="btn btn-primary">{{ __('auth.login.sigincaption') }}</button>                            
                                 @if($forgotpasswordEnabled)
-                                <a href="{{ route('auth.forgotPassword') }}" class="d-block small">{{ __('auth.login.forgotpassword') }}</a>
+                                <a href="{{ route('forgotPassword') }}" class="d-block small">{{ __('auth.login.forgotpassword') }}</a>
                                 @endif
                             </div>
 
@@ -78,7 +78,7 @@
 
                         @if($registerEnabled)
                         <div class="text-center text-muted">
-                            {{ __('auth.login.dont_have_an_account') }} <a href="{{ route('auth.register') }}">{{ __('auth.login.signupcaption') }}</a>
+                            {{ __('auth.login.dont_have_an_account') }} <a href="{{ route('register') }}">{{ __('auth.login.signupcaption') }}</a>
                         </div>
                         @endif
 

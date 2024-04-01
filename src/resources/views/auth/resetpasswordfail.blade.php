@@ -7,7 +7,7 @@
 
             <!-- Logo -->
             <div class="d-flex justify-content-center align-items-center mb-4">
-                <a href="{{ url(config('AppConfig.endpoint.home')) }}">
+                <a href="{{ url('/') }}">
                     <img src="{{ asset('assets/images/logo.png') }}" alt=""
                         style="max-width:200px;max-height:100px; height:auto">
                 </a>
@@ -25,7 +25,7 @@
 
             <p class="text-center mt-5 mb-0">
                 Kembali ke <a
-                    href="{{ url(config('AppConfig.endpoint.home')) }}">{{ config('AppConfig.client.app_name') }}</a>
+                    href="{{ url('/') }}">{{ config('AppConfig.client.app_name') }}</a>
             </p>
 
         </div>

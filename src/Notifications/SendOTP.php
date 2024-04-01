@@ -31,7 +31,6 @@ class SendOTP extends Notification implements ShouldQueue
         $this->appName = $appName;
         
         $this->queue = 'verification';
-        // Log::info('__construct');
     }
 
     /**

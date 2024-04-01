@@ -39,6 +39,7 @@ class UserResetPassword extends Mailable
      */
     public function build()
     {
+        // create reset password
         $userData = UserRepo::resetPasswordEmailDataFormat($this->userId);
         $userData['app_name'] = $this->appName;
         $userData['app_domain'] = $this->appDomain;

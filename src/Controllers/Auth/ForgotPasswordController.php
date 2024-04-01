@@ -22,7 +22,7 @@ class ForgotPasswordController extends BaseController
     }
 
     /**
-     * halaman form forgot password
+     * WEB - halaman form forgot password
      */
     public function forgotPassword(Request $request, $apps_code = '')
     {
@@ -31,6 +31,10 @@ class ForgotPasswordController extends BaseController
     }
 
     /**
+     * WEB - POST - \auth\forgotpassword
+     * API - POST - \api\auth\forgotpassword
+     * 
+     * submit email
      * 
      * @param Request $request
      * @param type $apps_code

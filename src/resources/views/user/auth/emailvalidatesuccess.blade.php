@@ -6,7 +6,7 @@
 
             <!-- Logo -->
             <div class="d-flex justify-content-center align-items-center mb-4">
-                <a href="{{ url(config('AppConfig.endpoint.home')) }}">
+                <a href="{{ url('/') }}">
                     <img src="{{ asset('assets/images/logo.png') }}" alt=""
                         style="max-width:200px;max-height:100px; height:auto">
                 </a>
@@ -21,7 +21,7 @@
             </p>
             <p class="text-center mt-5 mb-0">
                 <!-- <a href="{!! config('AppConfig.client.endpoint.' . config('AppConfig.system.mode') . '.domain') !!}">Back</a> -->
-                <a href="{{ route('auth.login') }}">Back</a>
+                <a href="{{ route('login') }}">Back</a>
             </p>
         </div>
     </div>

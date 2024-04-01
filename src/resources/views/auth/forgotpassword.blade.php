@@ -52,7 +52,7 @@
                         </p>
                         @include('alert')
                         <!-- Form -->
-                        <form class="my-5" action="{{route('auth.forgotPassword')}}" method="POST">
+                        <form class="my-5" action="{{route('forgotPassword')}}" method="POST">
                             @csrf
                             <div class="form-group">
                                 <input name="email" type="text" class="form-control" placeholder="{{__('auth.forgotpassword.emailcaption')}}">
@@ -64,7 +64,7 @@
 
                         <div class="w-100 py-3 px-4 px-sm-5" >
                             <div class="text-center text-muted">
-                                <a href="{{route('auth.login')}}" class="d-block small">{{ __('auth.forgotpassword.back_to_login') }}</a>
+                                <a href="{{route('login')}}" class="d-block small">{{ __('auth.forgotpassword.back_to_login') }}</a>
                             </div>
                         </div>
 

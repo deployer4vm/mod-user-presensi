@@ -26,7 +26,7 @@ class UserResetPassword extends Notification implements ShouldQueue
         $this->appName = $appName;
         $this->appDomain = $appDomain;
         $this->appUrl = $appUrl;
-        
+
         // $this->connection = config('bssystem.queue_connection_ac');
         $this->queue = 'verification';
     }
@@ -49,7 +49,7 @@ class UserResetPassword extends Notification implements ShouldQueue
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
-    {
+    {        
         $email = new \hpsynapse\moduser\Mail\UserResetPassword(
             $this->userId,
             $this->appName,
