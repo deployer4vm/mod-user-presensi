@@ -104,7 +104,7 @@
                                         <b-input-group-append>
                                             <b-btn
                                                 variant="secondary"
-                                                @click="loadList"
+                                                @click="loadData(1)"
                                                 class="btn-icon">
                                                 <i class="fi fi-rs-search"></i>
                                             </b-btn>

@@ -50,12 +50,18 @@
             <!-- input Rule -->
             <div class="my-3" v-if="roleForm.role_type==1 && canEditRoleRule && pageLoaded">
                 <div class="row">
+                    <!-- Looping nama module di sidebar-->
                     <div class="col-md-3 pt-0">
                         <b-list-group class="account-settings-links" flush>
                             <!-- <b-list-group-item class="text-right">
                                 <h4 class="font-weight-normal mb-0">{{ Trans.get("role.roleform.module") }}</h4>
                             </b-list-group-item> -->
-                            <b-list-group-item button :active="curTab == key || (curTab == '' && i==0)" @click="curTab = key" v-for="(moduleRule, key, i) in AppConfig.acl" :key="'role-judul-' + i">
+                            <b-list-group-item button 
+                                :active="curTab == key || (curTab == '' && i==0)" 
+                                @click="curTab = key" 
+                                v-for="(moduleRule, key, i) in AppConfig.acl" 
+                                :key="'role-judul-' + i"
+                            >
                                 <div class="d-flex align-items-center justify-content-between">
                                     <span>{{ i + 1 }}. {{Trans.chose(moduleRule.acl_caption)}} </span>
                                     <span v-if="roleForm.rule[key].has_access" class="d-flex align-items-center justify-content-center rounded-circle overflow-hiddens p-1 bg-success" style="width: 20px; height: 20px;">
@@ -66,7 +72,7 @@
                         </b-list-group>
                     </div>                    
                     
-                    <!-- Loop Modules -->
+                    <!-- Looping Modules -->
                     <template v-for="(moduleRule, key, i) in AppConfig.acl">
                         <template v-if="isInGroup(moduleRule.tenant_group_id)">
                             <div :key="'role-detail-' + i" v-show="curTab == key || (curTab == '' && i==0)" class="col-md-9"> 
@@ -74,7 +80,9 @@
                                     <!-- header -->
                                     <b-card-header>
                                         <div class="d-flex align-items-center justify-content-between w-100">  
+                                            <!--  -->
                                             <div>
+                                                <!-- nama fitur -->
                                                 <b-check class="my-1" :disabled="isDisabled" :value="1" :unchecked-value="0" v-model="roleForm.rule[key].has_access" @change="setModule(key, $event)">
                                                     <h5 class="font-weight-normal m-0">{{ i + 1 }}. {{ Trans.get("role.roleform.rule") }} <b>{{Trans.chose(moduleRule.acl_caption)}}</b></h5>
                                                     <!-- {{ Trans.get("role.roleform.has_access") }} -->
@@ -83,6 +91,7 @@
                                                     <i>{{ Trans.chose(moduleRule.acl_description) }}</i>
                                                 </div>
                                             </div>
+                                            <!-- tombol check / uncheck se-module -->
                                             <div>
                                                 <b-btn variant="dark w-icon" size="xs" :disabled="disabledModuleAccess[key]" @click="checkModuleAll(key)">
                                                     <i class="fi fi-rs-check-double"></i>
@@ -110,7 +119,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- Loop Rule -->
+                                                    <!-- Looping Rule -->
                                                     <template v-for="(rule, ruleKey, index) in moduleRule.children">
                                                         <tr :key="'rulekey' + ruleKey" v-if="isInGroup(rule.tenant_group_id) && ((UserAuth.hasAccess(ruleKey, 'has_access') && calcPadding(ruleKey) == 0) || UserAuth.hasAccess(ruleKey, 'c') || UserAuth.hasAccess(ruleKey, 'r') || UserAuth.hasAccess(ruleKey, 'u') || UserAuth.hasAccess(ruleKey, 'd'))">
                                                             <th scope="row">{{ i + 1 }}.{{ index + 1 }}</th>
@@ -443,7 +452,12 @@ export default {
                         };
                         //jika module enable pastikan .has_access terceklis saat ada salah satu crud yg terceklis
                     } else {
-                        this.roleForm.rule[k2]["has_access"] = this.roleForm.rule[k2]["has_access"] || this.roleForm.rule[k2]["c"] || this.roleForm.rule[k2]["r"] || this.roleForm.rule[k2]["u"] || this.roleForm.rule[k2]["d"] ? 1 : 0;
+                        this.roleForm.rule[k2]["has_access"] = 
+                            this.roleForm.rule[k2]["has_access"] || 
+                            this.roleForm.rule[k2]["c"] || 
+                            this.roleForm.rule[k2]["r"] || 
+                            this.roleForm.rule[k2]["u"] || 
+                            this.roleForm.rule[k2]["d"] ? 1 : 0;
                     }
                 });
             });
@@ -589,7 +603,9 @@ export default {
 
         this.setEmptyRole();
 
-        if (!this.isAdd) {
+        if (this.isAdd) {
+            this.pageLoaded = true;
+        }else{
             this.loadRole();
         }
 

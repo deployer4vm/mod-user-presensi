@@ -115,6 +115,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             $this->error = 'Role code already exists';
             return false;
         }
+        $data['rule'] = $this->formatRule($data['rule']);
 
         return $this->_create(new Role, $data);
     }
@@ -137,8 +138,28 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             $this->error = 'Role code already exists';
             return false;
         }
+        $data['rule'] = $this->formatRule($data['rule']);
 
         return $this->_update(new Role, $where, $data);
+    }
+
+    /**
+     * memastikan isian rule nya sesuai
+     */
+    public function formatRule($rule)
+    {
+        $listacl = config('AppConfig.acl');
+        foreach ($listacl as $key => $aclPerModule) {
+            foreach ($aclPerModule['children'] as $key2 => $acl) {
+                // jika config crud acl nya ada salah satu yang terisi berarti tidak ada pilihan has_access
+                if(array_key_exists('c',$rule[$key]) && ($acl['crud']['c'] || $acl['crud']['r'] || $acl['crud']['u'] || $acl['crud']['d'])){
+                    if($rule[$key]['c']==0 && $rule[$key]['r']==0 && $rule[$key]['u']==0 && $rule[$key]['d']==0){
+                        $rule[$key]['has_access']=0;
+                    }
+                }
+            }
+        }
+        return $rule;
     }
     
     public function deleteRole($id)
