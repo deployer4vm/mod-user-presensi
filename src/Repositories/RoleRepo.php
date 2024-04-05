@@ -149,16 +149,17 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
     public function formatRule($rule)
     {
         $listacl = config('AppConfig.acl');
-        foreach ($listacl as $key => $aclPerModule) {
+        foreach ($listacl as $aclPerModule) {
             foreach ($aclPerModule['children'] as $key2 => $acl) {
                 // jika config crud acl nya ada salah satu yang terisi berarti tidak ada pilihan has_access
-                if(array_key_exists('c',$rule[$key]) && ($acl['crud']['c'] || $acl['crud']['r'] || $acl['crud']['u'] || $acl['crud']['d'])){
-                    if($rule[$key]['c']==0 && $rule[$key]['r']==0 && $rule[$key]['u']==0 && $rule[$key]['d']==0){
-                        $rule[$key]['has_access']=0;
+                if(array_key_exists('c',$rule[$key2]) && ($acl['crud']['c'] || $acl['crud']['r'] || $acl['crud']['u'] || $acl['crud']['d'])){
+                    if($rule[$key2]['c']==0 && $rule[$key2]['r']==0 && $rule[$key2]['u']==0 && $rule[$key2]['d']==0){
+                        $rule[$key2]['has_access']=0;
                     }
                 }
             }
         }
+        
         return $rule;
     }
     
