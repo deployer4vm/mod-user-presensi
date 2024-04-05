@@ -400,7 +400,7 @@
             }
         },
         created() {
-            if (!this.UserAuth.hasAccess(this.accessRuleKey)) {
+            if (!this.UserAuth.hasAccess(this.accessRuleKey, 'r')) {
                 //goto dashboard current tenant
                 this.Web.goToCurrentTenant();
                 this.Web.showAlert({
