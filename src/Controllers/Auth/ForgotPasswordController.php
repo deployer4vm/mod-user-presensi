@@ -53,7 +53,7 @@ class ForgotPasswordController extends BaseController
             return $this->done();            
         }
         
-        UserRepo::sendUserResetPasswordEmail($user['id'],config('cur_apps.id'));
+        UserRepo::sendUserResetPasswordEmail($user['id']);//,config('cur_apps.id'));
         $this->output['message'] = __('auth.forgotpassword.alert.forgot_password_success');
         return $this->done();
     }

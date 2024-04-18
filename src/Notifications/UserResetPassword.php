@@ -7,9 +7,9 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class UserResetPassword extends Notification implements ShouldQueue
+class UserResetPassword extends Notification //implements ShouldQueue
 {
-    use Queueable;
+    // use Queueable;
     protected $userId,$appName,$appDomain,$appUrl;
 
     /**
@@ -28,7 +28,7 @@ class UserResetPassword extends Notification implements ShouldQueue
         $this->appUrl = $appUrl;
 
         // $this->connection = config('bssystem.queue_connection_ac');
-        $this->queue = 'verification';
+        // $this->queue = 'verification';
     }
 
     /**
