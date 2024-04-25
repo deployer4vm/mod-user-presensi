@@ -45,7 +45,7 @@
                         <h4 class="text-center text-lighter font-weight-normal mt-5 mb-0">{{config('tenant.name')?config('tenant.name'):config('AppConfig.system.template.admin.title')}}</h4>
                         @include('alert')
                         <!-- Form -->
-                        <form class="my-5" action="{{route('login')}}" method="POST">
+                        <form class="my-5" action="{{route('auth.login')}}" method="POST">
                             @csrf
 
                             <div class="form-group">
