@@ -31,7 +31,7 @@ class ModuserChangePinOnUsers extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasColumn('moduser_users', 'ip_address')) {
+        if (Schema::hasColumn('moduser_users', 'pin')) {
             Schema::table('moduser_users', function (Blueprint $table) {
                 $table->unsignedInteger('pin')->change();
             });

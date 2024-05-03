@@ -148,7 +148,7 @@ if(config('AppConfig.system.use_admin_full_vue',1)!=1){
     Route::group($group,function(){
         Route::get('/login/{appCode?}', function(){
             return view('layouts.full_vue.main');
-        })->name('login');
+        })->name('auth.login');
         // dd(config('AppConfig.system.mode'));
         // dd(config('AppConfig.client.endpoint.'.config('AppConfig.system.mode').'.domain'));
         Route::get('/register', function(){

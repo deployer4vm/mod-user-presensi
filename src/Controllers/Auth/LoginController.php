@@ -102,7 +102,7 @@ class LoginController extends BaseController
 
                 //jika di banned
                 if ($userData->status == 2) {
-                    return redirect()->route('login', $returnParam)->with('alert', ['type' => 'danger', 'message' => __('auth.login.alert.user_banned')]);
+                    return redirect()->route('auth.login', $returnParam)->with('alert', ['type' => 'danger', 'message' => __('auth.login.alert.user_banned')]);
                     //jika pertama kali aktifikasi
                 } else if ($userData->status == 0) {
                     UserRepo::updateUser($userData->id, ['status' => 1]);
@@ -120,7 +120,7 @@ class LoginController extends BaseController
 
         $this->incrementLoginAttempts($request);
 
-        return redirect()->route('login', $returnParam)->with('alert', ['type' => 'warning', 'message' => 'Login Failed.']);
+        return redirect()->route('auth.login', $returnParam)->with('alert', ['type' => 'warning', 'message' => 'Login Failed.']);
     }
 
     public function logout(Request $request)
@@ -134,7 +134,7 @@ class LoginController extends BaseController
         $response['reff'] = 'logout';
         $response['isLogin'] = 0;
 
-        return $this->authDone($response, route('login'));
+        return $this->authDone($response, route('auth.login'));
     }
 
     /**

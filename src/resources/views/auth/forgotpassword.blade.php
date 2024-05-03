@@ -64,7 +64,7 @@
 
                         <div class="w-100 py-3 px-4 px-sm-5" >
                             <div class="text-center text-muted">
-                                <a href="{{route('login')}}" class="d-block small">{{ __('auth.forgotpassword.back_to_login') }}</a>
+                                <a href="{{route('auth.login')}}" class="d-block small">{{ __('auth.forgotpassword.back_to_login') }}</a>
                             </div>
                         </div>
 

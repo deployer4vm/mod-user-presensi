@@ -17,7 +17,7 @@
         <div class="alert alert-dark-success alert-dismissible fade show">
             Reset password berhasil, silakan coba login kembali.
         </div>
-        <a href="{{route('login')}}" class="btn btn-default btn-block">
+        <a href="{{route('auth.login')}}" class="btn btn-default btn-block">
             {{__('auth.forgotpassword.label.login')}}
         </a>
         @else        
