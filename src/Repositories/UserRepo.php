@@ -1168,11 +1168,13 @@ class UserRepo extends BaseRepository
         if (!$dataRole) return '';
 
         $tmpRoleExist = [];
+        $data = [];
         foreach ($dataRole as $value) {
-            if(!isset($tmpRoleExist[$value['role']['role_code']])){
+            if(!empty($value['role']) && !isset($tmpRoleExist[$value['role']['role_code']])){
                 $tmpRoleExist[$value['role']['role_code']] = $value['role']['role_code'];
             }else{
                 // jika sudah ada berarti double, maka delete
+                // atau jika role id sudah tidak ada maka delete juga
                 UserRole::where('id',$value['id'])->delete();
                 continue;
             }
