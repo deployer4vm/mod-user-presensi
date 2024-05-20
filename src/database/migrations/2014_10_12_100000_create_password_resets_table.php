@@ -40,5 +40,6 @@ class CreatePasswordResetsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('password_resets');
+        $this->dropTablePerTenant('password_resets');
     }
 }

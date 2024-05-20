@@ -43,6 +43,6 @@ class ModuserAuthenticatorCreateAuthFeaturesTable extends Migration
      */
     public function down(): void
     {
-        
+        Schema::dropIfExists('moduser_auth_features');        
     }
 };
