@@ -23,7 +23,7 @@ class ModuserAuthenticatorCreateAuthRequestsTable extends Migration
                 $table->unsignedBigInteger('created_by')->default(0)->comment('user id yang create data ini');
                 $table->unsignedBigInteger('updated_by')->default(0)->comment('last user id yg update');
 
-                $table->bigint('feature_id')->default(0);
+                $table->unsignedBigInteger('feature_id')->default(0);
                 $table->string('request_code');
                 $table->text('description')->nullable();
                 $table->unsignedBigInteger('request_user_id')->default(0);
@@ -44,7 +44,7 @@ class ModuserAuthenticatorCreateAuthRequestsTable extends Migration
                 $table->unsignedBigInteger('created_by')->default(0)->comment('user id yang create data ini');
                 $table->unsignedBigInteger('updated_by')->default(0)->comment('last user id yg update');
 
-                $table->bigint('feature_id')->default(0);
+                $table->unsignedBigInteger('feature_id')->default(0);
                 $table->string('request_code');
                 $table->text('description')->nullable();
                 $table->unsignedBigInteger('request_user_id')->default(0);
