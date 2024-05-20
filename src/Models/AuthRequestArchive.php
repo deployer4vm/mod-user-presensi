@@ -5,7 +5,7 @@ namespace hpsynapse\moduser\Models;
 use App\Base\BaseModel;
 use App\Base\Traits\ModelDataTenant;
 
-class AuthLog extends BaseModel
+class AuthRequestArchive extends BaseModel
 {
     use ModelDataTenant;    
     protected $connection = 'perTenant'; 
@@ -15,7 +15,7 @@ class AuthLog extends BaseModel
      *
      * @var string
      */
-    protected $table = 'moduser_auth_logs';
+    protected $table = 'moduser_auth_request_archives';
     
     /**
      * The attributes that aren't mass assignable.

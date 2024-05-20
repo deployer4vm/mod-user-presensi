@@ -136,7 +136,7 @@ Route::group($groupUser,function(){
     });
 
     /**
-     * fituf notif
+     * fitur notif
      */
     Route::group(['middleware'=>'auth.useronly'],function(){
         Route::get('/notification', 'NotificationController@index')->name('user.api.notification');
@@ -148,6 +148,32 @@ Route::group($groupUser,function(){
         Route::post('/notification/unread', 'NotificationController@setUnread')->name('user.api.notification.setUnreadBulk');
         Route::post('/notification/{notificationId}/unread', 'NotificationController@setUnread')->name('user.api.notification.setUnread');
     });
+    
+    // --- authenticator /api/user/authenticator-*
+    Route::group(['middleware'=>'auth.useronly'],function(){
+
+        // LIST client yg request
+        Route::get('/authenticator-request', 'AuthenticatorController@authRequestGet')
+            ->name('user.authenticator.getRequest');
+
+        // CREATE new request
+        Route::match(['put','post'],'/authenticator-request', 'AuthenticatorController@authRequestCreate')
+            ->name('user.authenticator.requestCreate');
+
+        // GRANT access client yg sebelumnya oleh 
+        Route::match(['put','post'],'/authenticator-request/{featureCode}/{requestCode}', 'AuthenticatorController@authRequestGrant')
+            ->name('user.authenticator.grantRequest');
+            
+        // REJECT client yg request
+        Route::delete('/authnenticator-request/{featureCode}/{requestCode}', 'AuthenticatorController@authRequestReject')
+            ->name('user.authenticator.requestReject');
+            
+        // VERIFY apakah client sudah di grand access
+        Route::get('/authenticator-request/{featureCode}/{requestCode}', 'AuthenticatorController@authGrantVerify')
+            ->name('user.authenticator.requestVerify');
+
+    });
+    // ---
 
     /**
      * fitur Broadcast notif
@@ -194,6 +220,7 @@ Route::group($groupUser,function(){
     // generate and send OTP
     Route::middleware(['auth.useronly'])->match(['put','post'],'/send-otp', 'UserController@sendOtp')->name('user.sendOtp');
     Route::middleware(['auth.useronly'])->match(['put','post'],'/validate-otp', 'UserController@validateOtp')->name('user.validateOtp');
+
 
     Route::match(['put','post'],'/{id}', 'UserController@update')->name('user.update');
     Route::put('/{id}/ban', 'UserController@ban')->name('user.ban');

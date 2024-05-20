@@ -3,19 +3,19 @@
 namespace hpsynapse\moduser\Models;
 
 use App\Base\BaseModel;
-use App\Base\Traits\ModelDataTenant;
+// use App\Base\Traits\ModelDataTenant;
 
-class AuthLog extends BaseModel
+class AuthFeature extends BaseModel
 {
-    use ModelDataTenant;    
-    protected $connection = 'perTenant'; 
+    // use ModelDataTenant;    
+    // protected $connection = 'perTenant'; 
     
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'moduser_auth_logs';
+    protected $table = 'moduser_auth_features';
     
     /**
      * The attributes that aren't mass assignable.
@@ -25,6 +25,6 @@ class AuthLog extends BaseModel
     protected $guarded = ['id','created_at'];
 
     protected $casts = [
-        'data' => 'array'
+        'callback_system_user_id' => 'array'
     ];
 }

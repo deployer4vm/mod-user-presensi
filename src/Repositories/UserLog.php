@@ -9,7 +9,7 @@ namespace hpsynapse\moduser\Repositories;
 //use semua model yg diperlukan
 use hpsynapse\moduser\Models\SystemUserLog;
 use hpsynapse\moduser\Models\SystemUserLogGlobal;
-use hpsynapse\moduser\Models\AuthLog;
+// use hpsynapse\moduser\Models\AuthLog;
 
 use App\Base\BaseRepository;
 
@@ -31,32 +31,6 @@ class UserLog extends BaseRepository
         }
     }
     
-    /**
-     * Add Authorized log
-     * 
-     * @param int $user_auth_id user id admin yg memberikan autorisasi (supervisor)
-     * @param int $user_id user id user yg meminta autorisasi
-     * @param string $note catatan authorisasi nya, misal saat perubahan stock (stock OP name)
-     * @param array $data erisi data yang berhubungan dengan perubahan data yang diberikan authorisasi nya
-     * @param string $ruleGroup grup rule akses autoritinya (table rules di account center)
-     * @param string $ruleKey key rule akses autoritinya (table rules di account center)
-     */
-    public function addAuthLog($user_auth_id,$user_id,$note='',$data='',$rule=false)
-    {
-        $ruleItem = ['',''];
-        if($rule)$ruleItem = explode('.', $rule);
-        
-        $logData['auth_by'] = $user_auth_id;
-        $logData['auth_note'] = $note;
-        $logData['user_id'] = $user_id;
-        $logData['rule_group'] = $ruleItem[0];
-        $logData['rule_key'] = $ruleItem[1];
-        $logData['data'] = is_array($data)?json_encode($data):$data;        
-        $logData['tenant_id'] = config('tenant.id',0);
-        
-        AuthLog::create($logData);
-    }
-    
     //user interaktion
     public function addActivityLog($user_id,$section,$log='')
     {
@@ -66,4 +40,37 @@ class UserLog extends BaseRepository
     {
         $this->addLog($user_id, 'system',$section,$log);
     }
+    
+    /**
+     * TIDAK JADI DIGUNAKAN DARI SINI, LANGSUNG DI SERVICES AUTHENTICATOR
+     * Add Authorized log
+     * 
+     * @param int $user_auth_id user id admin yg memberikan autorisasi (supervisor)
+     * @param int $user_id user id user yg meminta autorisasi
+     * @param string $note catatan authorisasi nya, misal saat perubahan stock (stock OP name)
+     * @param array $data erisi data yang berhubungan dengan perubahan data yang diberikan authorisasi nya
+     * @param string $ruleGroup grup rule akses autoritinya (table rules di account center)
+     * @param string $ruleKey key rule akses autoritinya (table rules di account center)
+     */
+    // public function addAuthLog(
+    //     $user_auth_id,
+    //     $user_id,
+    //     $note='',
+    //     $data='',
+    //     $rule=false
+    // ){
+    //     $ruleItem = ['',''];
+    //     if($rule)$ruleItem = explode('.', $rule);
+        
+    //     $logData['auth_by'] = $user_auth_id;
+    //     $logData['auth_note'] = $note;
+    //     $logData['user_id'] = $user_id;
+    //     $logData['rule_group'] = $ruleItem[0];
+    //     $logData['rule_key'] = $ruleItem[1];
+    //     $logData['data'] = is_array($data)?json_encode($data):$data;        
+    //     $logData['tenant_id'] = config('tenant.id',0);
+        
+    //     AuthLog::create($logData);
+    // }
+    
 }

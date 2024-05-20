@@ -177,4 +177,22 @@ class AuthConfig
     {
         return DbConfig::getConfig('moduser_auth','pin_digit',6);
     }
+
+    
+    /**
+     * AUTHENTICATOR
+     * =========================================================================
+     */
+
+    /**
+     * apakah fitur authenticator aktif
+     */
+    public function isAuthenticatorEnabled()
+    {
+        $access = true;// config('AppConfig.packageLocal.moduser.auth.otp.enable', 1);
+        // if($access)
+        //     $access = DbConfig::getConfig('moduser_auth','otp',$access);
+
+        return $access==1?true:false;
+    }
 }

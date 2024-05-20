@@ -53,7 +53,7 @@
             "hpsynapse\\moduser\\Contracts\\RoleRepo":"hpsynapse\\moduser\\Repositories\\RoleRepo",
             "hpsynapse\\moduser\\Contracts\\UserSystemRepo":"hpsynapse\\moduser\\Repositories\\UserSystemRepo",
             "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo",
-
+            "hpsynapse\\moduser\\Contracts\\Authenticator":"hpsynapse\\moduser\\Repositories\\Authenticator",
             "hpsynapse\\moduser\\Contracts\\ExportUserFormater":"hpsynapse\\moduser\\Services\\ExportUserFormater"
         }
     },
@@ -786,6 +786,17 @@
         },
         "auth_grant" : 1,
         "single_login": 0
+    },
+    "authenticator":{
+        "section":{
+            "kiosk_bayar":{
+                "section_id":"kiosk_bayar",
+                "name":"Auth",
+                "request_type":1,
+                "auth_type":2,
+                "enable":0
+            }
+        }
     },
     "session_lifetime": 60,
     "users_hidden_field": [],
