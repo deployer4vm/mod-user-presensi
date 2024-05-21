@@ -1127,6 +1127,13 @@ class UserRepo extends BaseRepository
             }
         }
 
+        // pastikan ada main role, jika tidak ada set satu teratas
+        if(!UserRole::where('user_id', $userId)->where('is_main_role',1)->exists()){
+            UserRole::where('user_id', $userId)->first()->update([
+                'is_main_role'=>1
+            ]);
+        }
+
         return $response;
     }
     
@@ -1251,12 +1258,13 @@ class UserRepo extends BaseRepository
 
         $roles = Role::with(['roleGroup'])->whereIn('role_code', $newRoleCode)->orderBy('level', 'ASC')->get();
         $isMainRole = 1;
+        $mainRoleSetted = false;
         $userRoleGroupIds = [];
         foreach ($roles as $role) {
 
             if(!empty($mainRoleCode))
                 if($role->role_code == $mainRoleCode){
-                    $isMainRole = 1;            
+                    $isMainRole = 1;           
                 }else{
                     $isMainRole = 0;
                 }
@@ -1276,6 +1284,9 @@ class UserRepo extends BaseRepository
                 ]);
             }
 
+            if($isMainRole)
+                $mainRoleSetted = true; 
+
             $isMainRole = 0;
 
             if($role->roleGroup){
@@ -1293,6 +1304,13 @@ class UserRepo extends BaseRepository
                 }
 
             }
+        }
+
+        // jika tidak ada mainrole yg diset maka set role pertamanya
+        if(!$mainRoleSetted){
+            UserRole::where('user_id', $userId)->first()->update([
+                'is_main_role'=>1
+            ]);
         }
         
         //delete semua role group yang tidak terpilih
