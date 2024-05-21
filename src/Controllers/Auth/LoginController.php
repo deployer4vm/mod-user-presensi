@@ -240,7 +240,7 @@ class LoginController extends BaseController
             if (isset($user['tenant']))
                 $this->output['data']['tenant'] = $user['tenant'];
 
-            $this->output['data']['role'] = UserRepo::getUserRole($user['id']);
+            $this->output['data']['role'] = UserRepo::listUserRole($user['id']);
             $this->output['data']['role_group'] = [];
             $this->output['data']['role_group_code'] = '';
             // get role code utama
@@ -269,7 +269,7 @@ class LoginController extends BaseController
             if($this->output['data']['role'][$this->output['data']['role_code']]['role_group'])
                 $this->output['data']['role_group_code'] = $this->output['data']['role'][$this->output['data']['role_code']]['role_group']['code'];
 
-            // $this->output['data']['role'] = UserRepo::getUserRole($user['id']);
+            // $this->output['data']['role'] = UserRepo::listUserRole($user['id']);
             // generate token
             $token = UserRepo::generateToken($user['id'], $this->output['data']['role_code'], 0, $request->input('deviceId', ''), $pushParam);
             $this->output['data']['token'] = $token['api_token'];

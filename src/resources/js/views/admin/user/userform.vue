@@ -113,13 +113,20 @@
     
                             <!-- select role -->
                             <b-form-group :label="Trans.get('user.field_caption.role')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2">
+                                <!-- jika multi role -->
                                 <template v-if="AppConfig.packageLocal.moduser.user_role.multi_role">
                                     <b-check-group :disabled="isDisabled" :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" class="custom-controls-stacked" />
                                 </template>
+                                <!-- jika single role -->
                                 <template v-else>
                                     <b-select :disabled="isDisabled" :state="$v.form.role_code.$error ? 'invalid' : ''" v-model="form.role_code" :options="roleItems" @blur="$v.form.role_code.$touch()" />
                                 </template>
                                 <invalid-tooltip :inputItem="$v.form.role_code" :fieldName="Trans.get('user.field_caption.role')" />
+                            </b-form-group>
+
+                            <!-- main role (khusus jika multi role) -->
+                            <b-form-group :label="Trans.get('user.field_caption.main_role')" label-align-md="right" label-class="pr-md-2" :label-cols-md="2" v-if="AppConfig.packageLocal.moduser.user_role.multi_role">
+                                <b-select :disabled="isDisabled" v-model="form.main_role_code" :options="selectMainRoleCode" class="form-control"/>
                             </b-form-group>
     
                             <!-- status -->
@@ -228,6 +235,7 @@
             // form
             emailMask: emailMask,
             selectUserGroup: [],
+            selectMainRoleCode: [],
             selectOtpChannel: [],
             form: {},
             formEmpty: {
@@ -236,6 +244,7 @@
                 password: "",
                 repassword: "",
                 role_code: [],
+                main_role_code: '',
                 note: "",
                 system_user: 0,
                 status: 1,
@@ -287,6 +296,12 @@
             //
             isDisabled() {
                 return false;//this.form.locked_data_mode == 2;
+            },
+        },
+        
+        watch: {
+            'form.role_code'(v) {
+                this.restructSelectMainRole();
             },
         },
         created() {
@@ -351,12 +366,12 @@
 
             //load data role, { system_role: 0 }
             this.$store.dispatch("role/roleList").then(res => {
-                let tmpRoleItems = [];
+                this.roleItems = [];
                 _.forEach(res.data, (v, i) => {
                     if(!v.role_group || (v.role_group.has_model == 0 && v.role_group.can_selected_on_create==1))
-                        tmpRoleItems.push({ value: v.role_code, text: "[" + v.role_code + "] " + v.name });
+                        this.roleItems.push({ value: v.role_code, text: "[" + v.role_code + "] " + v.name });
                 });
-                this.roleItems = tmpRoleItems;
+                this.restructSelectMainRole();
             });
 
             this.loadData();
@@ -385,12 +400,13 @@
                             });
                             this.form.status = this.form.status==2?2:1;
                             this.form.password = "";
+                            this.form.main_role_code = this.form.main_role.role_code;
                             this.form.repassword = "";
                             // this.form.pin = "";
                             this.isDataLoaded = true;
                             delete this.form.user_role;
                             delete this.form.main_role;
-
+                            this.restructSelectMainRole();
                             this.initView();
                         })
                         .catch(res => {
@@ -408,6 +424,15 @@
 
                     this.initView();
                 }
+            },
+            restructSelectMainRole(){
+                this.selectMainRoleCode = [];
+                if(this.form.role_code)
+                    _.forEach(this.roleItems, (v, i) => {
+                        if(this.form.role_code.includes(v.value)){
+                            this.selectMainRoleCode.push({ value: v.value, text: v.text  });
+                        }
+                    });
             },
             onSubmit(evt) {
                 evt.preventDefault();

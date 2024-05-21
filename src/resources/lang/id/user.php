@@ -14,6 +14,7 @@ return [
         'password' => 'Password',
         'confirm_password' => 'Konfirmasi Password',
         'role' => 'Role',
+        'main_role' => 'Role Utama',
         'status' => 'Status',
         'user_type' => 'Tipe User',
         'user_group_id' => 'User Group',

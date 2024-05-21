@@ -106,7 +106,7 @@ class UserSystemRepo extends BaseRepository
      * @param String $userId
      * @return boolean|array list role user, format mirip data role di APPSSession
      */
-    public function getUserRole($userId, $withoutTime = true)
+    public function listUserRole($userId, $withoutTime = true)
     {
         $response = [];
         $userRoleData = UserRole::where('user_id', $userId)->get();

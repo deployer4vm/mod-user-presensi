@@ -36,7 +36,7 @@ class TokenApiController extends BaseController
         $this->output['data'] = UserAuth::getCurTimeStamp();
         
         $this->output['data']['user'] = UserRepo::getUser($apiToken['user_id']);
-        $this->output['data']['role'] = UserRepo::getUserRole($apiToken['user_id']);
+        $this->output['data']['role'] = UserRepo::listUserRole($apiToken['user_id']);
         foreach ($this->output['data']['role'] as $key => $val) {
             if ($val['is_main_role']) {
                 $this->output['data']['role_code'] = $key;

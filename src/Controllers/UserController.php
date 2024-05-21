@@ -116,7 +116,7 @@ class UserController extends BaseController
             return $this->done();
         }
 
-        $this->output['data']['user_role'] = UserRepo::getUserRole($this->output['data']['id']);
+        $this->output['data']['user_role'] = UserRepo::listUserRole($this->output['data']['id']);
 
         foreach ($this->output['data']['user_role'] as $key => $val) {
             if ($val['is_main_role']) {
@@ -429,7 +429,7 @@ class UserController extends BaseController
         $this->response = 'user.profile';
 
         $this->output['data'] = UserAuth::user();
-        $this->output['data']['user_role'] = UserRepo::getUserRole($this->output['data']['id']);
+        $this->output['data']['user_role'] = UserRepo::listUserRole($this->output['data']['id']);
 
         foreach ($this->output['data']['user_role'] as $key => $val) {
             if ($val['is_main_role']) {

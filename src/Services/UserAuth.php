@@ -45,7 +45,7 @@ class UserAuth
                 $userId = Auth::user()->user_id;
                 if ($userId) {
                     $this->userData = UserRepo::getUser($userId);
-                    $this->userRole = UserRepo::getUserRole($userId);
+                    $this->userRole = UserRepo::listUserRole($userId);
                     $this->userRoleCode = Auth::user()->active_role_code;
                     if($this->userRole)
                         $this->userData['level'] = $this->userRole[$this->userRoleCode]['level'];
@@ -136,7 +136,7 @@ class UserAuth
 
         $sessionData = $this->getCurTimeStamp();
         $userData = UserRepo::getUser($userId);
-        $role = UserRepo::getUserRole($userData['id']);
+        $role = UserRepo::listUserRole($userData['id']);
 
         foreach ($role as $key => $val) {
             $roleCode = $key;
@@ -406,7 +406,7 @@ class UserAuth
      */
     public function isGranted($roleCode = false)
     {
-        $data = UserRepo::getUserRole($this->userData['id']);
+        $data = UserRepo::listUserRole($this->userData['id']);
 
         if (!is_array($roleCode)) $roleCode = [$roleCode];
         foreach ($data as $role) {

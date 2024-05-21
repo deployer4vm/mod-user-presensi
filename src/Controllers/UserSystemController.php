@@ -105,7 +105,7 @@ class UserSystemController extends BaseController
             return $this->done();
         }
 
-        $this->output['data']['user_role'] = UserSystemRepo::getUserRole($this->output['data']['id']);
+        $this->output['data']['user_role'] = UserSystemRepo::listUserRole($this->output['data']['id']);
 
         foreach ($this->output['data']['user_role'] as $key => $val) {
             if ($val['is_main_role']) {

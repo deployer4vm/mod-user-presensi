@@ -714,7 +714,8 @@ class UserRepo extends BaseRepository
      *
      * @param integer           $userId user id user yang akan diupdate
      * @param array             $userData
-     *      role_code *optional string role_code, jika disertakan maka akan mengubah role utama
+     *      role_code       *optional string role_code, jika disertakan maka akan mengubah role utama
+     *      main_role_code  *optional string role_code yang menjadi main role
      *      password        *unencrypted password
      *      pin             *unencrypted pin
      *      avatar
@@ -802,8 +803,8 @@ class UserRepo extends BaseRepository
 
             //jika update role data
             if (isset($userData['role_code'])) {
-                $this->updateUserRole($userId, $userData['role_code']);
-                unset($userData['role_code'], $userData['role']);
+                $this->updateUserRole($userId, $userData['role_code'], empty($userData['main_role_code'])?'':$userData['main_role_code']);
+                unset($userData['role_code'], $userData['role'],$userData['main_role_code']);
             }
 
             if(!$this->_update(new User, $userId, $userData)){
@@ -1080,6 +1081,12 @@ class UserRepo extends BaseRepository
      * Manage USER ROLE
      * -------------------------------------------------------------------------
      */
+    public function isMainUserRole($userId,$roleId)
+    {
+        return UserRole::where('user_id', $userId)
+            ->where('role_id', $roleId)
+            ->where('is_main_role',1)->exists();
+    }
 
     /**
      *
@@ -1088,7 +1095,7 @@ class UserRepo extends BaseRepository
      * @return boolean|array    list role user, format mirip data role di APPSSession 
      *                          plus data user role group nya jika ada
      */
-    public function getUserRole($userId, $withoutTime = true, $mainRoleOnly = false, $filterByClient = true)
+    public function listUserRole($userId, $withoutTime = true, $mainRoleOnly = false, $filterByClient = true)
     {
         $response = [];
         $userRoleData = UserRole::where('user_id', $userId);
@@ -1102,7 +1109,7 @@ class UserRepo extends BaseRepository
             if ($roleData) {
                 $roleData = $roleData->toArray();
                 if (!UserAuth::isH2H() && $filterByClient) {
-                    $roleData = $this->_getUserRole_filterByClient($roleData);
+                    $roleData = $this->_listUserRole_filterByClient($roleData);
                 }
                 $roleData['is_main_role'] = $value->is_main_role;
                 $roleData['has_auth_grant'] = $value->has_auth_grant;
@@ -1123,11 +1130,11 @@ class UserRepo extends BaseRepository
         return $response;
     }
     
-    private function _getUserRole_filterByClient($roleData)
+    private function _listUserRole_filterByClient($roleData)
     {
         $clientData = UserAuth::getClient();
         if(empty($clientData))return $roleData;
-        $clientRoles = $this->getUserRole($clientData['id'], true, true, false);
+        $clientRoles = $this->listUserRole($clientData['id'], true, true, false);
         $firstRole = reset($clientRoles);
         if (!is_array($firstRole['rule'])) {
             $firstRole['rule'] = json_decode($firstRole['rule'], true);
@@ -1224,9 +1231,13 @@ class UserRepo extends BaseRepository
     /**
      * Update data user role berdasarkan list role code $newRoleCode
      */
-    public function updateUserRole($userId, $newRoleCode, $hasAuthGrant = 0)
+    public function updateUserRole($userId, $newRoleCode, $mainRoleCode='', $hasAuthGrant = 0)
     {
         if (!is_array($newRoleCode)) $newRoleCode = [$newRoleCode];
+
+        if(!in_array($mainRoleCode,$newRoleCode)){
+            $mainRoleCode = '';
+        }
 
         $roleIds = Role::whereIn('role_code', $newRoleCode)->orderBy('level', 'ASC')->get()->pluck('id');
 
@@ -1239,10 +1250,16 @@ class UserRepo extends BaseRepository
         UserRole::where('user_id', $userId)->whereNotIn('role_id', $roleIds)->delete();
 
         $roles = Role::with(['roleGroup'])->whereIn('role_code', $newRoleCode)->orderBy('level', 'ASC')->get();
-        $first = true;
         $isMainRole = 1;
         $userRoleGroupIds = [];
         foreach ($roles as $role) {
+
+            if(!empty($mainRoleCode))
+                if($role->role_code == $mainRoleCode){
+                    $isMainRole = 1;            
+                }else{
+                    $isMainRole = 0;
+                }
 
             if (UserRole::where('user_id', $userId)->where('role_id', $role->id)->exists()) {
                 $this->_update(new UserRole, [['user_id', $userId], ['role_id', $role->id]], [
@@ -1259,10 +1276,7 @@ class UserRepo extends BaseRepository
                 ]);
             }
 
-            if ($first) {
-                $first = false;
-                $isMainRole = 0;
-            }
+            $isMainRole = 0;
 
             if($role->roleGroup){
                 if ($tmpUserRoleGroup = UserRoleGroup::where('user_id', $userId)->where('role_group_id', $role->role_group_id)->first()) {

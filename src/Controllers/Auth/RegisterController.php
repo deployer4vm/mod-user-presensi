@@ -175,7 +175,7 @@ class RegisterController extends BaseController
                 $this->output['message'] =  __('auth.register.alert.register_success');
                 $this->output['data'] = UserAuth::getCurTimeStamp();
                 $this->output['data']['user'] = $regUserData;
-                $this->output['data']['role'] = UserRepo::getUserRole($regUserData['id']);
+                $this->output['data']['role'] = UserRepo::listUserRole($regUserData['id']);
                 foreach ($this->output['data']['role'] as $key => $val) {
                     if ($val['is_main_role']) {
                         $this->output['data']['role_code'] = $key;
