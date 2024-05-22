@@ -1203,11 +1203,17 @@ class UserRepo extends BaseRepository
     public function addUserRole($userId, $roleCode, $isMainRole = 0, $hasAuthGrant = 0)
     {
         $role = $this->_getOne(Role::with('roleGroup'), ['role_code', $roleCode]);
-        if (!$role) return false;
+        if (!$role){
+            $this->error = 'Role code '.$roleCode.' tidak ditemukan';
+            return false;
+        } 
 
         //cek pastikan user role belum terdaftar, jika sudah terdaftar maka tolak
         $userRole = $this->_getOne(new UserRole, [['user_id', $userId], ['role_id', $role['id']]]);
-        if ($userRole) return false;
+        if ($userRole) {
+            $this->error = 'Role '.$role['role_code'].' sudah terdaftar di user bersangkutan';
+            return false;
+        }
 
         $this->_create(new UserRole, [
             'tenant_id' => $role['tenant_id'],
