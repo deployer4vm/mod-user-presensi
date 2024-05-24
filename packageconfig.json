@@ -53,7 +53,7 @@
             "hpsynapse\\moduser\\Contracts\\RoleRepo":"hpsynapse\\moduser\\Repositories\\RoleRepo",
             "hpsynapse\\moduser\\Contracts\\UserSystemRepo":"hpsynapse\\moduser\\Repositories\\UserSystemRepo",
             "hpsynapse\\moduser\\Contracts\\RoleSystemRepo":"hpsynapse\\moduser\\Repositories\\RoleSystemRepo",
-            "hpsynapse\\moduser\\Contracts\\Authenticator":"hpsynapse\\moduser\\Repositories\\Authenticator",
+            "hpsynapse\\moduser\\Contracts\\Authenticator":"hpsynapse\\moduser\\Services\\Authenticator",
             "hpsynapse\\moduser\\Contracts\\ExportUserFormater":"hpsynapse\\moduser\\Services\\ExportUserFormater"
         }
     },

@@ -66,19 +66,28 @@ class AuthenticatorController extends BaseController
      */
     public function authRequestCreate(Request $request)
     {
-        if(!AuthConfig::isAuthenticatorEnabled()){
+        if (!AuthConfig::isAuthenticatorEnabled()) {
             $this->setError('Authenticator Disabled'); 
             return $this->done();
         }
 
-        $input = $request->only(['user_id','feature_code','description','expired_time']);
-        if(!isset($input['user_id']))$input['user_id'] = UserAuth::user('id');
+        $input = $request->only([
+            'user_id',
+            'request_user_id',
+            'grant_user_id',
+            'feature_code',
+            'description',
+            'expired_time'
+        ]);
 
-        if($data = Authenticator::createAuthRequest($input)){
+        if (!isset($input['user_id'])) $input['user_id'] = UserAuth::user('id');
+
+        if ($data = Authenticator::createAuthRequest($input)){
             $this->setData($data)->setMessage('Auth Request berhasil dibuat', 'success');
-        }else{
+        } else {
             $this->setError(Authenticator::error());
         }
+        
         return $this->done();
     }
 

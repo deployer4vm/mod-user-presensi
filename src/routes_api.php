@@ -153,23 +153,23 @@ Route::group($groupUser,function(){
     Route::group(['middleware'=>'auth.useronly'],function(){
 
         // LIST client yg request
-        Route::get('/authenticator-request', 'AuthenticatorController@authRequestGet')
+        Route::get('/authenticator-request', 'Auth\AuthenticatorController@authRequestGet')
             ->name('user.authenticator.getRequest');
 
         // CREATE new request
-        Route::match(['put','post'],'/authenticator-request', 'AuthenticatorController@authRequestCreate')
+        Route::match(['put','post'],'/authenticator-request', 'Auth\AuthenticatorController@authRequestCreate')
             ->name('user.authenticator.requestCreate');
 
         // GRANT access client yg sebelumnya oleh 
-        Route::match(['put','post'],'/authenticator-request/{featureCode}/{requestCode}', 'AuthenticatorController@authRequestGrant')
+        Route::match(['put','post'],'/authenticator-request/{featureCode}/{requestCode}', 'Auth\AuthenticatorController@authRequestGrant')
             ->name('user.authenticator.grantRequest');
             
         // REJECT client yg request
-        Route::delete('/authnenticator-request/{featureCode}/{requestCode}', 'AuthenticatorController@authRequestReject')
+        Route::delete('/authnenticator-request/{featureCode}/{requestCode}', 'Auth\AuthenticatorController@authRequestReject')
             ->name('user.authenticator.requestReject');
             
         // VERIFY apakah client sudah di grand access
-        Route::get('/authenticator-request/{featureCode}/{requestCode}', 'AuthenticatorController@authGrantVerify')
+        Route::get('/authenticator-request/{featureCode}/{requestCode}', 'Auth\AuthenticatorController@authGrantVerify')
             ->name('user.authenticator.requestVerify');
 
     });

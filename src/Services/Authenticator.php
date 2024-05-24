@@ -147,24 +147,42 @@ class Authenticator extends BaseRepository
      *      feature_code
      *      description     *optional
      *      expired_time    *optional
+     * 
+     * @return Array|False
      */
     public function createAuthRequest(array $input)
     {
-        $input = $this->_filterAllowField($input,[
-            'request_user_id','grant_user_id','feature_code','description','expired_time'
+        $input = $this->_filterAllowField($input, [
+            'user_id',
+            'request_user_id',
+            'grant_user_id',
+            'feature_code',
+            'description',
+            'expired_time'
         ]);
 
-        if(empty($input['request_user_id']) || empty($input['grant_user_id']) || empty($input['feature_code'])){
+        if (empty($input['request_user_id']) || empty($input['grant_user_id']) || empty($input['feature_code'])) {
             $this->error = 'Parameter tidak lengkap';
             return false;
         }
 
         // get Feature
-        if(!($feature = $this->getActiveFeature($input['feature_code'])))
+        if (!($feature = $this->getActiveFeature($input['feature_code'])))
             return false;
 
+        if (empty($input['tenant_id'])) {
+            $input['tenant_id'] = config('tenant.id');
+        }
+        
+        $input['created_by'] = $input['user_id'];
+        $input['feature_id'] = $feature['id'];
+        $input['request_code'] = hash('sha256', 'request_code' . $input['user_id'] . '.' . now());
         $input['request_type'] = $feature['request_type'];
         $input['auth_type'] = $feature['auth_type'];
+        
+        if (!empty($input['expired_time'])) {
+            $input['expired_time'] = now()->addMinute(5);
+        }
 
         if(!($return = $this->_autoResourceCreate('createAuthRequest',[
             $input
@@ -177,7 +195,7 @@ class Authenticator extends BaseRepository
             1,// 1 create new request
             '',//empty($input['auth_note'])?'':$input['auth_note'],//note
             [
-                'data'=>$return
+                'data' => $return
             ]//data
         );
         
@@ -475,7 +493,7 @@ class Authenticator extends BaseRepository
         $feature = AuthFeature::where('feature_code',$featureCode)
             ->where('enable',1)
             ->where(function($m) {
-                $m->where('tenant_id',0)->where('tenant_id',config('tenant.id'));
+                $m->where('tenant_id',0)->orWhere('tenant_id',config('tenant.id'));
             })
             ->first();
 
