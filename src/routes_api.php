@@ -165,7 +165,7 @@ Route::group($groupUser,function(){
             ->name('user.authenticator.grantRequest');
             
         // REJECT client yg request
-        Route::delete('/authnenticator-request/{featureCode}/{requestCode}', 'Auth\AuthenticatorController@authRequestReject')
+        Route::delete('/authenticator-request/{featureCode}/{requestCode}', 'Auth\AuthenticatorController@authRequestReject')
             ->name('user.authenticator.requestReject');
             
         // VERIFY apakah client sudah di grand access
