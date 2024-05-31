@@ -72,68 +72,89 @@ class Authenticator extends BaseRepository
     /**
      * get list request2 permintaan grant yang aktif, berdasarkan yang dimintai
      * authentifikasinya
+     * 
+     * @param Int $grantUserId
      */
-    public function listActiveGrantRequest($grantUserId=0)
+    public function listActiveGrantRequest($grantUserId = 0)
     {
         $now = now()->format('Y-m-d H:i:s');
-        $model = AuthRequest::where('status',0)->where('expired_time','<',$now);
-        if($grantUserId)
+        $model = AuthRequest::where('status', 0)->where('expired_time', '>=', $now);
+        if ($grantUserId)
             $model = $model->where('grant_user_id',$grantUserId);
 
-        return $this->_list($model);
+        $lists = $this->_list($model);
+
+        foreach ($lists['data'] as $key => $value) {
+            $lists['data'][$key]['feature'] = AuthFeature::find($value['feature_id'])->toArray();
+        }
+
+        return $lists;
     }
 
     /**
      * get active request
+     * 
+     * @param String $featureCode
+     * @param String $requestCode
+     * @param Int|False $userId
      */
-    public function getActiveRequest($featureCode,$requestCode,$userId=false)
+    public function getActiveRequest($featureCode, $requestCode, $userId = false)
     {
-        return $this->getRequest($featureCode,$requestCode,0,$userId);
+        return $this->getRequest($featureCode, $requestCode, 0, $userId);
     }
 
-        private function getRequest($featureCode,$requestCode,$status=false,$userId=false)
+        /**
+         * get request
+         * 
+         * @param String $featureCode
+         * @param String $requestCode
+         * @param Int|False $status
+         * @param Int|False $userId
+         */
+        private function getRequest($featureCode, $requestCode, $status = false, $userId = false)
         {
             // get Feature
-            if(!($feature = $this->getActiveFeature($featureCode)))
+            if (!($feature = $this->getActiveFeature($featureCode)))
                 return false;
 
             // check expired
-            $this->_autoResourceUpdate('updateAuthRequest',[
+            $this->_autoResourceUpdate('updateAuthRequest', [
                 [
-                    ['feature_id',$feature->id],
-                    ['request_code',$requestCode],
-                    ['status',0],
-                    ['expired_time','<=',now()->format('Y-m-d H:i:s')],                    
+                    ['feature_id', $feature->id],
+                    ['request_code', $requestCode],
+                    ['status', 0],
+                    ['expired_time', '<=', now()->format('Y-m-d H:i:s')],                    
                 ],
-                ['status'=>3]
+                ['status' => 3]
             ]);
 
             // get Request
             $where = [
-                // 'with'=>['feature'],
-                ['feature_id',$feature->id],
-                ['request_code',$requestCode],
+                // 'with' => ['feature'],
+                ['feature_id', $feature->id],
+                ['request_code', $requestCode],
                 [
-                    ['status',[0,1,2]],
-                    ['OR expired_time','>',now()->format('Y-m-d H:i:s')],// atau ambil yg belum expired
+                    ['status', [0, 1, 2]],
+                    ['OR expired_time', '>' ,now()->format('Y-m-d H:i:s')],// atau ambil yg belum expired
                 ],
                 
             ];        
 
-            if($userId)
+            if ($userId)
                 $where[] = ['grant_user_id',$userId];            
 
-            if($status!==false){
+            if ($status !== false) {
                 // pastikan status yg diinput 0,1,2,3 sesuai status request nya
-                $status = $status<=3 && $status>0 ? $status : 0;
-                $where[] = ['status',$status];
+                $status = $status <= 3 && $status > 0 ? $status : 0;
+                $where[] = ['status', $status];
             }
 
             $authRequest = $this->getAuthRequest($where);
-            if(!$authRequest){
+            if (!$authRequest) {
                 $this->error = 'Request tidak ditemukan';
                 return false;
             }
+
             $authRequest['feature'] = $feature->toArray();
 
             return $authRequest;
@@ -180,8 +201,9 @@ class Authenticator extends BaseRepository
         $input['request_type'] = $feature['request_type'];
         $input['auth_type'] = $feature['auth_type'];
         
-        if (!empty($input['expired_time'])) {
-            $input['expired_time'] = now()->addMinute(5);
+        if (empty($input['expired_time'])) {
+            // $input['expired_time'] = now()->addMinute(5);
+            $input['expired_time'] = now()->addDay(1);
         }
 
         if(!($return = $this->_autoResourceCreate('createAuthRequest',[
@@ -213,10 +235,11 @@ class Authenticator extends BaseRepository
      *      user_id         *optional def session saat ini, user id yg ngasih grant
      *      auth_note       *optional khusus request_type = 2
      */
-    public function grantAuthRequest($featureCode,$requestCode, array $input = [])
+    public function grantAuthRequest($featureCode, $requestCode, array $input = [])
     {
         $input['status'] = 1;//grant request
-        return $this->updateStatusAuthRequest($featureCode,$requestCode, $input);
+        
+        return $this->updateStatusAuthRequest($featureCode, $requestCode, $input);
     }
 
     /**
@@ -229,10 +252,11 @@ class Authenticator extends BaseRepository
      *      user_id         *optional def session saat ini, user id yg ngasih grant
      *      auth_note       *optional khusus request_type = 2
      */
-    public function rejectAuthRequest($featureCode,$requestCode, array $input = [])
+    public function rejectAuthRequest($featureCode, $requestCode, array $input = [])
     {
         $input['status'] = 2;//reject request
-        return $this->updateStatusAuthRequest($featureCode,$requestCode, $input);
+
+        return $this->updateStatusAuthRequest($featureCode, $requestCode, $input);
     }
         
         /**
@@ -248,18 +272,17 @@ class Authenticator extends BaseRepository
          * 
          * @return Boolean
          */
-        private function updateStatusAuthRequest($featureCode,$requestCode, array $input = [])
+        private function updateStatusAuthRequest($featureCode, $requestCode, array $input = [])
         {
-            
-            if(empty($input['auth_code']) || empty($input['status'])){
+            if (empty($input['auth_code']) || empty($input['status'])) {
                 $this->error = 'Parameter tidak lengkap';
                 return false;
             }
 
-            if(!($authRequest = $this->getActiveRequest($featureCode,$requestCode,isset($input['user_id'])?$input['user_id']:false)))
+            if (!($authRequest = $this->getActiveRequest($featureCode, $requestCode, isset($input['user_id']) ? $input['user_id'] : false)))
                 return false;        
 
-            if($this->authRequestVerifyAuthCode($authRequest, $input['auth_code'])==false)
+            if ($this->authRequestVerifyAuthCode($authRequest, $input['auth_code']) == false)
                 return false;
 
             $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
@@ -268,22 +291,22 @@ class Authenticator extends BaseRepository
 
             try {
                 // update status
-                if(!$this->_autoResourceUpdate('updateAuthRequest',[
-                    ['id',$authRequest['id']],
-                    ['status'=>$input['status']]
-                ])){
+                if (!$this->_autoResourceUpdate('updateAuthRequest', [
+                    ['id', $authRequest['id']],
+                    ['status' => $input['status']]
+                ])) {
                     throw new Exception($this->errorFull());
                 }
 
                 // add auth log
-                if(!$this->createAuthLog(
+                if (!$this->createAuthLog(
                     $authRequest['id'],
                     $input['status'],
-                    empty($input['auth_note'])?'':$input['auth_note'],//note
+                    empty($input['auth_note']) ? '' : $input['auth_note'],//note
                     [
-                        'data'=>$authRequest
+                        'data' => $authRequest
                     ]//data
-                )){
+                )) {
                     throw new Exception($this->errorFull());
                 }
 
@@ -310,20 +333,20 @@ class Authenticator extends BaseRepository
             }
 
             // callback on rejected 
-            if(!empty($authRequest['feature']['callback_url']))
-                $this->executeCallback($input['status']==1,$authRequest);
+            if (!empty($authRequest['feature']['callback_url']))
+                $this->executeCallback($input['status'] == 1, $authRequest);
         }
 
         private function executeCallback($isGranted,$authRequest)
         {        
             // jika ada config per tenant maka gunakan
-            if(
+            if (
                 isset($authRequest['feature']['callback_system_user']['tenant_'.$authRequest['tenant_id']]) 
                 && isset($authRequest['feature']['callback_system_user']['tenant_'.$authRequest['tenant_id']]['id'])
                 && isset($authRequest['feature']['callback_system_user']['tenant_'.$authRequest['tenant_id']]['id_type'])
-            ){
+            ) {
                 $user = $authRequest['feature']['callback_system_user']['tenant_'.$authRequest['tenant_id']];
-            }else{
+            } else {
                 $user = [
                     'id' => $authRequest['feature']['callback_system_user']['id'],
                     'id_type' => $authRequest['feature']['callback_system_user']['id_type']
@@ -331,19 +354,19 @@ class Authenticator extends BaseRepository
             }
 
             // hanya lakukan callback jika user system terdefinisi
-            if((empty($user['id']) || empty($user['id_type'])))
+            if ((empty($user['id']) || empty($user['id_type'])))
                 return false;
 
-            if($user['id_type']=='username') {
-                if(config('tenant.id')==$authRequest['tenant_id']){
+            if ($user['id_type'] == 'username') {
+                if (config('tenant.id') == $authRequest['tenant_id']){
                     $tmpUser = User::where('username',$user['id'])->first();
-                }else{
+                } else {
                     $tmpUser = new User();
                     $tmpUser = $tmpUser->setTenantId($authRequest['tenant_id']);
                     $tmpUser = $tmpUser->where('username',$user['id'])->first();
                 }
 
-                if(!$tmpUser)
+                if (!$tmpUser)
                     return false;
 
                 $user['id'] = $tmpUser->id;
@@ -351,17 +374,16 @@ class Authenticator extends BaseRepository
 
             //   
             \App\Facades\SystemCallback::secureCallBack([
-                'callback_id'=>$isGranted?'authenticator_grant':'authenticator_reject',
-                'tenant_id'=>$authRequest['tenant_id'],
-                'system_user_id'=>$user['id'],
-                'callback_url'=>$authRequest['feature']['callback_url'],
+                'callback_id' => $isGranted ? 'authenticator_grant' : 'authenticator_reject',
+                'tenant_id' => $authRequest['tenant_id'],
+                'system_user_id' => $user['id'],
+                'callback_url' => $authRequest['feature']['callback_url'],
                 'data'=>[
                     'feature_code' => $authRequest['feature_code'],
                     'request_code' => $authRequest['request_code'],
                     'status' => $authRequest['status']
                 ]
             ]);
-            
         }
 
     /**
@@ -373,13 +395,13 @@ class Authenticator extends BaseRepository
      * @return Tinyint|False    Jika data request ada maka return status request (0,1,2)
      *                          False jika data request tidak ditemukan
      */
-    public function verifyRequest($featureCode,$requestCode)
+    public function verifyRequest($featureCode, $requestCode)
     {        
-        if(!($authRequest = $this->getRequest($featureCode,$requestCode)))
+        if (!($authRequest = $this->getRequest($featureCode, $requestCode)))
             return false;
 
         // jika status canceled (expired) maka langsung tolak aja
-        if($authRequest['status']==3){
+        if ($authRequest['status'] == 3) {
             $this->error = 'Request tidak ditemukan';
             return false;
         }
@@ -389,7 +411,7 @@ class Authenticator extends BaseRepository
             4,// 4 minta ferify
             '',//note
             [
-                'data'=>$authRequest
+                'data' => $authRequest
             ]//data
         );
 
@@ -399,42 +421,41 @@ class Authenticator extends BaseRepository
     /**
      * 
      */
-    public function authRequestVerifyAuthCode($authRequest,$authCode)
+    public function authRequestVerifyAuthCode($authRequest, $authCode)
     {
-
         $authCode = UserAuth::decryptCredential($authCode);
 
         // 1 password
-        if($authRequest['auth_type']==1){     
+        if ($authRequest['auth_type'] == 1) {     
             $user = UserRepo::getUser($authRequest['grant_user_id']);      
-            if (($user && UserRepo::loginCheck($user['username'],$authCode,config('tenant.id',$user['tenant_id'])))==false) {
+            if (($user && UserRepo::loginCheck($user['username'], $authCode, config('tenant.id', $user['tenant_id']))) == false) {
                 $this->error = 'Password Invalid';
                 return false;
             }
             
         // 2 PIN
-        }else if($authRequest['auth_type']==2){
-            if(AuthConfig::isPINEnabled()){                
-                if (UserAuth::isPinValid($authCode,$authRequest['grant_user_id'])==false) {
+        } else if ($authRequest['auth_type'] == 2) {
+            if (AuthConfig::isPINEnabled()) {
+                if (UserAuth::isPinValid($authCode, $authRequest['grant_user_id']) == false) {
                     $this->error = 'PIN Invalid';
                     return false;
                 }
-            }else{
+            } else {
                 $this->error = 'PIN Disabled';
                 return false;
             }
         // 3 OTP
-        }else if($authRequest['auth_type']==3){
-            if(AuthConfig::isOTPEnabled()){                
-                if (UserRepo::isOTPValid($authRequest['grant_user_id'],$authCode)==false) {
+        } else if ($authRequest['auth_type'] == 3) {
+            if (AuthConfig::isOTPEnabled()) {                
+                if (UserRepo::isOTPValid($authRequest['grant_user_id'], $authCode) == false) {
                     $this->error = 'OTP Invalid';
                     return false;
                 }
-            }else{
+            } else {
                 $this->error = 'OTP Disabled.';
                 return false;
             }
-        }else{
+        } else {
             $this->error = 'Auth methode not defined.';
             return false;
         }
@@ -457,7 +478,7 @@ class Authenticator extends BaseRepository
         $note='',
         $data=''
     ){
-        if(!in_array($logType,[1,2,3,4])){
+        if (!in_array($logType, [1, 2, 3, 4])) {
             $this->error = 'Tipe log tidak terdaftar';
             return false;
         }
@@ -472,9 +493,9 @@ class Authenticator extends BaseRepository
         ];  
         
         // add auth log
-        if(!$this->_autoResourceCreate('createAuthLog',[
+        if (!$this->_autoResourceCreate('createAuthLog',[
             $logData
-        ])){
+        ])) {
             return false;
         }
 
@@ -490,14 +511,14 @@ class Authenticator extends BaseRepository
      */
     public function getActiveFeature($featureCode)
     {
-        $feature = AuthFeature::where('feature_code',$featureCode)
-            ->where('enable',1)
+        $feature = AuthFeature::where('feature_code', $featureCode)
+            ->where('enable', 1)
             ->where(function($m) {
-                $m->where('tenant_id',0)->orWhere('tenant_id',config('tenant.id'));
+                $m->where('tenant_id', 0)->orWhere('tenant_id', config('tenant.id'));
             })
             ->first();
 
-        if(!$feature){
+        if (!$feature) {
             $this->error = 'Feature tidak ditemukan';
             return false;
         }

@@ -161,11 +161,11 @@ Route::group($groupUser,function(){
             ->name('user.authenticator.requestCreate');
 
         // GRANT access client yg sebelumnya oleh 
-        Route::match(['put','post'],'/authenticator-request/{featureCode}/{requestCode}', 'Auth\AuthenticatorController@authRequestGrant')
+        Route::match(['put','post'],'/authenticator-request/{featureCode}/{requestCode}/grant', 'Auth\AuthenticatorController@authRequestGrant')
             ->name('user.authenticator.grantRequest');
             
         // REJECT client yg request
-        Route::delete('/authenticator-request/{featureCode}/{requestCode}', 'Auth\AuthenticatorController@authRequestReject')
+        Route::match(['put','post'], '/authenticator-request/{featureCode}/{requestCode}/reject', 'Auth\AuthenticatorController@authRequestReject')
             ->name('user.authenticator.requestReject');
             
         // VERIFY apakah client sudah di grand access

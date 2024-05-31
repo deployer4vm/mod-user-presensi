@@ -23,6 +23,7 @@ use hpsynapse\moduser\Facades\Authenticator;
 // 7. Import level Synapse - Current Module
 use hpsynapse\modscsalestore\Facades\Store;
 use hpsynapse\modscsalestore\Facades\Cashier;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @SuppressWarnings(PHPMD.ShortMethodNames)
@@ -38,16 +39,17 @@ class AuthenticatorController extends BaseController
      */
     public function authRequestGet(Request $request)
     {
-        if(!AuthConfig::isAuthenticatorEnabled()){
+        if (!AuthConfig::isAuthenticatorEnabled()) {
             $this->setError('Authenticator Disabled'); 
             return $this->done();
         }
 
-        if($data = Authenticator::listActiveGrantRequest(UserAuth::user('id'))){
+        if ($data = Authenticator::listActiveGrantRequest(UserAuth::user('id'))) {
             $this->setData($data);//->setMessage('List', 'success');
-        }else{
+        } else {
             $this->setError(Authenticator::error());
         }
+
         return $this->done();
     }
     
@@ -103,17 +105,18 @@ class AuthenticatorController extends BaseController
      */
     public function authRequestGrant(Request $request, $featureCode, $requestCode)
     {
-        if(!AuthConfig::isAuthenticatorEnabled()){
+        if (!AuthConfig::isAuthenticatorEnabled()) {
             $this->setError('Authenticator Disabled'); 
             return $this->done();
         }
 
-        if(Authenticator::grantAuthRequest($featureCode,$requestCode,[
-            'user_id'=>UserAuth::user('id'),
-            'auth_code'=>$request->input('auth_code')
-        ])){
+        if (Authenticator::grantAuthRequest($featureCode, $requestCode, [
+            'user_id' => UserAuth::user('id'),
+            'auth_code' => $request->input('auth_code'),
+            'auth_note' => $request->input('auth_note'),
+        ])) {
             $this->setMessage('Auth Request Granted', 'success');
-        }else{
+        } else {
             $this->setError(Authenticator::error());            
         }
 
@@ -139,7 +142,11 @@ class AuthenticatorController extends BaseController
             return $this->done();
         }
 
-        if(Authenticator::rejectAuthRequest($featureCode,$requestCode,['user_id'=>UserAuth::user('id')])){
+        if(Authenticator::rejectAuthRequest($featureCode, $requestCode, [
+            'user_id' => UserAuth::user('id'),
+            'auth_code' => $request->input('auth_code'),
+            'auth_note' => $request->input('auth_note'),
+        ])){
             $this->setMessage('Auth Request Rejected', 'success');
         }else{
             $this->setError(Authenticator::error());            
