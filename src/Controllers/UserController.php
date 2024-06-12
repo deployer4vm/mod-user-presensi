@@ -49,7 +49,13 @@ class UserController extends BaseController
             return $this->done();
         }
 
-        $this->buildParams(true,['system_user','role','level','level_except']);
+        $this->buildParams(true, [
+            'system_user',
+            'role',
+            'role_level_group_code',
+            'level',
+            'level_except'
+        ]);
 
         $this->output['params']['filter'][] = ['system_user', false];
 
@@ -61,6 +67,8 @@ class UserController extends BaseController
         //jika menyertakan status
         if ($request->input('role', false))
             $this->output['params']['filter'][] = ['role', 'LIKE', '%;' . $request->input('role') . ';%'];
+        if ($request->input('role_level_group_code', false))
+            $this->output['params']['filter']['role_level_group_code'] = $request->input('role_level_group_code');
 
         if ($request->input('level', false)) {
             $this->output['params']['filter'][] = ['level', '!=', $request->input('level')];

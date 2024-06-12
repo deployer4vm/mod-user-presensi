@@ -298,6 +298,17 @@ class UserRepo extends BaseRepository
             unset($filter['profile']);
         }
 
+        if (isset($filter['role_level_group_code'])) {
+
+            $roleLevelGroup = RoleLevelGroup::firstWhere('code', $filter['role_level_group_code']);
+            
+            for ($i = $roleLevelGroup['level_start']; $i < $roleLevelGroup['level_end']; $i++) { 
+                $user = $user->orWhere('role_level', 'LIKE', '%;' . $i . ';%');
+            }
+            
+            unset($filter['role_level_group_code']);
+        }
+
         // if(isset($filter['tenant'])){
         //     $user = $user->where('tenant_id',$filter['tenant']);
         //     // $user = $user->whereHas('userTenant', function($q) use ($filter){
@@ -1198,6 +1209,30 @@ class UserRepo extends BaseRepository
     }
 
     /**
+     * Generate list role_code user aktif, untuk keperluan isi field 'role_level' di table user.
+     * Dalam proses nya juga akan mendelete user role yg sudah ada.
+     * 
+     * @param type $userId
+     */
+    public function generateUserRoleLevel($userId)
+    {
+        $dataRole = UserRole::with(['role'])->where('user_id', $userId)->get()->toArray();
+        if (!$dataRole) return '';
+
+        $tmpRoleLevelExist = [];
+        $data = [];
+        foreach ($dataRole as $value) {
+            if (!empty($value['role'])) {
+                $tmpRoleLevelExist[$value['role']['level']] = $value['role']['level'];
+            }
+            
+            $data[] = $value['role']['level'];
+        }
+
+        return ';' . implode(';', $data) . ';';
+    }
+
+    /**
      * tambah/assign role baru ke user
      */
     public function addUserRole($userId, $roleCode, $isMainRole = 0, $hasAuthGrant = 0)
@@ -1235,7 +1270,8 @@ class UserRepo extends BaseRepository
 
         //update role di table user
         $this->updateUser($userId, [
-            'role' => $this->generateUserRole($userId)
+            'role' => $this->generateUserRole($userId),
+            'role_level' => $this->generateUserRoleLevel($userId)
         ]);
 
         return $role;
@@ -1327,9 +1363,11 @@ class UserRepo extends BaseRepository
         }
 
         $roleUser = $this->generateUserRole($userId);
+        $roleLevelUser = $this->generateUserRoleLevel($userId);
         
         User::where('id', $userId)->update([
             'role' => $roleUser,
+            'role_level' => $roleLevelUser,
             'level' => $role->level
         ]);
     }
@@ -1359,7 +1397,10 @@ class UserRepo extends BaseRepository
         }
 
         //delete role di table user
-        $this->updateUser($userId, ['role' => $this->generateUserRole($userId)]);
+        $this->updateUser($userId, [
+            'role' => $this->generateUserRole($userId),
+            'role_level' => $this->generateUserRoleLevel($userId)
+        ]);
 
         return $roleData;
     }

@@ -28,7 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'user_idcode','user_group_id', 'name', 'username', 'email', 'phone', 'password', 'auth_password',
         'socialauth_facebook_id', 'socialauth_facebook_token', 'socialauth_facebook_data',
         'socialauth_google_id', 'socialauth_google_token', 'socialauth_google_data', 'level','user_type','ip_address',
-        'note', 'role',  'status', 'banned_note', 'system_user','dashboard_type', 'secret_key', 'tenant_id', 'pin'
+        'note', 'role', 'role_level', 'status', 'banned_note', 'system_user','dashboard_type', 'secret_key', 'tenant_id', 'pin'
     ];
 
     /**

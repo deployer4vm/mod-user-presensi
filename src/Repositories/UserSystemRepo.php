@@ -354,6 +354,7 @@ class UserSystemRepo extends BaseRepository
         }
 
         $roleUser = $this->userRepo->generateUserRole($userId);
+        $roleLevelUser = $this->userRepo->generateUserRoleLevel($userId);
         //update role di table user
         // $this->updateUser($userId, [
         //     'role'=> $roleUser,
@@ -361,6 +362,7 @@ class UserSystemRepo extends BaseRepository
         // ],false);
         User::where('id', $userId)->update([
             'role' => $roleUser,
+            'role_level' => $roleLevelUser,
             'level' => $role->level
         ]);
     }
