@@ -298,10 +298,20 @@ class UserRepo extends BaseRepository
             unset($filter['profile']);
         }
 
-        if (isset($filter['role_level_group_code'])) {
-
-            $roleLevelGroup = RoleLevelGroup::firstWhere('code', $filter['role_level_group_code']);
+        if (isset($filter['roles'])) {
+            $user = $user->whereHas('roles', function($q) use ($filter) {
+                if (is_array($filter['roles'])) {
+                    $q->whereIn('role_id', $filter['roles']);
+                } else {
+                    $q->where('role_id', $filter['roles']);
+                }
+            });
             
+            unset($filter['roles']);
+        }
+
+        if (isset($filter['role_level_group_code'])) {
+            $roleLevelGroup = RoleLevelGroup::firstWhere('code', $filter['role_level_group_code']);
             for ($i = $roleLevelGroup['level_start']; $i < $roleLevelGroup['level_end']; $i++) { 
                 $user = $user->orWhere('role_level', 'LIKE', '%;' . $i . ';%');
             }
