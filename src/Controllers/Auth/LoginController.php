@@ -209,12 +209,25 @@ class LoginController extends BaseController
             $tmpAuth = json_decode(UserAuth::decryptCredential($authParam['auth']),true);
             if (!isset($tmpAuth['username']) || !isset($tmpAuth['password'])) {
                 $this->setError(__('alert.incorect_parameter'));
+                $authParam['decrypted_auth'] = $tmpAuth;
+                // login api failed
+                UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
+                    'ip'=>request()->ip(),
+                    'error'=>'incorect_parameter',
+                    'params'=>$authParam,
+                ]);
                 return $this->done();
             }
             $authParam['username'] = $tmpAuth['username'];
             $authParam['password'] = $tmpAuth['password'];
         }else if (!isset($authParam['username']) || !isset($authParam['password'])) {
             $this->setError(__('alert.incorect_parameter'));
+            // login api failed
+            UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
+                'ip'=>request()->ip(),
+                'error'=>'incorect_parameter',
+                'params'=>$authParam,
+            ]);
             return $this->done();
         }
 
@@ -262,6 +275,12 @@ class LoginController extends BaseController
             // jika main role tidak ada berarti ada yang salah di insert user ke databasenya
             if (!isset($this->output['data']['role_code'])) {
                 $this->setError(__('alert.auth_failed') . '<br><i>Main Role</i> user tidak terdeteksi.');
+                // login api failed
+                UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
+                    'ip'=>request()->ip(),
+                    'error'=>'main_role_not_defined',
+                    'params'=>$authParam,
+                ]);
                 return $this->done();
             }
 
@@ -286,9 +305,19 @@ class LoginController extends BaseController
                 UserNotifRepo::subscribeToChannel($notifChannel, $pushParam['token']);
             }
             // UserAuth::setUser($user['id'],$token['api_token']);
+            // api success
+            UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_success', [
+                'ip'=>request()->ip()
+            ]);
             return $this->done();
         }
 
+        UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
+            'ip'=>request()->ip(),
+            'error'=>'credentials_failed',
+            'error_message'=>UserRepo::errorFull(),
+            'params'=>$authParam,
+        ]);
         // $this->setError(__('alert.auth_failed'));
         $this->setError(UserRepo::errorFull());
         return $this->done();
