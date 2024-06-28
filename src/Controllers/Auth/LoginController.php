@@ -306,7 +306,7 @@ class LoginController extends BaseController
             }
             // UserAuth::setUser($user['id'],$token['api_token']);
             // api success
-            UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_success', [
+            UserLog::addLog($user['id'], 'user_auth', 'api_login_success', [
                 'ip'=>request()->ip()
             ]);
             return $this->done();
