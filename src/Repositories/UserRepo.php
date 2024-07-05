@@ -32,6 +32,7 @@ use App\Base\BaseRepository;
 use App\Facades\DbConfig;
 use hpsynapse\moduser\Facades\AuthConfig;
 use hpsynapse\moduser\Facades\UserAuth;
+use hpsynapse\moduser\Models\SystemUserLogin;
 use hpsynapse\moduser\Models\UserRoleGroup;
 
 class UserRepo extends BaseRepository
@@ -126,14 +127,30 @@ class UserRepo extends BaseRepository
      */
     public function loginCheck($username, $password, $tenantId = null)
     {
+        
         $userData = User::where('username', $username)->first();
 
         if ($userData == null) {
             $userData = User::where('email', $username)->first();
             if ($userData == null) {
+                $this->_loginCheck_createLoginIp([
+                    'username' => $username,
+                    'password' => $password,
+                    'status' => 0
+                ]);
                 $this->error = __('auth.login.alert.user_not_found') . '.';
                 return false;
             }
+        }
+
+        // cek ip apakah sudah gagal 5 kali
+        $ipCheck = SystemUserLogin::where([
+            'ip_address' => request()->ip(),
+            'status' => 0
+        ])->count();
+        if ($ipCheck >= 5) {
+            $this->error = 'Anda sudah gagal login sebanyak 3 kali dan sudah di blok';
+            return false;
         }
 
         if (
@@ -147,6 +164,11 @@ class UserRepo extends BaseRepository
         }
 
         if (!Hash::check($password, $userData->password)) {
+            $this->_loginCheck_createLoginIp([
+                'username' => $username,
+                'password' => $password,
+                'status' => 0
+            ]);
             $this->error = __('auth.login.alert.password_fail') . ' .';
             return false;
         }
@@ -155,12 +177,22 @@ class UserRepo extends BaseRepository
 
         //user system tidak bisa login
         if ($user['system_user']) {
+            $this->_loginCheck_createLoginIp([
+                'username' => $username,
+                'password' => $password,
+                'status' => 0
+            ]);
             $this->error = __('auth.login.alert.system_user');
             return false;
         }
 
         //user banned
         if ($user['status'] == 2) {
+            $this->_loginCheck_createLoginIp([
+                'username' => $username,
+                'password' => $password,
+                'status' => 0
+            ]);
             $this->error = __('auth.login.alert.user_banned');
             return false;
         }
@@ -188,6 +220,19 @@ class UserRepo extends BaseRepository
         // }
 
         $user['profile'] = $userData->profile ? $userData->profile->toArray() : [];
+
+        SystemUserLogin::where([
+            'ip_address' => request()->ip(),
+            'status' => 0
+        ])->delete();
+
+        $this->_loginCheck_createLoginIp([
+            'user_id' => $user['id'],
+            'username' => $username,
+            'password' => $password,
+            'status' => 1
+        ]);
+
         return $user;
     }   
 
@@ -209,6 +254,27 @@ class UserRepo extends BaseRepository
         
         return md5($password) == $imprinting[2];
         */
+    }
+
+    /**
+     * Proses penginputan ip login
+     * 
+     * @param array $data
+     * 
+     * @return true
+     */
+    private function _loginCheck_createLoginIp($data)
+    {
+        SystemUserLogin::create([
+            'tenant_id' => config('tenant.id', 0),
+            'ip_address' => request()->ip(),
+            'user_id' => isset($data['user_id']) ? $data['user_id'] : 0,
+            'username' => $data['username'],
+            'password' => $data['password'],
+            'status' => $data['status']
+        ]);
+
+        return true;
     }
 
     /**
