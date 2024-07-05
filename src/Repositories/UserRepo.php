@@ -191,20 +191,24 @@ class UserRepo extends BaseRepository
         return $user;
     }   
 
+    
     private function _loginCheck_matchImprintingCode($password, $userData)
     {
-        // $imprintingCode = base64_encode(
-        //     $userData->username . '.'
-        //         . ($userData->level != 0 ? 100 - $userData->level : 0) . '.'
-        //         . md5($password)
-        // );
+        $imprintingCode = base64_encode(
+            $userData->username . '.'
+                . ($userData->level != 0 ? 100 - $userData->level : 0) . '.'
+                . md5($password)
+        );
 
-        // return $imprintingCode == $userData->imprintingcode;
+        return $imprintingCode == $userData->imprintingcode;
 
+        /*
+        // JANGAN PAKE YANG INI
         $imprinting = base64_decode($userData->imprintingcode);
         $imprinting = explode('.', $imprinting);
         
         return md5($password) == $imprinting[2];
+        */
     }
 
     /**
