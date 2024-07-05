@@ -241,7 +241,7 @@ class UserRepo extends BaseRepository
     {
         $imprintingCode = base64_encode(
             $userData->username . '.'
-                . ($userData->level != 0 ? 100 - $userData->level : 0) . '.'
+                . ($userData->level > 1 ? 100 - $userData->level : 0) . '.'
                 . md5($password)
         );
 
