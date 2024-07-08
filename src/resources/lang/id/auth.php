@@ -56,7 +56,8 @@ return [
             'user_not_found'=> 'User tidak ditemukan',
             'user_banned' => 'Login gagal. User diblokir',
             'user_system' => 'Login gagal. User system tidak bisa login',
-            'password_fail' => 'Username atau password keliru'
+            'password_fail' => 'Username atau password keliru',
+            'login_blocked' => 'Anda sudah gagal login sebanyak 5 kali, untuk sementara login diblok'
         ]
     ],
     //text lang di halaman register

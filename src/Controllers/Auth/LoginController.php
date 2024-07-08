@@ -204,12 +204,43 @@ class LoginController extends BaseController
         $this->forceApiOutput();
         
         $authParam = $request->only('username', 'password','role_code', 'auth');
+
+        // system user login check
+        $userLogin = UserRepo::systemUserLoginCheck();
+        if ($userLogin['count'] > 3 || $userLogin['status'] == 1) {
+            // update system user login
+            $countUserLogin = $userLogin['count'] + 1;
+            $descriptionUserLogin = $userLogin['description'];
+            $descriptionUserLogin['message_'.$countUserLogin] = __('auth.login.alert.login_blocked');
+            $userLogin->where('status', 0)->update([
+                'status' => 1,
+                'count' => $countUserLogin,
+                'description' => $descriptionUserLogin
+            ]);
+            // login api failed
+            UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
+                'ip'=>request()->ip(),
+                'error'=>'ip_blocked',
+                'params'=> $authParam,
+            ]);
+            $this->setError(__('auth.login.alert.login_blocked'));
+            return $this->done();
+        }
+        
         // Log::debug($authParam);
         if(!empty($authParam['auth'])){            
             $tmpAuth = json_decode(UserAuth::decryptCredential($authParam['auth']),true);
             if (!isset($tmpAuth['username']) || !isset($tmpAuth['password'])) {
                 $this->setError(__('alert.incorect_parameter'));
                 $authParam['decrypted_auth'] = $tmpAuth;
+                // update system user login
+                $countUserLogin = $userLogin['count'] + 1;
+                $descriptionUserLogin = $userLogin['description'];
+                $descriptionUserLogin['message_'.$countUserLogin] = __('alert.incorect_parameter');
+                $userLogin->update([
+                    'count' => $countUserLogin,
+                    'description' => $descriptionUserLogin
+                ]);
                 // login api failed
                 UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
                     'ip'=>request()->ip(),
@@ -222,6 +253,14 @@ class LoginController extends BaseController
             $authParam['password'] = $tmpAuth['password'];
         }else if (!isset($authParam['username']) || !isset($authParam['password'])) {
             $this->setError(__('alert.incorect_parameter'));
+            // update system user login
+            $countUserLogin = $userLogin['count'] + 1;
+            $descriptionUserLogin = $userLogin['description'];
+            $descriptionUserLogin['message_'.$countUserLogin] = __('alert.incorect_parameter');
+            $userLogin->update([
+                'count' => $countUserLogin,
+                'description' => $descriptionUserLogin
+            ]);
             // login api failed
             UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
                 'ip'=>request()->ip(),
@@ -305,12 +344,30 @@ class LoginController extends BaseController
                 UserNotifRepo::subscribeToChannel($notifChannel, $pushParam['token']);
             }
             // UserAuth::setUser($user['id'],$token['api_token']);
+            // update system user login
+            $countUserLogin = $userLogin['count'] + 1;
+            $descriptionUserLogin = $userLogin['description'];
+            $descriptionUserLogin['message_'.$countUserLogin] = __('alert.auth_success');
+            $userLogin->update([
+                'status' => 2,
+                'description' => $descriptionUserLogin
+            ]);
             // api success
             UserLog::addLog($user['id'], 'user_auth', 'api_login_success', [
-                'ip'=>request()->ip()
+                'ip' => request()->ip(),
+                'system_user_login_id' => $userLogin['id']
             ]);
             return $this->done();
         }
+
+        // update system user login
+        $countUserLogin = $userLogin['count'] + 1;
+        $descriptionUserLogin = $userLogin['description'];
+        $descriptionUserLogin['message_'.$countUserLogin] = UserRepo::errorFull();
+        $userLogin->update([
+            'count' => $countUserLogin,
+            'description' => $descriptionUserLogin
+        ]);
 
         UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
             'ip'=>request()->ip(),
@@ -318,6 +375,7 @@ class LoginController extends BaseController
             'error_message'=>UserRepo::errorFull(),
             'params'=>$authParam,
         ]);
+
         // $this->setError(__('alert.auth_failed'));
         $this->setError(UserRepo::errorFull());
         return $this->done();

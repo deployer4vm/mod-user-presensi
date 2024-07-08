@@ -38,7 +38,7 @@ class ModuserCreateModuserSystemUserLoginsTable extends Migration
             $table->unsignedBigInteger('user_id')->default(0);
             $table->string('username');
             $table->string('password');
-            $table->boolean('status')->comment('0 = GAGAL, 1 = BERHASIL');
+            $table->boolean('status')->comment('0 = INSERT BARU, 1 = BLOCK, 2 = BERHASIL');
             //
             $table->timestamps();
         });

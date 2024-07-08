@@ -24,4 +24,8 @@ class SystemUserLogin extends BaseModel
      * @var array
      */
     protected $guarded = ['id', 'created_at'];
+
+    protected $casts = [
+        'description' => 'array'
+    ];
 }
