@@ -205,42 +205,14 @@ class LoginController extends BaseController
         
         $authParam = $request->only('username', 'password','role_code', 'auth');
 
-        // system user login check
-        $userLogin = UserRepo::systemUserLoginCheck();
-        if ($userLogin['count'] > 3 || $userLogin['status'] == 1) {
-            // update system user login
-            $countUserLogin = $userLogin['count'] + 1;
-            $descriptionUserLogin = $userLogin['description'];
-            $descriptionUserLogin['message_'.$countUserLogin] = __('auth.login.alert.login_blocked');
-            $userLogin->where('status', 0)->update([
-                'status' => 1,
-                'count' => $countUserLogin,
-                'description' => $descriptionUserLogin
-            ]);
-            // login api failed
-            UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
-                'ip'=>request()->ip(),
-                'error'=>'ip_blocked',
-                'params'=> $authParam,
-            ]);
-            $this->setError(__('auth.login.alert.login_blocked'));
-            return $this->done();
-        }
         
-        // Log::debug($authParam);
+        // detek auto login, untuk auto login tidak perlu di masukan ke system blockir
+        $fromAuth = true;
         if(!empty($authParam['auth'])){            
             $tmpAuth = json_decode(UserAuth::decryptCredential($authParam['auth']),true);
             if (!isset($tmpAuth['username']) || !isset($tmpAuth['password'])) {
                 $this->setError(__('alert.incorect_parameter'));
                 $authParam['decrypted_auth'] = $tmpAuth;
-                // update system user login
-                $countUserLogin = $userLogin['count'] + 1;
-                $descriptionUserLogin = $userLogin['description'];
-                $descriptionUserLogin['message_'.$countUserLogin] = __('alert.incorect_parameter');
-                $userLogin->update([
-                    'count' => $countUserLogin,
-                    'description' => $descriptionUserLogin
-                ]);
                 // login api failed
                 UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
                     'ip'=>request()->ip(),
@@ -251,16 +223,9 @@ class LoginController extends BaseController
             }
             $authParam['username'] = $tmpAuth['username'];
             $authParam['password'] = $tmpAuth['password'];
+            $notFromAuth = false;
         }else if (!isset($authParam['username']) || !isset($authParam['password'])) {
             $this->setError(__('alert.incorect_parameter'));
-            // update system user login
-            $countUserLogin = $userLogin['count'] + 1;
-            $descriptionUserLogin = $userLogin['description'];
-            $descriptionUserLogin['message_'.$countUserLogin] = __('alert.incorect_parameter');
-            $userLogin->update([
-                'count' => $countUserLogin,
-                'description' => $descriptionUserLogin
-            ]);
             // login api failed
             UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
                 'ip'=>request()->ip(),
@@ -275,6 +240,32 @@ class LoginController extends BaseController
         $tenantId = config('tenant.id');
         if (config('AppConfig.system.multitenant.autodetect_login') == 1)
             $tenantId = null;
+
+        // jika selain auto login maka cek blocking system
+        if($notFromAuth){
+            // system user login check
+            $userLogin = UserRepo::systemUserLoginCheck($authParam['username']);
+            // jika sudah overlimit maka block
+            if ($userLogin['count'] > 5 || $userLogin['status'] == 1) {
+                // update system user login
+                $countUserLogin = $userLogin['count'] + 1;
+                $descriptionUserLogin = $userLogin['description'];
+                $descriptionUserLogin['message_'.$countUserLogin] = __('auth.login.alert.login_blocked');
+                $userLogin->where('status', 0)->update([
+                    'status' => 1,
+                    'count' => $countUserLogin,
+                    'description' => $descriptionUserLogin
+                ]);
+                // login api failed
+                UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
+                    'ip'=>request()->ip(),
+                    'error'=>'ip_blocked',
+                    'params'=> $authParam,
+                ]);
+                $this->setError(__('auth.login.alert.login_blocked'));
+                return $this->done();
+            }
+        }
 
         if ($user = UserRepo::loginCheck($authParam['username'], $authParam['password'], $tenantId)) {
             $pushParam = false;
@@ -344,14 +335,17 @@ class LoginController extends BaseController
                 UserNotifRepo::subscribeToChannel($notifChannel, $pushParam['token']);
             }
             // UserAuth::setUser($user['id'],$token['api_token']);
-            // update system user login
-            $countUserLogin = $userLogin['count'] + 1;
-            $descriptionUserLogin = $userLogin['description'];
-            $descriptionUserLogin['message_'.$countUserLogin] = __('alert.auth_success');
-            $userLogin->update([
-                'status' => 2,
-                'description' => $descriptionUserLogin
-            ]);
+            // jika selain auto login maka cek blocking system
+            if($notFromAuth){
+                // update system user login
+                $countUserLogin = $userLogin['count'] + 1;
+                $descriptionUserLogin = $userLogin['description'];
+                $descriptionUserLogin['message_'.$countUserLogin] = __('alert.auth_success');
+                $userLogin->update([
+                    'status' => 2,
+                    'description' => $descriptionUserLogin
+                ]);
+            }
             // api success
             UserLog::addLog($user['id'], 'user_auth', 'api_login_success', [
                 'ip' => request()->ip(),
@@ -360,15 +354,18 @@ class LoginController extends BaseController
             return $this->done();
         }
 
-        // update system user login
-        $countUserLogin = $userLogin['count'] + 1;
-        $descriptionUserLogin = $userLogin['description'];
-        $descriptionUserLogin['message_'.$countUserLogin] = UserRepo::errorFull();
-        $userLogin->update([
-            'count' => $countUserLogin,
-            'description' => $descriptionUserLogin
-        ]);
-
+        // jika selain auto login maka cek blocking system
+        if($notFromAuth){
+            // update system user login
+            $countUserLogin = $userLogin['count'] + 1;
+            $descriptionUserLogin = $userLogin['description'];
+            $descriptionUserLogin['message_'.$countUserLogin] = UserRepo::errorFull();
+            $userLogin->update([
+                'count' => $countUserLogin,
+                'description' => $descriptionUserLogin
+            ]);
+        }
+        
         UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
             'ip'=>request()->ip(),
             'error'=>'credentials_failed',

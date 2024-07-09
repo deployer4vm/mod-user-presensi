@@ -220,18 +220,23 @@ class UserRepo extends BaseRepository
      * 
      * @return object
      */
-    public function systemUserLoginCheck()
+    public function systemUserLoginCheck($username)
     {
         $ipAddress = request()->ip();
         $userLogin = SystemUserLogin::where('status', '!=', 2)->updateOrCreate(
             [
                 'ip_address' => $ipAddress,
+                'username' => $username,
             ],
             [
                 'tenant_id' => config('tenant.id'),
-                'ip_address' => $ipAddress
+                'ip_address' => $ipAddress,
+                'username' => $username,
+                'type'=>2// default nya block username
             ]
         );
+
+        // TO DO - tambah fungsi untuk detek blok ipaddress
 
         return $userLogin;
     }
