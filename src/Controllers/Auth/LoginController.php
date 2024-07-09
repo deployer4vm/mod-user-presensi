@@ -246,10 +246,11 @@ class LoginController extends BaseController
             // system user login check
             $userLogin = UserRepo::systemUserLoginCheck($authParam['username']);
             // jika sudah overlimit maka block
-            if ($userLogin['count'] > 5 || $userLogin['status'] == 1) {
+            if ($userLogin->count > 5 || $userLogin->status == 1) {
+                
                 // update system user login
-                $countUserLogin = $userLogin['count'] + 1;
-                $descriptionUserLogin = $userLogin['description'];
+                $countUserLogin = $userLogin->count + 1;
+                $descriptionUserLogin = $userLogin->description;
                 $descriptionUserLogin['message_'.$countUserLogin] = __('auth.login.alert.login_blocked');
                 $userLogin->where('status', 0)->update([
                     'status' => 1,
@@ -338,9 +339,8 @@ class LoginController extends BaseController
             // jika selain auto login maka cek blocking system
             if($notFromAuth){
                 // update system user login
-                $countUserLogin = $userLogin['count'] + 1;
-                $descriptionUserLogin = $userLogin['description'];
-                $descriptionUserLogin['message_'.$countUserLogin] = __('alert.auth_success');
+                $descriptionUserLogin = $userLogin->description;
+                $descriptionUserLogin['message_loginsuccess_'.$userLogin->count] = __('alert.auth_success');
                 $userLogin->update([
                     'status' => 2,
                     'description' => $descriptionUserLogin
@@ -349,7 +349,7 @@ class LoginController extends BaseController
             // api success
             UserLog::addLog($user['id'], 'user_auth', 'api_login_success', [
                 'ip' => request()->ip(),
-                'system_user_login_id' => $userLogin['id']
+                'system_user_login_id' => $userLogin->id
             ]);
             return $this->done();
         }
@@ -357,8 +357,8 @@ class LoginController extends BaseController
         // jika selain auto login maka cek blocking system
         if($notFromAuth){
             // update system user login
-            $countUserLogin = $userLogin['count'] + 1;
-            $descriptionUserLogin = $userLogin['description'];
+            $countUserLogin = $userLogin->count + 1;
+            $descriptionUserLogin = $userLogin->description;
             $descriptionUserLogin['message_'.$countUserLogin] = UserRepo::errorFull();
             $userLogin->update([
                 'count' => $countUserLogin,

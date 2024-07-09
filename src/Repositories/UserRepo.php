@@ -223,22 +223,50 @@ class UserRepo extends BaseRepository
     public function systemUserLoginCheck($username)
     {
         $ipAddress = request()->ip();
-        $userLogin = SystemUserLogin::where('status', '!=', 2)->updateOrCreate(
-            [
-                'ip_address' => $ipAddress,
-                'username' => $username,
-            ],
-            [
-                'tenant_id' => config('tenant.id'),
-                'ip_address' => $ipAddress,
-                'username' => $username,
-                'type'=>2// default nya block username
-            ]
-        );
+        $userLogin = SystemUserLogin::where('status', '!=', 2)
+            ->where('ip_address',$ipAddress)
+            ->where('username',$username);
+
+        $needCreate = false;
+        // jika sudah ada pastikan udah lebih dari setengah jam, 
+        // jika udah setengah jam maka ulangi proses unblock
+        if($userLogin->count()){
+            $tmpUserLogin = $userLogin->first();
+            // jika sudah lebih dari setengah jam maka anggap sudah selesai
+            $setengahJam = (new Carbon($tmpUserLogin->updated_at))->addMinutes(30)->format('Y-m-d H:i:s');
+            if($setengahJam <= now()->format('Y-m-d H:i:s')){
+                $descriptionUserLogin = $tmpUserLogin->description;
+                $descriptionUserLogin['message_autounblocked_'.$tmpUserLogin->count] = __('alert.auth_success');
+                $userLogin->update([
+                    'status' => 2,
+                    'description' => $descriptionUserLogin
+                ]);
+                $needCreate = true;
+            }
+        }else{
+            $needCreate = true;
+        }
+        
+        if($needCreate){
+            $userLogin = SystemUserLogin::create(
+                [
+                    'status'=>0,
+                    'count'=>0,
+                    'tenant_id' => config('tenant.id'),
+                    'ip_address' => $ipAddress,
+                    'username' => $username,
+                    'type'=>2// default nya block username
+                ]
+            );
+            
+            $userLogin = SystemUserLogin::where('status', '!=', 2)
+                ->where('ip_address',$ipAddress)
+                ->where('username',$username);
+        }
 
         // TO DO - tambah fungsi untuk detek blok ipaddress
 
-        return $userLogin;
+        return $userLogin->first();
     }
 
     /**

@@ -57,7 +57,7 @@ return [
             'user_banned' => 'Login gagal. User diblokir',
             'user_system' => 'Login gagal. User system tidak bisa login',
             'password_fail' => 'Username atau password keliru',
-            'login_blocked' => 'Anda sudah gagal login sebanyak 5 kali, untuk sementara login diblok'
+            'login_blocked' => 'Anda sudah gagal login sebanyak 5 kali, silahkan hubungi Admin'
         ]
     ],
     //text lang di halaman register
