@@ -207,7 +207,7 @@ class LoginController extends BaseController
 
         
         // detek auto login, untuk auto login tidak perlu di masukan ke system blockir
-        $fromAuth = true;
+        $notFromAuth = true;
         if(!empty($authParam['auth'])){            
             $tmpAuth = json_decode(UserAuth::decryptCredential($authParam['auth']),true);
             if (!isset($tmpAuth['username']) || !isset($tmpAuth['password'])) {
@@ -365,7 +365,7 @@ class LoginController extends BaseController
                 'description' => $descriptionUserLogin
             ]);
         }
-        
+
         UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
             'ip'=>request()->ip(),
             'error'=>'credentials_failed',
