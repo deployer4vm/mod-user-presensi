@@ -252,7 +252,7 @@ class UserRepo extends BaseRepository
                 [
                     'status'=>0,
                     'count'=>0,
-                    'tenant_id' => config('tenant.id'),
+                    'tenant_id' => config('tenant.id', 0),
                     'ip_address' => $ipAddress,
                     'username' => $username,
                     'type'=>2// default nya block username

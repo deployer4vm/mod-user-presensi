@@ -347,10 +347,11 @@ class LoginController extends BaseController
                 ]);
             }
             // api success
-            UserLog::addLog($user['id'], 'user_auth', 'api_login_success', [
-                'ip' => request()->ip(),
-                'system_user_login_id' => $userLogin->id
-            ]);
+            $paramUserLog['ip'] = request()->ip();
+            if (isset($userLogin)) {
+                $paramUserLog['system_user_login_id'] = $userLogin->id;
+            }
+            UserLog::addLog($user['id'], 'user_auth', 'api_login_success', $paramUserLog);
             return $this->done();
         }
 
