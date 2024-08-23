@@ -48,8 +48,8 @@ class DbChannels
             // $model = $notifiable->routeNotificationFor('database');
         }
         
-        // $model = $notifiable->routeNotificationFor('database');
-        $model = (new \hpsynapse\moduser\Models\Notification());
+        $model = $notifiable->routeNotificationFor('database');
+        // $model = (new \hpsynapse\moduser\Models\Notification());
 
         return $model->create([
             'id' => $notification->id,

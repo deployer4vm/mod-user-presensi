@@ -4,6 +4,9 @@ namespace hpsynapse\moduser\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
+/**
+ * @method static bool broadcast(string $channel, \Illuminate\Notifications\Notification $notification)
+ */
 class UserNotifRepo extends Facade
 {
     /**
