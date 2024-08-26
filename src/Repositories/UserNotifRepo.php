@@ -200,7 +200,7 @@ class UserNotifRepo extends BaseRepository
         $token = ApiToken::where('push_token', $pushNotifToken)->first();
 
         $notifChannel = NotificationChannel::where('push_token', $pushNotifToken)
-            ->where('pusth_type', $token['pusth_type']);
+            ->where('push_type', $token['push_type']);
         //jika sudah tidak ada maka lewat
         if (!$notifChannel->exists()) {
             return true;

@@ -330,7 +330,7 @@ class LoginController extends BaseController
 
             //subscribekan ke channel/topic berdasarkan user role nya
             if ($request->input('pushNotifToken')) {
-                // $notifChannel[] = 'all';
+                $notifChannel[] = 'all';
                 // if($response['data']['userData']['is_admin'])$notifChannel[] = 'admin';
                 $notifChannel[] = $this->output['data']['role_code'] . '.notif.' . config('tenant.id', 0);
 

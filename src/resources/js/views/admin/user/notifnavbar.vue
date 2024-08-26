@@ -93,12 +93,7 @@ export default {
             if (this.isUsingFirebase && this.isNotifFirebase) {
                 this.setupFirebaseMessaging();
 
-                // every 1 hours get new token
-                // because to handle if token is expired
-                setInterval(() => {
-                    this.requestFirebaseToken();
-                }, 3600 * 1000);
-
+                this.requestFirebaseToken();
             }
         }
     },
@@ -200,25 +195,21 @@ export default {
                         data: payload.data
                     };
 
-                    if (Notification.permission === 'granted') {
-                        if ('serviceWorker' in navigator) {
-                            navigator.serviceWorker.ready
-                                .then((registration) => {
-                                    registration.showNotification(notificationTitle, notificationOptions);
-                                    this.Web.showAlert({
-                                        type: 'dark',
-                                        title: notificationTitle,
-                                        text: notificationOptions.body,
-                                        position: 'default'
-                                    });
-                                })
-                                .catch((error) => {
-                                    console.error('Service Worker not ready:', error);
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.ready
+                            .then((registration) => {
+                                registration.showNotification(notificationTitle, notificationOptions);
+                                this.Web.showAlert({
+                                    type: 'dark',
+                                    title: notificationTitle,
+                                    text: notificationOptions.body,
+                                    position: 'default'
                                 });
-                        }
-                    } else {
-                        console.warn('Notification permission not granted or browser does not support notifications.');
-                    }
+                            })
+                }
+                            .catch((error) => {
+                                console.error('Service Worker not ready:', error);
+                            });
                 });
             } else {
                 console.warn('Notification permission not granted or browser does not support notifications.');
