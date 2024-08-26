@@ -206,10 +206,10 @@ export default {
                                     position: 'default'
                                 });
                             })
-                }
                             .catch((error) => {
                                 console.error('Service Worker not ready:', error);
                             });
+                    }
                 });
             } else {
                 console.warn('Notification permission not granted or browser does not support notifications.');
