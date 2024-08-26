@@ -48,9 +48,9 @@ class BroadcastController extends BaseController
         UserNotifRepo::broadcast(
             channel: $topic,
             notification: new \hpsynapse\moduser\Notifications\WebdevMessage(
-                $input['title'], 
-                $input['description'], 
-                [
+                title: $input['title'],
+                body: $input['description'],
+                data: [
                     'topic' => $topic,
                     'message' => $input['message']
                 ]
