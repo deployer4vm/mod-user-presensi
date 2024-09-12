@@ -1101,7 +1101,8 @@
                         "storageBucket": "smartcoopnotiffcm.appspot.com",
                         "messagingSenderId": "864559764072",
                         "appId": "1:864559764072:web:bab7220c72e900038421dd",
-                        "measurementId": "G-K8QT9BTY1L"
+                        "measurementId": "G-K8QT9BTY1L",
+                        "vapidKey": ""
                     },
                     "realtime_database_url":"https://smartcoopnotiffcm-default-rtdb.asia-southeast1.firebasedatabase.app/"
                 }

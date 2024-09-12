@@ -111,6 +111,13 @@ class UserNotifRepo extends BaseRepository
      */
     public function doSubscribeToChannel($channelId, $pushNotifToken)
     {
+        $channel = config('AppConfig.packageLocal.moduser.notification.channels.' . $channelId);
+
+        //jika channel tidak terdaftar
+        if (!$channel) {
+            return false;
+        }
+
         $token = ApiToken::where('push_token', $pushNotifToken)->first();
 
         if ($token) {
@@ -128,7 +135,7 @@ class UserNotifRepo extends BaseRepository
             return true;
         }
 
-        NotificationChannel::create([
+        $notifchannel = NotificationChannel::create([
             'tenant_id' => config('tenant.id', 0),
             'user_id' => $token['user_id'],
             'push_type' => $token['push_type'],
@@ -147,7 +154,7 @@ class UserNotifRepo extends BaseRepository
                 break;
             case 1: //firebase                
             default:
-                FirebaseApi::subscribeToTopic($channelId, $pushNotifToken);
+                FirebaseApi::subscribeToTopic($channel['firebase'], $pushNotifToken);
                 break;
         }
         return true;
@@ -197,10 +204,17 @@ class UserNotifRepo extends BaseRepository
      */
     public function doUnsubscribeFromChannel($channelId, $pushNotifToken)
     {
+        $channel = config('AppConfig.packageLocal.moduser.notification.channels.' . $channelId);
+
+        //jika channel tidak terdaftar
+        if (!$channel) {
+            return false;
+        }
+
         $token = ApiToken::where('push_token', $pushNotifToken)->first();
 
         $notifChannel = NotificationChannel::where('push_token', $pushNotifToken)
-            ->where('push_type', $token['push_type']);
+            ->where('pusth_type', $token['pusth_type']);
         //jika sudah tidak ada maka lewat
         if (!$notifChannel->exists()) {
             return true;
@@ -218,7 +232,7 @@ class UserNotifRepo extends BaseRepository
                 break;
             case 1: //firebase                
             default:
-                FirebaseApi::unsubscribeFromTopic($channelId, $pushNotifToken);
+                FirebaseApi::unsubscribeToTopic($channel['firebase'], $pushNotifToken);
                 break;
         }
         return true;
@@ -231,25 +245,6 @@ class UserNotifRepo extends BaseRepository
     {
         $token = ApiToken::where('push_token', $oldToken)->first();
         if ($token) {
-            $token->update(['push_token' => $newToken]);
-        }
-        return true;
-    }
-
-    /**
-     * Update Token Firebase
-     * @param string $oldToken
-     * @param string $newToken
-     */
-    public function updateTokenFirebase(string $oldToken, string $newToken)
-    {
-        $token = NotificationChannel::where('push_token', $oldToken)->first();
-        if ($token) {
-            // unsubscribe from old topic
-            FirebaseApi::unsubscribeFromTopic($token->channel, $oldToken);
-            // subscribe to new topic
-            FirebaseApi::subscribeToTopic($token->channel, $newToken);
-            // update token
             $token->update(['push_token' => $newToken]);
         }
         return true;
