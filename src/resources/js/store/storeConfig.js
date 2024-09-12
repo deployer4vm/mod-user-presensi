@@ -29,4 +29,14 @@ export default {
         module: "moduserRoleLevelGroup",// nama repo
         apiEndpoint: globals().AppConfig.endpoint.api.moduser + '/role/level-group/',// alamat resource api
     },
+    // master Role -> Datarule
+    moduserRoleDatarule: {
+        module: "moduserRoleDatarule",// nama repo
+        apiEndpoint: globals().AppConfig.endpoint.api.moduser + '/role/datarule/',// alamat resource api
+    },
+    // master Config -> Dashboard
+    moduserConfigDashboard: {
+        module: "moduserConfigDashboard",// nama repo
+        apiEndpoint: globals().AppConfig.endpoint.api.moduser + '/config/dashboard/',// alamat resource api
+    },
 };

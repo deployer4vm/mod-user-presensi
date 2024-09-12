@@ -4,6 +4,7 @@ namespace hpsynapse\moduser\Repositories;
 
 use hpsynapse\moduser\Models\ApiToken;
 use Illuminate\Support\Facades\Log;
+use hpsynapse\moduser\Facades\UserAuth;
 
 trait ApiTokenTraits
 {
@@ -58,22 +59,27 @@ trait ApiTokenTraits
 
     /**
      * 
-     * @param type $userId , user id atau apps id
-     * @param type $ssoId
-     * @param type $isPermanent
-     * @param type $deviceId
+     * @param Biginteger $userId , user id atau apps id
+     * @param String $ssoId
+     * @param Boolean $isPermanent
+     * @param String $deviceId
      * @param mixed $pushDetail false jika tidak ada push, atau array jika ada push
      *      type
      *      token
-     * @return type
+     * @return Array
      */
-    public function generateToken($userId, $roleCode = '', $isPermanent = 0, $deviceId = '', $pushDetail = false)
-    {
+    public function generateToken(
+        $userId, 
+        $roleCode = '', 
+        $isPermanent = 0, 
+        $deviceId = '', 
+        $pushDetail = false
+    ){
         if (!$isPermanent && config('AppConfig.packageLocal.moduser.auth.single_login')) {
             ApiToken::where('user_id', $userId)->where('is_permanent', 0)->delete();
             Log::info('Logging out from other device');
         }
-
+        
         $data['api_token'] = hash('sha256', 'token' . $userId . '.' . now());
         $data['session_id'] = session()->exists('_token') ? session()->getId() : null;
         $data['is_permanent'] = $isPermanent;
@@ -88,9 +94,24 @@ trait ApiTokenTraits
         $data['active_role_code'] = $roleCode;
         $data['user_id'] = $userId;
         $data['tenant_id'] = config('tenant.id', 0);
+        $data['device_type'] = UserAuth::getClient()['device_type'];
 
         $apiTokenData = ApiToken::create($data);
         return $apiTokenData->toArray();
+    }
+
+    /**
+     * merge $data ke 
+     */
+    public function setApiSessionData($token,$data)
+    {
+        $tmpToken = ApiToken::where('api_token',$token)->first();
+        if($tmpToken->session_data)
+            $data = array_merge($data,$tmpToken->session_data);
+        $tmpToken->update([
+            'session_data'=>$data
+        ]);
+        return true;
     }
 
     /**

@@ -103,9 +103,10 @@ class UserController extends BaseController
      * @return Array default synapse api return
      *      data
      *          ...all user record
-     *          profile Array record user_proflie
-     *          user_role
-     *          main_role Array record role utama user
+     *          profile         Array record user_proflie
+     *          user_role       Array list
+     *          role_code       String, role code utama
+     *          main_role       Array record role utama user
      *
      */
     public function readOne(Request $request, $id)
@@ -435,6 +436,9 @@ class UserController extends BaseController
      * =================================================================
      */
 
+    /**
+     * Non-API
+     */
     public function profile(Request $request)
     {
         $this->response = 'user.profile';
@@ -470,7 +474,7 @@ class UserController extends BaseController
     }
 
     /**
-     * POST - /api/user/profile
+     * POST/PUT - /api/user/profile
      */
     public function updateProfile(Request $request)
     {
@@ -539,6 +543,10 @@ class UserController extends BaseController
         return $this->done();
     }
 
+    /**
+     * POST/PUT - /api/user/send-otp
+     * request send otp
+     */
     public function sendOtp()
     {
         if(!AuthConfig::isOTPEnabled()){

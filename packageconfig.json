@@ -70,6 +70,111 @@
         "tenant_group_id": 0,
         "has_access": 1,
         "children": {
+            "profile": {
+                "caption": {"en":"My Profile","id":"My Profile"},
+                "acl_caption": {"en":"My Profile","id":"My Profile"},
+                "acl_description": {"en":"","id":""},
+                "route": { "name": "myprofile" },
+                "class": "",
+                "is_navbar": 0,
+                "enable": 1,
+                "tenant_group_id": 0,
+                "active_acl": {
+                    "has_access": 1,
+                    "crud": {
+                        "c": 0,
+                        "r": 1,
+                        "u": 1,
+                        "d": 0
+                    }
+                },
+                "acl_config": {
+                    "show": 1,
+                    "crud": {
+                        "c": 0,
+                        "r": 1,
+                        "u": 1,
+                        "d": 0
+                    }
+                },
+                "children": {
+                    "can_edit_email": {
+                        "acl_caption": {"en":"Can Edit 'Email'","id":"Bisa edit 'Email'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },                    
+                    "can_edit_phone": {
+                        "acl_caption": {"en":"Can Edit 'Phone'","id":"Bisa edit 'Phone'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
+                    "can_edit_password": {
+                        "acl_caption": {"en":"Can Edit 'Password'","id":"Bisa edit 'Password'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    }
+                }
+            },
             "user": {
                 "caption": {"en":"Manage User","id":"Manage User"},
                 "acl_caption": {"en":"Manage User Data","id":"Manage User Data"},
@@ -333,6 +438,81 @@
                             }
                         }
                     },
+                    "can_edit_notification_config": {
+                        "acl_caption": {"en":"Can Edit 'Notification'","id":"Bisa edit 'Notification'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
+                    "can_edit_global_role": {
+                        "acl_caption": {"en":"Can Edit Global Role","id":"Can Edit Global Role"},
+                        "acl_description": {"en":"","id":""},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
+                    "can_bypass_global": {
+                        "acl_caption": {"en":"Can bypass global in tenant","id":"Can bypass global in tenant"},
+                        "acl_description": {"en":"","id":""},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
                     "can_edit_locked_data_mode": {
                         "acl_caption": {"en":"Can Edit 'locked_data_mode'","id":"Bisa edit 'locked_data_mode'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -465,6 +645,34 @@
                                         "d": 0
                                     }
                                 }
+                            }
+                        }
+                    },                    
+                    "datarule" : {
+                        "caption": {"en":"Manage Datarule","id":"Manage Datarule"},
+                        "acl_caption": {"en":"Manage Datarule","id":"Manage Datarule"},
+                        "acl_description": {"en":"","id":""},
+                        "route": { "name": "role.datarule.list" },
+                        "class": "",
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
                             }
                         }
                     }
@@ -712,6 +920,34 @@
                             }
                         }
                     },
+                    "dashboard" : {
+                        "caption": {"en":"Manage Dashboard","id":"Manage Dashboard"},
+                        "acl_caption": {"en":"Manage Dashboard","id":"Manage Dashboard"},
+                        "acl_description": {"en":"","id":""},
+                        "route": { "name": "moduser.config.dashboar" },
+                        "class": "",
+                        "is_navbar": 1,
+                        "enable": 1,
+                        "tenant_group_id": 3,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 1,
+                                "r": 1,
+                                "u": 1,
+                                "d": 1
+                            }
+                        }
+                    },
                     "setup": {
                         "caption": {"en":"Setup Config (webdev only)","id":"Setup Config (webdev only)"},
                         "acl_caption": {"en":"Setup Config","id":"Setup Config"},
@@ -787,17 +1023,6 @@
         "auth_grant" : 1,
         "single_login": 0
     },
-    "authenticator":{
-        "section":{
-            "kiosk_bayar":{
-                "section_id":"kiosk_bayar",
-                "name":"Auth",
-                "request_type":1,
-                "auth_type":2,
-                "enable":0
-            }
-        }
-    },
     "session_lifetime": 60,
     "users_hidden_field": [],
     "user_profiles": {
@@ -828,6 +1053,29 @@
         "user_level": {
             "min":1,
             "max":99
+        }
+    },
+    "datarule":{
+        "enable":1,
+        "default_datarule_type":0
+    },
+    "dashboard":{
+        "template":{
+            "default":{
+                "code":"default",
+                "view_mode":3,
+                "name":"Default Template",
+                "description":"Default Template"
+            }
+        },
+        "feature":{
+            "default.welcome":{
+                "code":"default.welcome",
+                "view_mode":3,
+                "name":"Welcome Headline",
+                "description":"",
+                "default":1
+            }
         }
     },
     "notification": {
@@ -876,6 +1124,116 @@
                 "firebase": "notifAll",
                 "pusher": "notifAll",
                 "aws_sns": "notifAll"
+            }
+        },
+        "feature": {
+            "user.otp": {
+                "code":"user.otp",
+                "name":"OTP User",
+                "class":"hpsynapse\\moduser\\Notifications\\SendOTP",
+                "show":0,
+                "channels":{
+                    "db":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "email":{
+                        "default":1,
+                        "editable_mode":0
+                    },
+                    "wa":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "sms":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "firebase":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "pusher":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "aws_ans":{
+                        "default":0,
+                        "editable_mode":0
+                    }
+                }
+            },
+            "user.activation": {
+                "code":"user.activation",
+                "name":"OTP User",
+                "class":"hpsynapse\\moduser\\Notifications\\UserActivation",
+                "show":0,
+                "channels":{
+                    "db":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "email":{
+                        "default":1,
+                        "editable_mode":0
+                    },
+                    "wa":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "sms":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "firebase":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "pusher":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "aws_ans":{
+                        "default":0,
+                        "editable_mode":0
+                    }
+                }
+            },
+            "user.email.verification": {
+                "code":"user.email.verification",
+                "name":"OTP User",
+                "class":"hpsynapse\\moduser\\Notifications\\EmailVerification",
+                "show":0,
+                "channels":{
+                    "db":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "email":{
+                        "default":1,
+                        "editable_mode":0
+                    },
+                    "wa":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "sms":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "firebase":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "pusher":{
+                        "default":0,
+                        "editable_mode":0
+                    },
+                    "aws_ans":{
+                        "default":0,
+                        "editable_mode":0
+                    }
+                }
             }
         }
     }

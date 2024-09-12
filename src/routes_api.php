@@ -58,7 +58,15 @@ $groupUser = [
 ];
 Route::get('/notification/setnotif', 'NotificationController@setnotif')->name('user.notification.setnotif');
 Route::group($groupUser,function(){
-
+    /**
+     * test auth
+     */
+    Route::group(['prefix'=>'check-auth'],function(){
+        Route::group(['middleware'=>'auth.useronly'],function(){
+            Route::get('/user', 'AuthTestController@checkUser')->name('user.api.authTest.checkUser');
+        });
+    });
+    
     /**
      * Role
      */
@@ -69,16 +77,16 @@ Route::group($groupUser,function(){
          */
         Route::group(['prefix'=>'group'],function(){
             //read list resource
-            Route::get('/', 'RoleGroupController@readList')->name('user.role.group.readList');
+            Route::get('/', 'role\RoleGroupController@readList')->name('user.role.group.readList');
             //read one resource
-            Route::get('/{id}', 'RoleGroupController@readOne')->name('user.role.group.readOne');
+            Route::get('/{id}', 'role\RoleGroupController@readOne')->name('user.role.group.readOne');
 
             //create resource
-            Route::post('/', 'RoleGroupController@create')->name('user.role.group.create');
+            Route::post('/', 'role\RoleGroupController@create')->name('user.role.group.create');
             //update resource
-            Route::put('/{id}', 'RoleGroupController@update')->name('user.role.group.update');
+            Route::put('/{id}', 'role\RoleGroupController@update')->name('user.role.group.update');
             //delete resource
-            Route::delete('/{id}', 'RoleGroupController@delete')->name('user.role.group.delete');
+            Route::delete('/{id}', 'role\RoleGroupController@delete')->name('user.role.group.delete');
         });
 
         /**
@@ -86,35 +94,52 @@ Route::group($groupUser,function(){
          */
         Route::group(['prefix'=>'level-group'],function(){
             //read list resource
-            Route::get('/', 'RoleLevelGroupController@readList')->name('user.role.levelGroup.readList');
+            Route::get('/', 'role\RoleLevelGroupController@readList')->name('user.role.levelGroup.readList');
             //read one resource
-            Route::get('/{id}', 'RoleLevelGroupController@readOne')->name('user.role.levelGroup.readOne');
+            Route::get('/{id}', 'role\RoleLevelGroupController@readOne')->name('user.role.levelGroup.readOne');
 
             //create resource
-            Route::post('/', 'RoleLevelGroupController@create')->name('user.role.levelGroup.create');
+            Route::post('/', 'role\RoleLevelGroupController@create')->name('user.role.levelGroup.create');
             //update resource
-            Route::put('/{id}', 'RoleLevelGroupController@update')->name('user.role.levelGroup.update');
+            Route::put('/{id}', 'role\RoleLevelGroupController@update')->name('user.role.levelGroup.update');
             //delete resource
-            Route::delete('/{id}', 'RoleLevelGroupController@delete')->name('user.role.levelGroup.delete');
+            Route::delete('/{id}', 'role\RoleLevelGroupController@delete')->name('user.role.levelGroup.delete');
         });
         
+        /**
+         * Datarule
+         */
+        Route::group(['prefix'=>'datarule'],function(){
+            //read list resource
+            Route::get('/', 'role\DataruleController@readList')->name('user.role.datarule.readList');
+            //read one resource
+            Route::get('/{id}', 'role\DataruleController@readOne')->name('user.role.datarule.readOne');
+
+            //create resource
+            Route::post('/', 'role\DataruleController@create')->name('user.role.datarule.create');
+            //update resource
+            Route::put('/{id}', 'role\DataruleController@update')->name('user.role.datarule.update');
+            //delete resource
+            Route::delete('/{id}', 'role\DataruleController@delete')->name('user.role.datarule.delete');
+        });
+
+        
         //read list resource
-        Route::get('/', 'RoleController@readList')->name('user.role.readList');
+        Route::get('/', 'role\RoleController@readList')->name('user.role.readList');
         //read one resource
-        Route::get('/{id}', 'RoleController@readOne')->name('user.role.readOne');
+        Route::get('/{id}', 'role\RoleController@readOne')->name('user.role.readOne');
 
         //create resource
-        Route::post('/', 'RoleController@create')->name('user.role.create');
+        Route::post('/', 'role\RoleController@create')->name('user.role.create');
         //update resource
-        Route::put('/{id}', 'RoleController@update')->name('user.role.update');
+        Route::put('/{id}', 'role\RoleController@update')->name('user.role.update');
         //delete resource
-        Route::delete('/{id}', 'RoleController@delete')->name('user.role.delete');
+        Route::delete('/{id}', 'role\RoleController@delete')->name('user.role.delete');
     });
 
     /**
      * Module User System
      */
-
     Route::group(['prefix'=>'usersystem'],function(){
         Route::get('/', 'UserSystemController@readList')->name('user.usersystem.readList');
         Route::get('/{id}', 'UserSystemController@readOne')->name('user.usersystem.readOne');
@@ -133,6 +158,38 @@ Route::group($groupUser,function(){
         Route::post('/', 'RoleSystemController@create')->name('user.rolesystem.create');
         Route::put('/{id}', 'RoleSystemController@update')->name('user.rolesystem.update');
         Route::delete('/{id}', 'RoleSystemController@delete')->name('user.rolesystem.delete');
+    });
+
+    /**
+     * Config
+     */
+    Route::group(['prefix'=>'config'],function(){
+        Route::get('/tenant', 'config\DataMasterController@tenantList')->name('user.config.tenant.readList');
+        /**
+         * Config Dashboard
+         */
+        Route::group(['prefix'=>'dashboard'],function(){
+            //read list resource
+            Route::get('/', 'config\DashboardController@getConfigDashboard')->name('user.config.dashboard.readList');
+            //create resource
+            Route::post('/', 'config\DashboardController@updateConfigDashboard')->name('user.config.dashboard.create');
+            //update resource
+            Route::put('/{id}', 'config\DashboardController@updateConfigDashboard')->name('user.config.dashboard.update');
+
+            //----------
+
+            //read list resource
+            Route::get('/', 'config\DashboardController@readList')->name('user.config.dashboard.readList');
+            //read one resource
+            Route::get('/{id}', 'config\DashboardController@readOne')->name('user.config.dashboard.readOne');
+
+            //create resource
+            Route::post('/', 'config\DashboardController@create')->name('user.config.dashboard.create');
+            //update resource
+            Route::put('/{id}', 'config\DashboardController@update')->name('user.config.dashboard.update');
+            //delete resource
+            Route::delete('/{id}', 'config\DashboardController@delete')->name('user.config.dashboard.delete');
+        });
     });
 
     /**
@@ -220,7 +277,6 @@ Route::group($groupUser,function(){
     // generate and send OTP
     Route::middleware(['auth.useronly'])->match(['put','post'],'/send-otp', 'UserController@sendOtp')->name('user.sendOtp');
     Route::middleware(['auth.useronly'])->match(['put','post'],'/validate-otp', 'UserController@validateOtp')->name('user.validateOtp');
-
 
     Route::match(['put','post'],'/{id}', 'UserController@update')->name('user.update');
     Route::put('/{id}/ban', 'UserController@ban')->name('user.ban');

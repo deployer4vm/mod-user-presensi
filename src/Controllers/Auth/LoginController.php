@@ -68,7 +68,6 @@ class LoginController extends BaseController
             $backLink = $request->input('backlink', route('dashboard'));
         }
 
-
         $response['reff'] = 'login';
 
         $request->validate([
@@ -88,13 +87,16 @@ class LoginController extends BaseController
         if (config('AppConfig.system.multitenant.autodetect_login') == 1) $tenantId = null;
 
         if ($user = UserRepo::loginCheck($authData['username'], $authData['password'], $tenantId)) {
-            if (Auth::attempt(
-                ['username' => $user['username'], 'password' => $authData['password']],
-                $request->filled('remember')
-            ) || Auth::attempt(
-                ['email' => $user['email'], 'password' => $authData['password']],
-                $request->filled('remember')
-            )) {
+            if (
+                Auth::attempt(
+                    ['username' => $user['username'], 'password' => $authData['password']],
+                    $request->filled('remember')
+                ) 
+                || Auth::attempt(
+                    ['email' => $user['email'], 'password' => $authData['password']],
+                    $request->filled('remember')
+                )
+            ) {
 
                 //$request->session()->regenerate();
                 $this->clearLoginAttempts($request);
@@ -108,7 +110,7 @@ class LoginController extends BaseController
                     UserRepo::updateUser($userData->id, ['status' => 1]);
                     UserRepo::activateUser($userData->id);
                 }
-
+                
                 UserAuth::setUser($userData->id);
 
                 $response['isLogin'] = 1;
@@ -138,6 +140,7 @@ class LoginController extends BaseController
     }
 
     /**
+     * ON PROGRESS
      * halaman yang diakses pertama oleh applikasi pengguna SSO untuk detect session
      * user saat ini
      */
@@ -204,7 +207,6 @@ class LoginController extends BaseController
         $this->forceApiOutput();
         
         $authParam = $request->only('username', 'password','role_code', 'auth');
-
         
         // detek auto login, untuk auto login tidak perlu di masukan ke system blockir
         $notFromAuth = true;
@@ -287,7 +289,7 @@ class LoginController extends BaseController
             $this->output['data']['role'] = UserRepo::listUserRole($user['id']);
             $this->output['data']['role_group'] = [];
             $this->output['data']['role_group_code'] = '';
-            // get role code utama
+            // get role code utama dan set datarule jika aktif dan ada
             foreach ($this->output['data']['role'] as $key => $val) {
                 if($val['role_group']){
                     $this->output['data']['role_group'][$val['role_group']['code']] = $val['role_group'];
@@ -318,15 +320,24 @@ class LoginController extends BaseController
             // set aktif role code
             if($this->output['data']['role'][$this->output['data']['role_code']]['role_group'])
                 $this->output['data']['role_group_code'] = $this->output['data']['role'][$this->output['data']['role_code']]['role_group']['code'];
+            
+            $this->output['data']['role_level_group'] = UserRepo::getRoleLevelGroup(
+                ['level'=>$this->output['data']['role'][$this->output['data']['role_code']]['level']]
+            );
 
             // $this->output['data']['role'] = UserRepo::listUserRole($user['id']);
             // generate token
             $token = UserRepo::generateToken($user['id'], $this->output['data']['role_code'], 0, $request->input('deviceId', ''), $pushParam);
             $this->output['data']['token'] = $token['api_token'];
 
-            $this->output['data']['role_level_group'] = UserRepo::getRoleLevelGroup(
-                ['level'=>$this->output['data']['role'][$this->output['data']['role_code']]['level']]
-            );
+            UserRepo::setApiSessionData($token['api_token'],[
+                'user'=>$this->output['data']['user'],
+                'role'=>$this->output['data']['role'],//
+                'role_code'=>$this->output['data']['role_code'],//string
+                'role_group'=>$this->output['data']['role_group'],//array, list role group
+                'role_group_code'=>$this->output['data']['role_group_code'],//string
+                'role_level_group'=>$this->output['data']['role_level_group']//string
+            ]);
 
             //subscribekan ke channel/topic berdasarkan user role nya
             if ($request->input('pushNotifToken')) {
@@ -335,6 +346,7 @@ class LoginController extends BaseController
 
                 UserNotifRepo::subscribeToChannel($notifChannel, $pushParam['token']);
             }
+
             // UserAuth::setUser($user['id'],$token['api_token']);
             // jika selain auto login maka cek blocking system
             if($notFromAuth){
@@ -346,11 +358,17 @@ class LoginController extends BaseController
                     'description' => $descriptionUserLogin
                 ]);
             }
+            
             // api success
-            $paramUserLog['ip'] = request()->ip();
+            $paramUserLog = [
+                'ip' => request()->ip(),
+                'device_type' => $token['device_type']
+            ];
+
             if (isset($userLogin)) {
                 $paramUserLog['system_user_login_id'] = $userLogin->id;
             }
+
             UserLog::addLog($user['id'], 'user_auth', 'api_login_success', $paramUserLog);
             return $this->done();
         }

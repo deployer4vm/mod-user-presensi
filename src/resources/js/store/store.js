@@ -5,11 +5,13 @@ import roleStore from "./modules/role";
 import usersystem from "./modules/usersystem";
 import rolesystem from "./modules/rolesystem";
 import authConfig from "./modules/authConfig";
+import userConfig from "./modules/config";
 import moduserView from "./storeView";
 
 export default { 
     moduserView, 
     authConfig,
+    userConfig,
     authenticator: authenticatorStore,
     user: userStore, 
     role: roleStore, 

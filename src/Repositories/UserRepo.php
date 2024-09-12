@@ -4,7 +4,7 @@ namespace hpsynapse\moduser\Repositories;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
-// use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -22,6 +22,9 @@ use hpsynapse\moduser\Models\UserGroup;
 use hpsynapse\moduser\Models\Role;
 use hpsynapse\moduser\Models\RoleLevelGroup;
 use hpsynapse\moduser\Models\UserOTP;
+use hpsynapse\moduser\Models\Datarule;
+use hpsynapse\moduser\Models\DataruleFeature;
+use hpsynapse\moduser\Models\UserDatarule;
 // use hpsynapse\moduser\Models\ApiToken;
 use Illuminate\Support\Str;
 
@@ -191,8 +194,7 @@ class UserRepo extends BaseRepository
         $user['profile'] = $userData->profile ? $userData->profile->toArray() : [];
         
         return $user;
-    }   
-
+    }
     
     private function _loginCheck_matchImprintingCode($password, $userData)
     {
@@ -418,6 +420,21 @@ class UserRepo extends BaseRepository
     public function getUser($where)
     {
         $user = $this->_getOne(User::with(['profile', 'mainRole', 'otp']), $where);
+        if ($user) {
+            return $this->_formatUser($user);
+        }
+        return false;
+    }
+    
+    /**
+     * get 1 record user beserta profile nya
+     *
+     * @param type              $userId
+     * @return array|false      jika tidak ada
+     */
+    public function getUserSystem($where)
+    {
+        $user = $this->_getOne(User::where('system_user',1), $where);
         if ($user) {
             return $this->_formatUser($user);
         }
@@ -1097,7 +1114,6 @@ class UserRepo extends BaseRepository
         $this->error = __('auth.resetpassword_fail_verificationcodeinvalid');
         return false;
     }
-
     
     public function deleteResetPasswordToken($email)
     {
@@ -1105,13 +1121,10 @@ class UserRepo extends BaseRepository
                 ->where('email', $email)->first()->delete();
     }
 
-
-
     /**
      * general helper
      * =======================================================================
      */
-
 
     /**
      * update format nomor telepon menja
@@ -1174,36 +1187,61 @@ class UserRepo extends BaseRepository
     /**
      *
      * @param String $userId    
+     * @param Array $config
+     *      withoutTime         default true
+     *      mainRoleOnly        default false
+     *      filterByClient      default true
      * 
      * @return boolean|array    list role user, format mirip data role di APPSSession 
      *                          plus data user role group nya jika ada
      */
-    public function listUserRole($userId, $withoutTime = true, $mainRoleOnly = false, $filterByClient = true)
+    public function listUserRole($userId, $config = [])
     {
+        // config('AppConfig.packageLocal.moduser.datarule.enable',0);
+        // config('AppConfig.packageLocal.moduser.datarule.default_datarule_type',0);
+
+        if(!array_key_exists('withoutTime',$config))$config['withoutTime'] = true;
+        if(!array_key_exists('mainRoleOnly',$config))$config['mainRoleOnly'] = false;
+        if(!array_key_exists('filterByClient',$config))$config['filterByClient'] = true;
+
         $response = [];
         $userRoleData = UserRole::where('user_id', $userId);
-        if ($mainRoleOnly) {
+
+        if ($config['mainRoleOnly']) {
             $userRoleData->where('is_main_role', 1);
         }
+
         $userRoleData = $userRoleData->get();
         if (!$userRoleData) return false;
         foreach ($userRoleData as $value) {
-            $roleData = Role::with(['roleGroup'])->where('id', $value->role_id)->first();
+            $roleData = Role::with(UserAuth::isDataruleActive()?['roleGroup','datarule']:['roleGroup'])
+                ->where('id', $value->role_id)
+                ->first();
             if ($roleData) {
-                $roleData = $roleData->toArray();
-                if (!UserAuth::isH2H() && $filterByClient) {
+                $roleData = $roleData->append('dashboard')->toArray();
+                if (!UserAuth::isH2H() && $config['filterByClient']) {
                     $roleData = $this->_listUserRole_filterByClient($roleData);
                 }
                 $roleData['is_main_role'] = $value->is_main_role;
                 $roleData['has_auth_grant'] = $value->has_auth_grant;
 
-                if ($withoutTime) {
+                if ($config['withoutTime'])
                     unset($roleData['created_at'], $roleData['updated_at']);
-                }
-
+                
                 // get additional identity data 
                 if($roleData['role_group'] && $roleData['role_group']['has_model']){
                     $roleData['role_group']['data'] = $roleData['role_group']['model']::where('user_id',$userId)->first();
+                }
+
+                if(UserAuth::isDataruleActive() && $roleData['datarule']){
+                    $tmpDatarule = Datarule::whereHas('userDatarule',function($m) use($value){
+                        $m->where('user_id',$value->user_id)->where('role_id',$value->role_id);
+                    })->first();
+
+                    if($tmpDatarule){
+                        $roleData['datarule'] = $tmpDatarule->toArray();
+                        $roleData['datarule_active'] = $this->initDatarule($roleData['datarule'],$userId);
+                    }
                 }
 
                 $response[$roleData['role_code']] = $roleData;
@@ -1219,12 +1257,34 @@ class UserRepo extends BaseRepository
 
         return $response;
     }
+
+    private function initDatarule($datarule,$userId)
+    {
+        $return = [];
+        if($datarule['type']==1){
+            $return['datarule_type']=1;
+            $return['datarule_subtype']=0;
+            $return['datarule_type_value']=$userId;
+
+        // jika selain
+        }else if($datarule['type']==2){
+            $return['datarule_type']=$datarule['type'];
+            $return['datarule_subtype']=$datarule['subtype'];
+            $return['datarule_type_value']=explode(',',trim($datarule['type_value'],','));
+
+        // jika custom
+        }else{
+            $tmpConfig = config('AppConfig.packageLocal.moduser.datarule.custom.'.$datarule['subtype'].'.initdata',[]);
+            $return = $tmpConfig['class']::$tmpConfig['method']($datarule,$userId);
+        }
+        return $return;
+    }
     
     private function _listUserRole_filterByClient($roleData)
     {
         $clientData = UserAuth::getClient();
         if(empty($clientData))return $roleData;
-        $clientRoles = $this->listUserRole($clientData['id'], true, true, false);
+        $clientRoles = $this->listUserRole($clientData['id'], ['mainRoleOnly'=>true,'filterByClient'=>false]);
         $firstRole = reset($clientRoles);
         if (!is_array($firstRole['rule'])) {
             $firstRole['rule'] = json_decode($firstRole['rule'], true);
@@ -1443,6 +1503,21 @@ class UserRepo extends BaseRepository
             'level' => $role->level
         ]);
     }
+
+    /**
+     * 
+     */
+    public function changeUsersRoleCode($oldRoleCode,$newRoleCode,$tenantId=false)
+    {
+        $model = new User();
+
+        if($tenantId!==false)
+            $model = $model->setTenantId($tenantId);
+                
+        return $model->update([
+                'role' => DB::raw("REPLACE(role,';".$oldRoleCode.";',';".$newRoleCode.";')")
+            ]);
+    }
     
     /**
      * Un-assign role dari user
@@ -1518,87 +1593,6 @@ class UserRepo extends BaseRepository
         $user->roles()->where('has_auth_grant');
         return User::find($userId)->update(['status' => 2]);
     }
-
-    /**
-     * Belum selesai 
-     * TO DO! LUPA BUAT APA, NANTI DELETE AJA KALO GA ADA ERROR
-     */
-    /*public function updateRole($userId, $userData = null)
-    {
-
-        if (isset($userData['role']) && is_array($userData['role'])) {
-            $userRole = UserRole::where('user_id', $userId)->pluck('role_code')->toArray();
-
-            $hasIsMainRole = 0;
-            foreach ($userData['role'] as $value) {
-                //simpan semua nama role yg dipilih untuk keperluan delete role yg tidak dipilih
-                $role[] = $value['role_code'];
-                if (isset($value['role_code']) && $value['role_code']) {
-                    //tandai apakah ada is_main_role yg dipilih, jika tidak ada maka
-                    //nanti di proses selanjutnya tambahkan is_main_role ke member
-                    if (isset($value['is_main_role']) && $value['is_main_role']) {
-                        $hasIsMainRole++;
-                    }
-                    //inputkan role baru yang dipipilih
-                    if (!in_array($value['role_code'], $userRole)) {
-                        $this->addUserRole(
-                            $userId,
-                            $value['role_code'],
-                            isset($value['is_main_role']) && $value['is_main_role'] ? 1 : 0,
-                            isset($value['has_auth_grant']) && $value['has_auth_grant'] ? 1 : 0,
-                            false
-                        );
-                        //update role yang memang sebelumnya telah ada
-                    } else {
-
-                        $this->updateUserRole([
-                            'user_id' => $userId,
-                            'role_code' => $value['role_code']
-                        ], [
-                            'is_main_role' => isset($value['is_main_role']) && $value['is_main_role'] ? 1 : 0,
-                            'has_auth_grant' => isset($value['has_auth_grant']) && $value['has_auth_grant'] ? 1 : 0
-                        ]);
-                    }
-                }
-            }
-
-            foreach ($userRole as $value) {
-                //hapus role lama yang tidak dipilih
-                if (!in_array($value, $role)) {
-                    $this->deleteUserRole($userId, $value);
-                }
-            }
-
-            //jika tidak memilih main role atau yg dipilih lebih dari 1 maka
-            //set members sebagai main role
-            if (!$hasIsMainRole || $hasIsMainRole > 1) {
-
-                $this->updateUserRole([
-                    'user_id' => $userId,
-                    'role_code' => 'member'
-                ], ['is_main_role' => 1]);
-            }
-            unset($userData['role']);
-        }
-
-        //        if(isset($userData['is_main_role']) && is_array($userData['has_auth_grant'])){
-        //            foreach ($userData['role_code'] as $key => $value) {
-        //                if(!in_array($value, $userData['has_auth_grant'])){
-        //                    UserRole::where(['user_id' => $userId,'role_code' => $value])->update(['has_auth_grant'=>0]);
-        //                }
-        //            }
-        //
-        //            foreach ($userData['has_auth_grant'] as $item) {
-        //                if(in_array($item, $userData['role_code'])){
-        //                    UserRole::where(['user_id' => $userId,'role_code' => $item])->update(['has_auth_grant'=>1]);
-        //                }
-        //            }
-        //
-        //            UserRole::where('user_id', $userId)->update(['is_main_role'=>0]);
-        //            UserRole::where(['user_id' => $userId,'role_code' => $userData['is_main_role']])->update(['is_main_role'=>1]);
-        //        }
-
-    }*/
 
     /**
      * USER GROUP

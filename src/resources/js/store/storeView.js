@@ -134,6 +134,102 @@ const state = {
      * ROLE
      * -------------------------------------------------------------------------
      */
+    // role
+    dataRole:{
+        formData: {
+            isAdd:false,
+            form: {
+                id: 0,
+                // tenant_group_id: 0,
+                tenant_id: 0,
+                //
+                role_group_id: 0,
+                role_group_code: '',
+                datarule_id: 0,
+                datarule_code: '',
+                dashboard_type:0,
+                //
+                role_code: "",
+                level: 2,
+                role_type: 1,
+                system_user: 0,
+                name: "",
+                rule: {},
+                locked_data_mode: 0,
+                //
+                bypass_rule:0,
+                bypass_datarule:0,
+                bypass_dashboard:0,
+                bypass_notification:0,
+                //
+                is_global:0,
+                global_bypass_rule:0,
+                global_bypass_datarule:0,
+                global_bypass_dashboard:0,
+                global_bypass_notification:0,
+                //
+                // global:{},// format
+                global:[
+                    {// index 0 untuk general
+                        tenant_id: 0,
+                        global_bypass_rule: 0,
+                        global_bypass_datarule: 0,
+                        global_bypass_dashboard: 0,
+                        global_bypass_notification: 0,
+                    }
+                ],
+            },
+            formEmpty: {
+                id: 0,
+                // tenant_group_id: 0,
+                tenant_id: 0,
+                //
+                role_group_id: 0,
+                role_group_code: '',
+                datarule_id: 0,
+                datarule_code: '',
+                dashboard_type:0,
+                //
+                role_code: "",
+                level: 2,
+                role_type: 1,
+                system_user: 0,
+                name: "",
+                rule: {},
+                locked_data_mode: 0,
+                //
+                bypass_rule:0,
+                bypass_datarule:0,
+                bypass_dashboard:0,
+                bypass_notification:0,
+                //
+                is_global:0,
+                global_bypass_rule:0,
+                global_bypass_datarule:0,
+                global_bypass_dashboard:0,
+                global_bypass_notification:0,
+                //
+                // global:{},// format
+                global:[
+                    {// index 0 untuk general
+                        tenant_id: 0,
+                        global_bypass_rule: 0,
+                        global_bypass_datarule: 0,
+                        global_bypass_dashboard: 0,
+                        global_bypass_notification: 0,
+                    }
+                ],
+
+            },            
+            formGlobalEmpty:{// tenant id
+                tenant_id: 0,
+                global_bypass_rule:0,
+                global_bypass_datarule:0,
+                global_bypass_dashboard:0,
+                global_bypass_notification:0,
+            },
+        }
+    },
     // role -> group
     dataRoleGroup: {
         defaultModalSize: "md",
@@ -243,6 +339,10 @@ const getters = {
      * ROLE
      * -------------------------------------------------------------------------
      */
+    // role
+    dataRole(state) {
+        return state.dataRole;
+    },
     // role -> group
     dataRoleGroup(state) {
         return state.dataRoleGroup;
@@ -276,6 +376,10 @@ const mutations = {
      * ROLE
      * -------------------------------------------------------------------------
      */
+    // role
+    setDataRole(state, value) {
+        state.dataRole = value;
+    },
     // role -> group
     setDataRoleGroup(state, value) {
         state.dataRoleGroup = value;

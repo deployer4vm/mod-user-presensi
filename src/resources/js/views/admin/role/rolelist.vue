@@ -70,6 +70,13 @@
                                 <span> {{ Trans.get('role.level_group.name') }}</span>
                             </b-dropdown-item>
 
+                            <b-dropdown-item
+                                v-if="UserAuth.hasAccess(accessRuleKey+'.datarule', 'has_access')"
+                                :to="{name: 'role.datarule.list'}">
+                                <i class="fi fi-rr-list"></i>
+                                <span> {{ Trans.get('role.datarule.name') }}</span>
+                            </b-dropdown-item>
+
                         </b-dropdown>
                         <router-link 
                             v-if="UserAuth.hasAccess(accessRuleKey, 'c')" 
@@ -148,26 +155,71 @@
                         <b-badge v-if="data.item.role_group" variant="outline-success">{{ data.item.role_group.code }}</b-badge>
                         <template v-else>not grouped</template>
                     </template>
+
                     <template v-slot:cell(role_type)="data">                        
                         <b-badge v-if="data.item.role_type==1" variant="outline-info">Standard</b-badge>
                         <b-badge v-else variant="outline-warning">Non-Login role</b-badge>
+                    </template>
+                    
+                    <template v-slot:cell(is_global)="data">                        
+                        <b-badge v-if="data.item.is_global==1" variant="outline-warning">Default Role</b-badge>
+                        <!-- <b-badge v-else variant="outline-info">Starnda</b-badge> -->
                     </template>
 
                     <template v-slot:cell(actions)="data">
                         <div class="d-flex align-items-center justify-content-center">
                             <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
-                            <router-link class="btn btn-dark icon-btn btn-sm" :title="Trans.get('lang.edit')" :to="{ name: 'role.edit', params: { roleId: data.item.id } }" v-if="(UserAuth.hasAccess(accessRuleKey, 'u') && data.item.locked_data_mode!=2) || UserAuth.isWebdev()">
+
+                            <!-- EDIT -->
+                            <router-link class="btn btn-dark icon-btn btn-sm" :title="Trans.get('lang.edit')" :to="{ name: 'role.edit', params: { roleId: data.item.id } }" 
+                                v-if="(UserAuth.hasAccess(accessRuleKey, 'u') && data.item.locked_data_mode!=2) || UserAuth.isWebdev()">
                                 <i class="fi fi-rs-edit"></i>
                             </router-link>
+                            
+                            <template v-if="UserAuth.hasAccess(accessRuleKey, 'u') && data.item.locked_data_mode==0" >
+                                <router-link
+                                    class="btn btn-dark btn-sm"
+                                    :to="{ name: 'role.edit.rule', params: { roleId: data.item.id } }" 
+                                    v-if="isOnTenantManager && canEditRoleRule && (data.item.is_global==0 || data.item.global_bypass_rule)"
+                                >
+                                    Manage Rule
+                                </router-link>
+                                <!-- TO DO - Fitur config notifikasi per role -->
+                                <!-- <router-link 
+                                    class="btn btn-dark btn-sm"
+                                    :to="{ name: 'role.edit.notification', params: { roleId: data.item.id } }" 
+                                    v-if="canEditNotificationConfig && (data.item.is_global==0 || isOnTenantManager || data.item.global_bypass_notification)"
+                                >
+                                    Manage Notification
+                                </router-link> -->
+                            </template>
 
-                            <b-btn class="btn btn-danger icon-btn btn-sm" :title="Trans.get('lang.delete')" @click="deleteRole(data.item.id)" v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.locked_data_mode==0">
+                            <!-- DELETE -->
+                            <b-btn 
+                                v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.locked_data_mode==0 && (data.item.is_global==0 || isOnTenantManager)"
+                                class="btn btn-danger icon-btn btn-sm" :title="Trans.get('lang.delete')" @click="deleteRole(data.item.id)">
                                 <i class="fi fi-rs-trash"></i>
                             </b-btn>
-                            <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
-                            <template slot="button-content">
-                                <i class="ion ion-ios-settings"></i>
-                            </template>
-                            <b-dropdown-item @click="deleteRole(data.item.id)">Remove</b-dropdown-item>
+
+                            <!-- <b-dropdown
+                                v-if="UserAuth.hasAccess(accessRuleKey, 'u') && data.item.locked_data_mode==0" 
+                                variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
+                                <template slot="button-content">
+                                    <i class="ion ion-ios-settings"></i>
+                                </template>
+                                <b-dropdown-item 
+                                    :to="{ name: 'role.edit.rule', params: { roleId: data.item.id } }" 
+                                    v-if="isOnTenantManager && canEditRoleRule && (data.item.is_global==0 || data.item.global_bypass_rule)"
+                                >
+                                    Manage Rule
+                                </b-dropdown-item>
+                                
+                                <b-dropdown-item 
+                                    :to="{ name: 'role.edit', params: { roleId: data.item.id } }" 
+                                    v-if="canEditNotificationConfig && (data.item.is_global==0 || isOnTenantManager || data.item.global_bypass_notification)"
+                                >
+                                    Manage Notification
+                                </b-dropdown-item>
                             </b-dropdown> -->
                         </div>
                     </template>
@@ -243,6 +295,12 @@
             canEditRoleType() {
                 return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_type') || this.UserAuth.isWebdev();
             },
+            canEditRoleRule() {
+                return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_rule') || this.UserAuth.isWebdev();
+            },  
+            canEditNotificationConfig() {
+                return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_notification_config') || this.UserAuth.isWebdev();
+            },  
         },
         watch: {
             curPage(v) {
@@ -447,6 +505,15 @@
                 },
                 {
                     key: "role_type",
+                    sortable: true,
+                    tdClass: "align-middle",
+                    tdAttr: {
+                        "data-lable": this.Trans.get("")
+                    }
+                },
+                {
+                    key: "is_global",
+                    label: this.Trans.get("role.field_caption.is_global"),
                     sortable: true,
                     tdClass: "align-middle",
                     tdAttr: {
