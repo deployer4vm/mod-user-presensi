@@ -158,7 +158,7 @@
             <div class="text-right mt-3">
                 <b-btn variant="primary w-icon" @click="save">
                     <i class="fi fi-rs-disk"></i>
-                    <span>{{Trans.get('lang.save_change')}}</span>
+                    <span>{{ isAdd ? Trans.get('lang.save') : Trans.get('lang.save_change') }}</span>
                 </b-btn>
             </div>
         </b-container>

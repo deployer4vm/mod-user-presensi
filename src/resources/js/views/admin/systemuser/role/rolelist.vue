@@ -1,401 +1,447 @@
 <template>
     <div>
-        <!-- Filters -->
-        <!-- <div class="ui-bordered px-4 pt-4 mb-4">
-      <div class="form-row align-items-center">
-        <div class="col-md mb-4">
-          <label class="form-label">Role</label>
-          <b-select v-model="filterRole" :options="['Any', 'SPV', 'Manager Bagian', 'Manager Utama', 'Enjin']" />
-        </div>
-        <div class="col-md mb-4">
-          <label class="form-label">Status</label>
-          <b-select v-model="filterStatus" :options="['Any', 'Active', 'Banned', 'Deleted']" />
-        </div>
-        <div class="col-md col-xl-2 mb-4">
-          <label class="form-label d-none d-md-block">&nbsp;</label>
-          <b-btn variant="secondary" :block="true">Show</b-btn>
-        </div>
-      </div>
-    </div> -->
-        <!-- / Filters -->
-        <header-breadcrumb :pageTitle="pageTitle" :backPath="{name: 'systemuser.list'}" />
+        <header-breadcrumb 
+            :pageTitle="pageTitle"
+            :backPath="{name: 'systemuser.list'}"
+        />
 
-        <b-card class="my-3" no-body>
-            <b-card-body>
-                <div class="d-flex flex-column flex-md-row justify-content-between">
-                    <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
-                        <b-btn 
-                            v-b-toggle.filter-block
-                            variant="default btn-sm w-icon w-50 w-md-auto btn-collapse">
-                            <i class="fi fi-rs-filter"></i>
-                            <span>{{ Trans.get('lang.filter') }}</span>
-                        </b-btn>
-                    </div>
-                    <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
-                        <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'c')" class="btn btn-sm btn-primary w-icon" :to="{ name: 'systemuser.role.add' }">
-                            <i class="fi fi-rs-add"></i>
-                            <span>{{ Trans.get("role.rolelist.add_new_role") }}</span>
-                        </router-link>
-                    </div>
-                </div>
-                    
-
-                <b-collapse id="filter-block">
-                    <hr />
-                    <b-row>
-                        <b-col md="6" xl>
-                            <b-form-group :label="Trans.get('pagination.per_page')">
-                                <b-select v-model="perPage" :options="[10, 20, 30, 40, 50]" class="form-control"/>
-                            </b-form-group>
-                        </b-col>
-                        <!-- Pencarian -->
-                        <b-col md="6" xl>
-                            <b-form-group :label="Trans.get('lang.search')">
-                                <b-input-group>
-                                    <b-input
-                                        placeholder="Search..." @keyup.enter="doSearch" v-model="searchString"/>
-                                        <b-input-group-append>
-                                            <b-btn
-                                                variant="secondary"
-                                                @click="doSearch"
-                                                class="btn-icon">
-                                                <i class="fi fi-rs-search"></i>
-                                            </b-btn>
-                                        </b-input-group-append>
-                                </b-input-group>
-                            </b-form-group>
-                        </b-col>
-                    </b-row>
-                </b-collapse>
-            </b-card-body>
-        </b-card>
-
-
-        <b-card class="my-3" no-body>
-
-            <!-- Table -->
-            <!-- <hr class="border-light m-0" /> -->
-
-            <b-card-header>
-                <h5 class="my-1">
-                    Manage Role
-                </h5>
-            </b-card-header>
-
-            <div class="table-responsive mb-0">
-                <b-table :items="listData.data" :fields="fields" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :striped="true" hover class="card-table">
-                    <!-- <template v-slot:cell(tenant)="data">
-                        {{ data.item.tenant ? data.item.tenant.name : "" }}
-                    </template>
-
-                    <template v-slot:cell(tenant_group)="data">
-                        {{ data.item.tenant_group ? data.item.tenant_group.name : "" }}
-                    </template> -->
-
-                    <template v-slot:cell(role_code)="data">
-                        <b-badge variant="outline-secondary">{{ data.item.role_code }}</b-badge>
-                    </template>
-
-                    <template v-slot:cell(actions)="data">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
-                            <router-link class="btn btn-dark icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.edit')" :to="{ name: 'systemuser.role.edit', params: { roleId: data.item.id } }" v-if="UserAuth.hasAccess(accessRuleKey, 'u')">
-                                <i class="fi fi-rs-edit"></i>
-                            </router-link>
-
-                            <b-btn class="btn btn-danger icon-btn btn-sm md-btn-flat" :title="Trans.get('lang.delete')" @click="deleteRole(data.item)" v-if="UserAuth.hasAccess(accessRuleKey, 'd')">
-                                <i class="fi fi-rs-trash"></i>
+        <b-container fluid>
+            <!-- Filter dll -->
+            <b-card class="my-3" no-body>
+                <b-card-body>
+                    <div class="d-flex flex-column flex-md-row justify-content-between">
+                        <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+                            <b-btn 
+                                v-b-toggle.filter-block
+                                variant="default btn-sm w-icon w-50 w-md-auto btn-collapse"
+                                title="Trans.get('lang.filter')"
+                            >
+                                <i class="fi fi-rs-filter"></i>
+                                <span>{{ Trans.get('lang.filter') }}</span>
                             </b-btn>
-                            <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
-                            <template slot="button-content">
-                                <i class="ion ion-ios-settings"></i>
-                            </template>
-                            <b-dropdown-item @click="deleteRole(data.item.id)">Remove</b-dropdown-item>
-                            </b-dropdown> -->
                         </div>
-                    </template>
-                </b-table>
-            </div>
+                        <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+                            <router-link 
+                                v-if="UserAuth.hasAccess(accessRuleKey, 'c')" 
+                                class="btn btn-sm btn-primary w-icon" 
+                                :to="{ name: 'systemuser.role.add' }"
+                                title="Trans.get('role.rolelist.add_new_role')"
+                            >
+                                <i class="fi fi-rs-add"></i>
+                                <span>{{ Trans.get("role.rolelist.add_new_role") }}</span>
+                            </router-link>
+                        </div>
+                    </div>
+                    
+                    <b-collapse id="filter-block">
+                        <hr />
+                        <b-row>
+                            <b-col md="6" xl>
+                                <b-form-group :label="Trans.get('pagination.per_page')">
+                                    <b-select 
+                                        v-model="perPage" 
+                                        :options="[10, 20, 30, 40, 50]"
+                                        class="form-control"
+                                    />
+                                </b-form-group>
+                            </b-col>
+                            <!-- Pencarian -->
+                            <b-col md="6" xl>
+                                <b-form-group :label="Trans.get('lang.search')">
+                                    <b-input-group>
+                                        <b-input
+                                            placeholder="Search..." @keyup.enter="doSearch" v-model="searchString"/>
+                                            <b-input-group-append>
+                                                <b-btn
+                                                    variant="secondary"
+                                                    @click="doSearch"
+                                                    class="btn-icon"
+                                                    :title="Trans.get('lang.search')"
+                                                >
+                                                    <i class="fi fi-rs-search"></i>
+                                                </b-btn>
+                                            </b-input-group-append>
+                                    </b-input-group>
+                                </b-form-group>
+                            </b-col>
+                        </b-row>
+                    </b-collapse>
+                </b-card-body>
+            </b-card>
+            <!-- / Filter dll -->
 
-            <!-- Pagination -->
-            <b-card-footer class="flex-md-row flex-column justify-content-center justify-content-md-between align-items-center flex-wrap">
-                <span class="text-muted" v-if="listData.count">{{ Trans.get("pagination.page_of", { curPage: curPage, totalPages: totalPages }) }}</span>
-                <b-pagination class="justify-content-center justify-content-sm-end m-0" v-if="listData.count" v-model="curPage" :total-rows="listData.count" :per-page="perPage" size="sm" />
-            </b-card-footer>
-            <!-- / Pagination -->
-        </b-card>
+            <!-- Data -->
+            <b-card class="my-3" no-body>
+                <!-- Header -->
+				<b-card-header>
+					<div class="d-flex justify-content-between align-items-center flex-wrap">
+						<h5 class="my-1">
+                            Manage Role
+                        </h5>
+					</div>
+				</b-card-header>
+                <!-- / Header -->
+
+                <!-- Table -->
+                <div class="table-responsive mb-0">
+                    <b-table
+                        :items="listData.data"
+                        :fields="fields"
+                        :sort-by.sync="sortBy"
+                        :sort-desc.sync="sortDesc"
+                        :striped="true"
+                        hover
+                        class="card-table"
+                    >
+                        <!-- <template v-slot:cell(tenant)="data">
+                            {{ data.item.tenant ? data.item.tenant.name : "" }}
+                        </template>
+
+                        <template v-slot:cell(tenant_group)="data">
+                            {{ data.item.tenant_group ? data.item.tenant_group.name : "" }}
+                        </template> -->
+
+                        <template v-slot:cell(role_code)="data">
+                            <b-badge variant="outline-secondary">
+                                {{ data.item.role_code }}
+                            </b-badge>
+                        </template>
+
+                        <template v-slot:cell(actions)="data">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="fi fi-rs-edit"></i></b-btn> -->
+                                <router-link 
+                                    class="btn btn-dark icon-btn btn-sm md-btn-flat" 
+                                    :title="Trans.get('lang.edit')" 
+                                    :to="{ name: 'systemuser.role.edit', params: { roleId: data.item.id } }" 
+                                    v-if="UserAuth.hasAccess(accessRuleKey, 'u')"
+                                >
+                                    <i class="fi fi-rs-edit"></i>
+                                </router-link>
+
+                                <b-btn 
+                                    class="btn btn-danger icon-btn btn-sm md-btn-flat"
+                                    :title="Trans.get('lang.delete')"
+                                    @click="deleteRole(data.item)" 
+                                    v-if="UserAuth.hasAccess(accessRuleKey, 'd')"
+                                >
+                                    <i class="fi fi-rs-trash"></i>
+                                </b-btn>
+                                <!-- <b-dropdown variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
+                                <template slot="button-content">
+                                    <i class="ion ion-ios-settings"></i>
+                                </template>
+                                <b-dropdown-item @click="deleteRole(data.item.id)">Remove</b-dropdown-item>
+                                </b-dropdown> -->
+                            </div>
+                        </template>
+                    </b-table>
+                </div>
+                <!-- / Table -->
+
+                <!-- Pagination -->
+                <b-card-footer
+                    v-if="listData.count"
+                    class="flex-md-row flex-column justify-content-center justify-content-md-between align-items-center flex-wrap" 
+                >
+                    <span class="text-muted">
+                        {{ Trans.get('pagination.page_of_data', {
+                            'curPage' : curPage,
+                            'totalPages' : totalPages,
+                            'totalData' : Format.formatNumber(listData.count)
+                        }) }}
+                    </span>
+                    <b-pagination
+                        class="justify-content-center justify-content-sm-end m-0" 
+                        v-model="curPage" 
+                        :total-rows="listData.count" 
+                        :per-page="perPage" 
+                        size="sm" 
+                    />
+                </b-card-footer>
+                <!-- / Pagination -->
+            </b-card>
+        </b-container>
     </div>
 </template>
 
 <style src="@/vendor/libs/vue-flatpickr-component/vue-flatpickr-component.scss" lang="scss"></style>
 
 <script>
-    import flatPickr from "node_modules/vue-flatpickr-component";
+import flatPickr from "node_modules/vue-flatpickr-component";
 
-    export default {
-        name: "pages-role-list",
-        metaInfo() {
-            return { title: this.pageTitle };
-        },
-        components: {
-            flatPickr,
-        },
-        data() {
-            return {
-                accessRuleKey: "moduser.system_user",
-                // START ----FI listing option
-                sortBy: "id",
-                sortDesc: false,
-                perPage: 10,
-                curPage: 1,
-                searchString: "",
-                loadParams: {},
-                roleItems: {},
-                filterRole: "all",
-                filterStatus: "all",
-                // END ---- listing option
+export default {
+    name: "pages-role-list",
 
-                fields: [],
-            };
-        },
+    metaInfo() {
+        return { title: this.pageTitle };
+    },
 
-        computed: {
-            listData: {
-                get() {
-                    return this.$store.state.rolesystem.roleList;
-                },
-                set(value) {
-                    this.$store.commit("rolesystem/setRoleList", value);
-                },
-            },
-            pageTitle() {
-                return this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.role.caption);
-            },
-            listRole() {
+    components: {
+        flatPickr,
+    },
+
+    data() {
+        return {
+            accessRuleKey: "moduser.system_user",
+            // START ----FI listing option
+            sortBy: "id",
+            sortDesc: false,
+            perPage: 10,
+            curPage: 1,
+            searchString: "",
+            loadParams: {},
+            roleItems: {},
+            filterRole: "all",
+            filterStatus: "all",
+            // END ---- listing option
+
+            fields: [],
+        };
+    },
+
+    computed: {
+        listData: {
+            get() {
                 return this.$store.state.rolesystem.roleList;
             },
-            totalItems() {
-                return this.usersData.length;
-            },
-            totalPages() {
-                return Math.ceil(this.listData.count / this.perPage);
+            set(value) {
+                this.$store.commit("rolesystem/setRoleList", value);
             },
         },
-        watch: {
-            curPage(v) {
-                this.loadData(v, this.searchString, this.sortBy, this.sortDesc);
-            },
-            perPage(v) {
-                this.loadData(this.curPage, this.searchString, this.sortBy, this.sortDesc);
-            },
-            sortBy(v) {
-                this.loadData(this.curPage, this.searchString, v, this.sortDesc);
-            },
-            sortDesc(v) {
-                this.loadData(this.curPage, this.searchString, this.sortBy, v);
-            },
-            filterRole(v) {
-                this.loadData(this.curPage, this.searchString, this.sortBy, this.sortDesc);
-            },
-            filterStatus(v) {
-                this.loadData(this.curPage, this.searchString, this.sortBy, this.sortDesc);
-            },
-            // searchString(v) {
-            //     const val = v.toLowerCase();
-            //     var that = this;
-            //     clearTimeout(this.suggestTimeout);
-            //     this.suggestTimeout = setTimeout(function() {
-            //         that.loadData(1, val);
-            //     }, 300);
-            // },
+        pageTitle() {
+            return this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.role.caption);
         },
-        methods: {
-            doSearch() {
-                this.loadData(this.curPage,this.searchString,this.sortBy,this.sortDesc);
-            },
-            loadData(curPage, q = "", orderBy = false, sortDesc = false) {
-                var offset = this.perPage * (curPage - 1);
-                this.loadParams = {};
-
-                this.loadParams.limit = this.perPage;
-                this.loadParams.offset = offset;
-                if(this.$route.fullPath === "/user/systemuserrole"){
-                    this.loadParams.system_role = 1;
-                }
-
-                if (q != "") {
-                    this.loadParams.q = q;
-                }
-
-                if (orderBy != false) {
-                    this.loadParams.orderBy = orderBy;
-                    this.loadParams.orderType = sortDesc ? "DESC" : "ASC";
-                }
-
-                if (this.filterRole != "all") {
-                    this.loadParams.role_code = this.filterRole;
-                }
-
-                if (this.filterStatus != "all") {
-                    this.loadParams.status = this.filterStatus;
-                }
-
-                this.$store.dispatch("rolesystem/roleList", this.loadParams);
-                // .then((res)=>{
-                //     _.forEach(res.data,(v,i)=>{
-                //         v.roles = v.role.split(';');
-                //     });
-                //     this.listData.data = res.data;
-                //     // this.$store.commit("user/setUserList", this.listData);
-                //     // console.log('data : ',this.listData);
-                // });
-            },
-            deleteRole(role) {
-                if (!this.UserAuth.hasAccess(this.accessRuleKey, "d")) {
-                    //goto dashboard current tenant
-                    this.Web.goToCurrentTenant();
-                    this.Web.showAlert({ text: this.Trans.get("alert.access_denied"), style: "warning" });
-                    return false;
-                }
-
-                if(this.$route.fullPath !== "/user/systemuserrole" && role.system_role == true){
-                    this.Web.showAlert({ text: this.Trans.get("alert.access_denied"), style: "warning" });
-                    return false;
-                }
-
-                this.Web.showAlert({
-                    styleType: "modal",
-                    style: "warning",
-                    title: "Delete Confirmation",
-                    text: "Are you sure ?",
-                    modalButtonCancel: "No",
-                    modalButtonOk: "Yes",
-                    onOk: () => {
-                        this.$store
-                            .dispatch("rolesystem/delete", role.id)
-                            .then((res) => {
-                                this.Web.showAlert({ text: "Data deleted" });
-                                this.loadData(1);
-                            })
-                            .catch((res) => {
-                                this.Web.showAlert({ text: "Delete fail", style: "warning" });
-                            });
-                    },
-                });
-            },
-            initView() {
-                this.Web.setModule("moduser");
-
-                this.Web.setNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption));
-                // this.Web.appendNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.PSBBI.access.children.module.caption));
-
-                this.Web.resetBreadcrumb();
-                this.Web.addBreadcrumb(this.Trans.get('lang.home'));
-                this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.caption));
-                this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption),{name:'systemuser.list'});
-                this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.role.caption));
-                // this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.PSBBI.access.children.merchant.children.insurance.caption));
-
-                this.Web.setBodyWithPadding(false);
-                this.Web.setShow("moduser");
-            },
+        listRole() {
+            return this.$store.state.rolesystem.roleList;
         },
-        created() {
-            if (!this.UserAuth.hasAccess(this.accessRuleKey)) {
+        totalItems() {
+            return this.usersData.length;
+        },
+        totalPages() {
+            return Math.ceil(this.listData.count / this.perPage);
+        },
+    },
+
+    watch: {
+        curPage(v) {
+            this.loadData(v, this.searchString, this.sortBy, this.sortDesc);
+        },
+        perPage(v) {
+            this.loadData(this.curPage, this.searchString, this.sortBy, this.sortDesc);
+        },
+        sortBy(v) {
+            this.loadData(this.curPage, this.searchString, v, this.sortDesc);
+        },
+        sortDesc(v) {
+            this.loadData(this.curPage, this.searchString, this.sortBy, v);
+        },
+        filterRole(v) {
+            this.loadData(this.curPage, this.searchString, this.sortBy, this.sortDesc);
+        },
+        filterStatus(v) {
+            this.loadData(this.curPage, this.searchString, this.sortBy, this.sortDesc);
+        },
+        // searchString(v) {
+        //     const val = v.toLowerCase();
+        //     var that = this;
+        //     clearTimeout(this.suggestTimeout);
+        //     this.suggestTimeout = setTimeout(function() {
+        //         that.loadData(1, val);
+        //     }, 300);
+        // },
+    },
+
+    methods: {
+        doSearch() {
+            this.loadData(this.curPage,this.searchString,this.sortBy,this.sortDesc);
+        },
+        loadData(curPage, q = "", orderBy = false, sortDesc = false) {
+            var offset = this.perPage * (curPage - 1);
+            this.loadParams = {};
+
+            this.loadParams.limit = this.perPage;
+            this.loadParams.offset = offset;
+            if(this.$route.fullPath === "/user/systemuserrole"){
+                this.loadParams.system_role = 1;
+            }
+
+            if (q != "") {
+                this.loadParams.q = q;
+            }
+
+            if (orderBy != false) {
+                this.loadParams.orderBy = orderBy;
+                this.loadParams.orderType = sortDesc ? "DESC" : "ASC";
+            }
+
+            if (this.filterRole != "all") {
+                this.loadParams.role_code = this.filterRole;
+            }
+
+            if (this.filterStatus != "all") {
+                this.loadParams.status = this.filterStatus;
+            }
+
+            this.$store.dispatch("rolesystem/roleList", this.loadParams);
+            // .then((res)=>{
+            //     _.forEach(res.data,(v,i)=>{
+            //         v.roles = v.role.split(';');
+            //     });
+            //     this.listData.data = res.data;
+            //     // this.$store.commit("user/setUserList", this.listData);
+            //     // console.log('data : ',this.listData);
+            // });
+        },
+        deleteRole(role) {
+            if (!this.UserAuth.hasAccess(this.accessRuleKey, "d")) {
                 //goto dashboard current tenant
                 this.Web.goToCurrentTenant();
                 this.Web.showAlert({ text: this.Trans.get("alert.access_denied"), style: "warning" });
                 return false;
             }
-            this.initView();
 
-            this.loadData(1);
-            this.fields = [
-                {
-                    key: "id",
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": "No"
-                    }
-                },
-
-                {
-                    key: "name"
-                    , label: this.Trans.get("role.field_caption.name"),
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": this.Trans.get("role.field_caption.name")
-                    }
-                },
-
-                {
-                    key: "level",
-                    label: this.Trans.get("role.field_caption.level"),
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": this.Trans.get("role.field_caption.level")
-                    }
-                },
-
-                // {
-                //     key: "tenant",
-                //     label: this.Trans.get("role.field_caption.tenant"),
-                //     sortable: true,
-                //     tdClass: "align-middle",
-                //     tdAttr: {
-                //         "data-lable": this.Trans.get("role.field_caption.tenant")
-                //     }
-                // },
-
-                // {
-                //     key: "tenant_group",
-                //     label: this.Trans.get("role.field_caption.tenant_group"),
-                //     sortable: true,
-                //     tdClass: "align-middle",
-                //     tdAttr: {
-                //         "data-lable": this.Trans.get("role.field_caption.tenant_group")
-                //     }
-                // },
-
-                {
-                    key: "role_code",
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": this.Trans.get("")
-                    }
-                },
-
-                {
-                    key: "actions",
-                    label: " ",
-                    tdClass: "text-nowrap align-middle text-center col-action",
-                    tdAttr: {
-                        "data-lable": ""
-                    }
-                },
-            ];
-
-            if (!(this.UserAuth.hasAccess(this.accessRuleKey, "u") || this.UserAuth.hasAccess(this.accessRuleKey, "d"))) {
-                this.fields.splice(5, 1);
+            if(this.$route.fullPath !== "/user/systemuserrole" && role.system_role == true){
+                this.Web.showAlert({ text: this.Trans.get("alert.access_denied"), style: "warning" });
+                return false;
             }
-            //jika tidak menggunakan system tenant maka hilangkan kolom tenant
-            if (this.AppConfig.system.multitenant.active == 0) {
-                this.fields.splice(3, 2);
-            } else {
-                if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("tenant_group")) {
-                    this.fields.splice(4, 1);
-                }
-                if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("tenant")) {
-                    this.fields.splice(3, 1);
-                }
-                if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("level")) {
-                    this.fields.splice(2, 1);
-                }
-            }
+
+            this.Web.showAlert({
+                styleType: "modal",
+                style: "warning",
+                title: "Delete Confirmation",
+                text: "Are you sure ?",
+                modalButtonCancel: "No",
+                modalButtonOk: "Yes",
+                onOk: () => {
+                    this.$store
+                        .dispatch("rolesystem/delete", role.id)
+                        .then((res) => {
+                            this.Web.showAlert({ text: "Data deleted" });
+                            this.loadData(1);
+                        })
+                        .catch((res) => {
+                            this.Web.showAlert({ text: "Delete fail", style: "warning" });
+                        });
+                },
+            });
         },
-    };
+        initView() {
+            this.Web.setModule("moduser");
+
+            this.Web.setNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption));
+            // this.Web.appendNavbarTitle(this.Trans.chose(this.AppConfig.packageLocal.PSBBI.access.children.module.caption));
+
+            this.Web.resetBreadcrumb();
+            this.Web.addBreadcrumb(this.Trans.get('lang.home'));
+            this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.caption));
+            this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.system_user.caption),{name:'systemuser.list'});
+            this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.role.caption));
+            // this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.PSBBI.access.children.merchant.children.insurance.caption));
+
+            this.Web.setBodyWithPadding(false);
+            this.Web.setShow("moduser");
+        },
+    },
+
+    created() {
+        if (!this.UserAuth.hasAccess(this.accessRuleKey)) {
+            //goto dashboard current tenant
+            this.Web.goToCurrentTenant();
+            this.Web.showAlert({ text: this.Trans.get("alert.access_denied"), style: "warning" });
+            return false;
+        }
+        this.initView();
+
+        this.loadData(1);
+        this.fields = [
+            {
+                key: "id",
+                sortable: true,
+                thStyle: "width: 50px",
+                tdClass: "align-middle text-center",
+                tdAttr: {
+                    "data-lable": "No"
+                }
+            },
+
+            {
+                key: "name"
+                , label: this.Trans.get("role.field_caption.name"),
+                sortable: true,
+                tdClass: "align-middle",
+                tdAttr: {
+                    "data-lable": this.Trans.get("role.field_caption.name")
+                }
+            },
+
+            {
+                key: "level",
+                label: this.Trans.get("role.field_caption.level"),
+                sortable: true,
+                tdClass: "align-middle text-center",
+                tdAttr: {
+                    "data-lable": this.Trans.get("role.field_caption.level")
+                }
+            },
+
+            // {
+            //     key: "tenant",
+            //     label: this.Trans.get("role.field_caption.tenant"),
+            //     sortable: true,
+            //     tdClass: "align-middle",
+            //     tdAttr: {
+            //         "data-lable": this.Trans.get("role.field_caption.tenant")
+            //     }
+            // },
+
+            // {
+            //     key: "tenant_group",
+            //     label: this.Trans.get("role.field_caption.tenant_group"),
+            //     sortable: true,
+            //     tdClass: "align-middle",
+            //     tdAttr: {
+            //         "data-lable": this.Trans.get("role.field_caption.tenant_group")
+            //     }
+            // },
+
+            {
+                key: "role_code",
+                sortable: true,
+                tdClass: "align-middle",
+                tdAttr: {
+                    "data-lable": this.Trans.get("")
+                }
+            },
+
+            {
+                key: "actions",
+                label: " ",
+                thStyle: "width: 120px",
+                tdClass: "text-nowrap align-middle text-center col-action",
+                tdAttr: {
+                    "data-lable": ""
+                }
+            },
+        ];
+
+        if (!(this.UserAuth.hasAccess(this.accessRuleKey, "u") || this.UserAuth.hasAccess(this.accessRuleKey, "d"))) {
+            this.fields.splice(5, 1);
+        }
+        //jika tidak menggunakan system tenant maka hilangkan kolom tenant
+        if (this.AppConfig.system.multitenant.active == 0) {
+            this.fields.splice(3, 2);
+        } else {
+            if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("tenant_group")) {
+                this.fields.splice(4, 1);
+            }
+            if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("tenant")) {
+                this.fields.splice(3, 1);
+            }
+            if (this.AppConfig.packageLocal.moduser.role_hidden_field.includes("level")) {
+                this.fields.splice(2, 1);
+            }
+        }
+    },
+};
 </script>
