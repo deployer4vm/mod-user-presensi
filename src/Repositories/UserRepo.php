@@ -1212,9 +1212,10 @@ class UserRepo extends BaseRepository
 
         // pastikan ada main role, jika tidak ada set satu teratas
         if(!UserRole::where('user_id', $userId)->where('is_main_role',1)->exists()){
-            UserRole::where('user_id', $userId)->first()->update([
-                'is_main_role'=>1
-            ]);
+            if(UserRole::where('user_id', $userId)->first())
+                UserRole::where('user_id', $userId)->first()->update([
+                    'is_main_role'=>1
+                ]);
         }
 
         return $response;
