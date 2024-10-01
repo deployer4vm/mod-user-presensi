@@ -1456,7 +1456,8 @@ class UserRepo extends BaseRepository
         }
 
         //delete role dari user role
-        $roleData = $this->_delete(new UserRole, [
+        // $roleData = 
+        $this->_delete(new UserRole, [
             ['user_id',$userId],
             ['role_id',$role['id']]
         ]);
@@ -1474,7 +1475,8 @@ class UserRepo extends BaseRepository
             'role_level' => $this->generateUserRoleLevel($userId)
         ]);
 
-        return $roleData;
+        // return $roleData;
+        return true;
     }
 
     public function checkSystemUser($id)
