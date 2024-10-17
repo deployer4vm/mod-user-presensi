@@ -114,7 +114,7 @@ trait UserMessageTraits
         }
         
         $userData['verifyCode'] = $this->generateEmailVerfifyCode($userData['email']);
-        $userData['verifyUrl'] = route('emailVerification',[
+        $userData['verifyUrl'] = route('auth.emailVerification',[
             'email' => $userData['email'],
             'verifyCode' => $userData['verifyCode']
             ]);

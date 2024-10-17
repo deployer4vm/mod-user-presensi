@@ -21,10 +21,10 @@ class VerificationController extends BaseController
                         
         //jika verified
         if(!UserRepo::varifyEmail($data['email'],$data['verifyCode'])){
-            return redirect()->route('emailVerification.fail', ['error_message'=>UserRepo::error()]);
+            return redirect()->route('auth.emailVerification.fail', ['error_message'=>UserRepo::error()]);
         }
         
-        return redirect()->route('emailVerification.success');        
+        return redirect()->route('auth.emailVerification.success');        
     }
     
     /**
