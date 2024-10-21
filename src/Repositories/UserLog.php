@@ -18,6 +18,7 @@ class UserLog extends BaseRepository
     
     public function addLog($user_id,$section,$subsection=false,$log=false)
     {
+        $logData['ip_address'] = request()->ip();
         $logData['user_id'] = $user_id;
         $logData['section'] = $section;
         $logData['subsection'] = $subsection;
