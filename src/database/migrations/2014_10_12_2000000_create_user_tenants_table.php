@@ -17,15 +17,17 @@ class CreateUserTenantsTable extends Migration
     public function up()
     {
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::create('user_tenants', function (Blueprint $table) {
-                $table->bigIncrements('id');
+            if (!Schema::hasTable('user_tenants')) {
+                Schema::create('user_tenants', function (Blueprint $table) {
+                    $table->bigIncrements('id');
 
-                $table->unsignedBigInteger('tenant_id')->default(0)->comment('tenant id, 0 : berarti sistem tidak multi tenant, atau data di tenant manager');
-                $table->unsignedBigInteger('user_id')->default(0);
-                
-                $table->timestamps();
+                    $table->unsignedBigInteger('tenant_id')->default(0)->comment('tenant id, 0 : berarti sistem tidak multi tenant, atau data di tenant manager');
+                    $table->unsignedBigInteger('user_id')->default(0);
+                    
+                    $table->timestamps();
 
-            });
+                });
+            }
         }
         
         // create table di database/table per-tenant

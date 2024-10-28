@@ -41,6 +41,8 @@ class WebTokenAuth
                 );
             }
         }
+        
+        $request->query->remove('token');
 
         UserAuth::setUser($token['user_id'],$apiTokenData);
         return $next($request);

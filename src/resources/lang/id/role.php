@@ -10,6 +10,18 @@ return [
         'locked_data_mode' => 'Accessibility',
         'role_group_id' => 'Role Group',
         'role_type' => 'Role Type',
+        'dashboard_type' => 'Dashboard',
+        'datarule_id' => 'Datarule',
+        'tenant_id' => 'Tenant',
+        'is_global' => 'Global Config',
+        'global_bypass_rule' => 'Rule bisa diedit di tenant',
+        'global_bypass_datarule' => 'Datarule bisa diedit di tenant',
+        'global_bypass_dashboard' => 'Dashboard bisa diedit di tenant',
+        'global_bypass_notification' => 'Notification bisa diedit di tenant',
+        
+        'bypass_rule' => 'Replace Rule di tenant',
+        'bypass_datarule' => 'Replace Pilihan Datarule di tenant',
+        'bypass_dashboard' => 'Replace Pilihan Dashboard di tenant',
     ],
     'rolelist' => [
         'add_new_role' => 'Tambah Role'
@@ -29,7 +41,20 @@ return [
         'uncheck_all' => 'Uncheck All',
     ],
     'role'=>[
-        'name'=>'Role',
+        'name'=>'Role',        
+        'label' => [
+            // 'global_config'=>'Global Config',
+            // 'locked_data_mode_0' => 'Public',
+            // 'locked_data_mode_1' => 'Tidak bisa didelete',
+            // 'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
+        ],
+    ],
+
+    // general lavel
+    'label' => [
+        'locked_data_mode_0' => 'Public',
+        'locked_data_mode_1' => 'Tidak bisa didelete',
+        'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
     ],
 
     // rule group
@@ -100,6 +125,28 @@ return [
                 'level_end' => '',
                 'name' => 'Masukan nama...',
                 'description' => 'Masukan keterangan (opsional)...'
+            ],
+        ],
+    ],
+    
+    'datarule'=>[
+        'name'=>'Manage Data Rule',
+        'data_datarule' => [
+            'name' => 'Data Rule',
+            'field_name' => [
+                'code' => 'Kode',
+                'name' => 'Nama',
+                // 'has_model' => 'Has Model',
+                // 'model' => 'Model',
+                // 'dashboard_type' => 'Tipe Dashboard',
+                // 'can_selected_on_create' => 'Bisa Dipilih Saat Create User',
+                // 'description' => 'Keterangan',
+                'locked_data_mode' => 'Accessibility',
+            ],
+            'label' => [
+                // 'locked_data_mode_0' => 'Public',
+                // 'locked_data_mode_1' => 'Tidak bisa didelete',
+                // 'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
             ],
         ],
     ],

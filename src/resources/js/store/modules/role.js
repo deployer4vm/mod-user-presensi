@@ -75,7 +75,7 @@ const actions = {
                 commit("setRole", res.data.data);
                 return res.data.data;
             });
-    }
+    },
 };
 
 const role = {

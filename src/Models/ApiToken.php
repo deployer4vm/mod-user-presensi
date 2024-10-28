@@ -24,4 +24,13 @@ class ApiToken extends Authenticatable
      * @var array
      */
     protected $guarded = ['id', 'created_at'];
+    
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'session_data' => 'array',
+    ];
 }

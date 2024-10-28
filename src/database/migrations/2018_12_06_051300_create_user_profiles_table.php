@@ -17,24 +17,26 @@ class CreateUserProfilesTable extends Migration
     public function up()
     {
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::create('user_profiles', function (Blueprint $table) {
-                $table->increments('id');
-                $table->unsignedInteger('user_id');
-                
-                $table->string('avatar')->default('');
+            if (!Schema::hasTable('user_profiles')) {
+                Schema::create('user_profiles', function (Blueprint $table) {
+                    $table->increments('id');
+                    $table->unsignedInteger('user_id');
+                    
+                    $table->string('avatar')->default('');
 
-                $table->boolean('gender')->default(0);
-                
-                $table->date('date_of_birth')->nullable();
-                
-                $table->string('socnet_facebook')->default('');
-                $table->string('socnet_instagram')->default('');
-                $table->string('address')->default('');
-                            
-                $table->string('postal_code')->default('');
-                            
-                $table->timestamps();
-            });
+                    $table->boolean('gender')->default(0);
+                    
+                    $table->date('date_of_birth')->nullable();
+                    
+                    $table->string('socnet_facebook')->default('');
+                    $table->string('socnet_instagram')->default('');
+                    $table->string('address')->default('');
+                                
+                    $table->string('postal_code')->default('');
+                                
+                    $table->timestamps();
+                });
+            }
         }
         
         // create table di database/table per-tenant

@@ -17,19 +17,13 @@ use App\Base\BaseRepository;
 class UserNotifRepo extends BaseRepository
 {
     use UserMessageTraits;
-    
+
     protected $available_channer;
-    
-    public function addMessage()
-    {
-        
-    }
-    
-    public function deleteMessage()
-    {
-        
-    }
-    
+
+    public function addMessage() {}
+
+    public function deleteMessage() {}
+
     /**
      * 
      * @param int $userId
@@ -42,130 +36,126 @@ class UserNotifRepo extends BaseRepository
      * @param type $limit
      * @return type
      */
-    public function listNotif($userId,$filter=false,$offset=0,$limit=10)
+    public function listNotif($userId, $filter = false, $offset = 0, $limit = 10)
     {
         $user = User::find($userId);
-        if(!$user)return [];
-        
-        $model = $user->notifications()->where('notifiable_id',$userId)
-            ->orderBy('created_at','DESC');
-        
+        if (!$user) return [];
+
+        $model = $user->notifications()->where('notifiable_id', $userId)
+            ->orderBy('created_at', 'DESC');
+
         $filter['searchField'] = ['name', 'email', 'phone'];
-        $filter['function'] = function($data) use ($filter) {
-            if(isset($filter['type'])&&$filter['type']){
+        $filter['function'] = function ($data) use ($filter) {
+            if (isset($filter['type']) && $filter['type']) {
                 $data = $data->where(
                     'type',
                     'LIKE',
-                    '%\\Notifications\\'.$filter['type']
-                    );
+                    '%\\Notifications\\' . $filter['type']
+                );
             }
             return $data;
         };
-        if(isset($filter['type']))unset($filter['type']);
-        if(isset($filter['readStatus']))unset($filter['readStatus']);
+        if (isset($filter['type'])) unset($filter['type']);
+        if (isset($filter['readStatus'])) unset($filter['readStatus']);
         $data = $this->_list(
-            $model, $filter, $offset, $limit
+            $model,
+            $filter,
+            $offset,
+            $limit
         );
 
         return $data;
     }
-    
+
     /**
      * Notif channel
      * =========================================================================
-     */    
+     */
     public function subscribeToAll($pushNotifToken)
     {
-        return $this->subscribeToChannel('all',$pushNotifToken);
+        return $this->subscribeToChannel('all', $pushNotifToken);
     }
     public function subscribeToReseller($pushNotifToken)
     {
-        return $this->subscribeToChannel('reseller',$pushNotifToken);
+        return $this->subscribeToChannel('reseller', $pushNotifToken);
     }
     public function subscribeToMember($pushNotifToken)
     {
-        return $this->subscribeToChannel('member',$pushNotifToken);
+        return $this->subscribeToChannel('member', $pushNotifToken);
     }
     public function subscribeToAdmin($pushNotifToken)
     {
-        return $this->subscribeToChannel('admin',$pushNotifToken);
+        return $this->subscribeToChannel('admin', $pushNotifToken);
     }
     public function subscribeToErrorlog($pushNotifToken)
     {
-        return $this->subscribeToChannel('errorlog',$pushNotifToken);
+        return $this->subscribeToChannel('errorlog', $pushNotifToken);
     }
-    
-    public function subscribeToChannel($channelIds,$pushNotifToken)
+
+    public function subscribeToChannel($channelIds, $pushNotifToken)
     {
-        if(!is_array($channelIds))$channelIds = [$channelIds];
-        
+        if (!is_array($channelIds)) $channelIds = [$channelIds];
+
         foreach ($channelIds as $channelId) {
-            if(config('AppConfig.packageLocal.moduser.notification.use_jobs')){
-                \hpsynapse\moduser\Jobs\PushSubscribe::dispatch($channelId,$pushNotifToken);
-            }else{
-                return $this->doSubscribeToChannel($channelId,$pushNotifToken);
+            if (config('AppConfig.packageLocal.moduser.notification.use_jobs')) {
+                \hpsynapse\moduser\Jobs\PushSubscribe::dispatch($channelId, $pushNotifToken);
+            } else {
+                return $this->doSubscribeToChannel($channelId, $pushNotifToken);
             }
-        }   
+        }
     }
     /**
      * 
      * @param string $channelId channel/topic nya
      * @param mixed $pushNotifToken
      */
-    public function doSubscribeToChannel($channelId,$pushNotifToken)
+    public function doSubscribeToChannel($channelId, $pushNotifToken)
     {
-        $channel = config('AppConfig.packageLocal.moduser.notification.channels.'.$channelId);
-        
-        //jika channel tidak terdaftar
-        if(!$channel){
-            return false;  
-        }
-                
-        $token = ApiToken::where('push_token',$pushNotifToken)->first();
-        
-        if($token){
+        $token = ApiToken::where('push_token', $pushNotifToken)->first();
+
+        if ($token) {
             $token = $token->toArray();
-        //jika token tidak terdaftar maka tolak
-        }else{
+            //jika token tidak terdaftar maka tolak
+        } else {
             return false;
         }
-        
+
         //jika sudah terdaftar maka cuekin
-        if(NotificationChannel::where('push_token',$pushNotifToken)
-            ->where('push_type',$token['push_type'])
-            ->exists()){
+        if (NotificationChannel::where('push_token', $pushNotifToken)
+            ->where('push_type', $token['push_type'])
+            ->exists()
+        ) {
             return true;
         }
-        
-        $notifchannel = NotificationChannel::create([
-            'tenant_id' => config('tenant.id',0),
+
+        NotificationChannel::create([
+            'tenant_id' => config('tenant.id', 0),
             'user_id' => $token['user_id'],
             'push_type' => $token['push_type'],
             'push_token' => $token['push_token'],
             'channel' => $channelId,
         ]);
-        
+
         switch ($token['push_type']) {
-            case 2://pusher
+            case 2: //pusher
                 //...
                 //$channel['pusher']
                 break;
-            case 3://aws_sns
+            case 3: //aws_sns
                 //...
                 //$channel['aws_sns']
                 break;
-            case 1://firebase                
+            case 1: //firebase                
             default:
-                FirebaseApi::subscribeToTopic($channel['firebase'],$pushNotifToken);
+                FirebaseApi::subscribeToTopic($channelId, $pushNotifToken);
                 break;
         }
         return true;
-        
     }
     /**
      * -------------------------------------------------------------------------
      */
-     
+
     /**
      * 
      * @param type $pushNotifToken
@@ -173,31 +163,31 @@ class UserNotifRepo extends BaseRepository
      */
     public function unsubscribeFromAll($pushNotifToken)
     {
-        return $this->unsubscribeFromChannel('all',$pushNotifToken);
+        return $this->unsubscribeFromChannel('all', $pushNotifToken);
     }
     public function unsubscribeFromReseller($pushNotifToken)
     {
-        return $this->unsubscribeFromChannel('reseller',$pushNotifToken);
+        return $this->unsubscribeFromChannel('reseller', $pushNotifToken);
     }
     public function unsubscribeFromMember($pushNotifToken)
     {
-        return $this->subscribeToChannel('member',$pushNotifToken);
+        return $this->subscribeToChannel('member', $pushNotifToken);
     }
     public function unsubscribeFromAdmin($pushNotifToken)
     {
-        return $this->subscribeToChannel('admin',$pushNotifToken);
+        return $this->subscribeToChannel('admin', $pushNotifToken);
     }
     public function unsubscribeFromErrorlog($pushNotifToken)
     {
-        return $this->unsubscribeFromChannel('errorlog',$pushNotifToken);
+        return $this->unsubscribeFromChannel('errorlog', $pushNotifToken);
     }
-    
-    public function unsubscribeFromChannel($channelId,$pushNotifToken)
-    {        
-        if(config('AppConfig.packageLocal.moduser.notification.use_jobs')){
-            \hpsynapse\moduser\Jobs\PushSubscribe::dispatch($channelId,$pushNotifToken,false);
-        }else{
-            return $this->doUnsubscribeFromChannel($channelId,$pushNotifToken);            
+
+    public function unsubscribeFromChannel($channelId, $pushNotifToken)
+    {
+        if (config('AppConfig.packageLocal.moduser.notification.use_jobs')) {
+            \hpsynapse\moduser\Jobs\PushSubscribe::dispatch($channelId, $pushNotifToken, false);
+        } else {
+            return $this->doUnsubscribeFromChannel($channelId, $pushNotifToken);
         }
     }
     /**
@@ -205,53 +195,63 @@ class UserNotifRepo extends BaseRepository
      * @param string $channelId channel/topic nya
      * @param type $pushNotifToken
      */
-    public function doUnsubscribeFromChannel($channelId,$pushNotifToken)
+    public function doUnsubscribeFromChannel($channelId, $pushNotifToken)
     {
-        $channel = config('AppConfig.packageLocal.moduser.notification.channels.'.$channelId);
-        
-        //jika channel tidak terdaftar
-        if(!$channel){
-            return false;  
-        }
-                
-        $token = ApiToken::where('push_token',$pushNotifToken)->first();
-        
-        $notifChannel = NotificationChannel::where('push_token',$pushNotifToken)
-            ->where('pusth_type',$token['pusth_type']);
+        $token = ApiToken::where('push_token', $pushNotifToken)->first();
+
+        $notifChannel = NotificationChannel::where('push_token', $pushNotifToken)
+            ->where('push_type', $token['push_type']);
         //jika sudah tidak ada maka lewat
-        if(!$notifChannel->exists()){
+        if (!$notifChannel->exists()) {
             return true;
         }
         $notifChannel->delete();
-        
+
         switch ($token['push_type']) {
-            case 2://pusher
+            case 2: //pusher
                 //...
                 //$channel['pusher']
                 break;
-            case 3://aws_sns
+            case 3: //aws_sns
                 //...
                 //$channel['aws_sns']
                 break;
-            case 1://firebase                
+            case 1: //firebase                
             default:
-                FirebaseApi::unsubscribeToTopic($channel['firebase'],$pushNotifToken);
+                FirebaseApi::unsubscribeFromTopic($channelId, $pushNotifToken);
                 break;
         }
         return true;
     }
-    
+
     /*
      * 
      */
-    public function changePushToken($oldToken,$newToken)
+    public function changePushToken($oldToken, $newToken)
     {
-        $token = ApiToken::where('push_token',$oldToken)->first();
-        if($token){
-            $token->update(['push_token'=>$newToken]);
+        $token = ApiToken::where('push_token', $oldToken)->first();
+        if ($token) {
+            $token->update(['push_token' => $newToken]);
         }
         return true;
     }
-    
-    
+
+    /**
+     * Update Token Firebase
+     * @param string $oldToken
+     * @param string $newToken
+     */
+    public function updateTokenFirebase(string $oldToken, string $newToken)
+    {
+        $token = NotificationChannel::where('push_token', $oldToken)->first();
+        if ($token) {
+            // unsubscribe from old topic
+            FirebaseApi::unsubscribeFromTopic($token->channel, $oldToken);
+            // subscribe to new topic
+            FirebaseApi::subscribeToTopic($token->channel, $newToken);
+            // update token
+            $token->update(['push_token' => $newToken]);
+        }
+        return true;
+    }
 }

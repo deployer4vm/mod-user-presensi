@@ -17,16 +17,18 @@ class CreateNotificationsTable extends Migration
     public function up()
     {
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::create('notifications', function (Blueprint $table) {
-                $table->uuid('id')->primary();
-                $table->string('type');
-                $table->morphs('notifiable');
-                $table->text('data');
-                $table->string('link_web')->default('');
-                $table->string('link_apps')->default('');
-                $table->timestamp('read_at')->nullable();
-                $table->timestamps();
-            });
+            if (!Schema::hasTable('notifications')) {
+                Schema::create('notifications', function (Blueprint $table) {
+                    $table->uuid('id')->primary();
+                    $table->string('type');
+                    $table->morphs('notifiable');
+                    $table->text('data');
+                    $table->string('link_web')->default('');
+                    $table->string('link_apps')->default('');
+                    $table->timestamp('read_at')->nullable();
+                    $table->timestamps();
+                });
+            }
         }
 
         // create table di database/table per-tenant

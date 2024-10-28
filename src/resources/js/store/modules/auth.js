@@ -45,7 +45,16 @@ const getters = {
     },
     getGroupApp(state) {
         return state.group_app;
-    }
+    },
+    getApiWebToken(state){
+        var encryptor = new Encryptor({
+            key: 'webauth.876tfvbhju76tfghu765tg273td7237yf732='
+        });
+        
+        return encryptor.encryptSync(
+            '{"token":"' + state.token + '","client_key":"' + globals().AppConfig.client.api_key + '"}'
+        );
+    },
 };
 
 const mutations = {
@@ -108,15 +117,26 @@ const actions = {
      * @returns 
      */
     login({ commit, dispatch, state }, authData) {
-        
+
         var authParam = {};
-        if(authData.auth){
+        if (authData.auth) {
             authParam.auth = authData.auth;
-        }else{
+        } else {
             authParam.username = authData.username;
-            authParam.password = authData.password?encryptor.encryptSync(authData.password):authData.encryptedPassword;
+            authParam.password = authData.password ? encryptor.encryptSync(authData.password) : authData.encryptedPassword;
+
+            // check if service firebase is active
+            if (globals().AppConfig.system.broadcast.services_enabled.firebase) {
+                let projectCode = globals().AppConfig.client.project_code;
+                let keyToken = 'firebase-messaging-token-' + projectCode;
+                let fcmToken = localStorage.getItem(keyToken);
+
+                if (fcmToken) {
+                    authParam.pushNotifToken = fcmToken;
+                }
+            }
         }
-        
+
         return globals().LocalApi
             .post(authPath + "/login", authParam)
             .then(res => {
@@ -393,7 +413,7 @@ const actions = {
                         vPackage.has_access = state.role[state.role_code]['rule'][vPackage.acl_key]['has_access'] == 1 ? 1 : 0;
                     }
                 }
-    
+
                 //jika tidak punya specific rule maka lanjut
                 if (vPackage.children == undefined) return true;
 
@@ -460,9 +480,9 @@ const actions = {
                             if (accessItemLv2.children != undefined) {
                                 _.forEach(accessItemLv2.children, (accessItemLv3, aclIdLv3) => {
                                     if (!state.role[state.role_code]['rule']) return true;
-    
+
                                     curAclId = accessItemLv3.acl_key;
-    
+
                                     if (state.role[state.role_code]['rule'][curAclId] == undefined) {
                                         accessItemLv3.active_acl = {
                                             has_access: 0,
@@ -470,7 +490,7 @@ const actions = {
                                         };
                                     } else {
                                         aclItemLv3 = state.role[state.role_code]['rule'][curAclId];
-    
+
                                         if (aclItemLv3.has_access) {
                                             accessItemLv3.active_acl = {
                                                 has_access: aclItemLv3.has_access,
@@ -492,14 +512,25 @@ const actions = {
                             }
                         });
                     }
-                });                
+                });
             });
         }
 
         // console.log(globals().AppConfig.customSidenav);
-        
+
         commit("setSidenavMenu");
-    }
+    },
+
+    /*
+    * Update Firebase Token
+    */
+    updateFirebaseToken({ commit, state }, data) {
+        return globals().LocalApi
+            .post(authPath + "/update/firebase/token", data)
+            .then(res => {
+                return res.data;
+            });
+    },
 };
 
 //format role

@@ -18,16 +18,18 @@ class CreateAuthLogsTable extends Migration
     {
         
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::create('auth_logs', function (Blueprint $table) {
-                $table->bigIncrements('id');
-                $table->unsignedInteger('auth_by');
-                $table->text('auth_note');
-                $table->unsignedInteger('user_id');
-                $table->string('rule_group')->default('');
-                $table->string('rule_key')->default('');
-                $table->string('data')->default('');
-                $table->timestamps();
-            });
+            if (!Schema::hasTable('auth_logs')) {
+                Schema::create('auth_logs', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedInteger('auth_by');
+                    $table->text('auth_note');
+                    $table->unsignedInteger('user_id');
+                    $table->string('rule_group')->default('');
+                    $table->string('rule_key')->default('');
+                    $table->string('data')->default('');
+                    $table->timestamps();
+                });
+            }
         }
 
         // create table di database/table per-tenant

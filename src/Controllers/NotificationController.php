@@ -31,6 +31,7 @@ class NotificationController extends BaseController
         //             );
         return $this->done();
     }
+    
     /**
      * API, IFRAME CALL & WEB VIEW
      * 
@@ -40,10 +41,10 @@ class NotificationController extends BaseController
      */
     public function index(Request $request)
     {
-        $data = [
-            'title' => 'Pemberitahuan Baru',
-            'body' => 'Anda memiliki pemberitahuan baru!'
-        ];
+        // $data = [
+        //     'title' => 'Pemberitahuan Baru',
+        //     'body' => 'Anda memiliki pemberitahuan baru!'
+        // ];
         
 //        dd(parse_url('http://localhost/BS/APPS-Account/public/notification?limitStart=0'));
         $userId = UserAuth::user('id');

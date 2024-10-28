@@ -101,6 +101,16 @@ const RoleForm = (resolve) => {
         resolve(require("../views/admin/role/roleform"));
     });
 };
+const RoleRuleForm = (resolve) => {
+    require.ensure(["../views/admin/role/roleformRule"], () => {
+        resolve(require("../views/admin/role/roleformRule"));
+    });
+};
+const RoleRuleNotification = (resolve) => {
+    require.ensure(["../views/admin/role/roleformNotification"], () => {
+        resolve(require("../views/admin/role/roleformNotification"));
+    });
+};
 // role -> group
 const RoleGroupList = (resolve) => {
     require.ensure(["../views/admin/role/rolegroup"], () => {
@@ -111,6 +121,12 @@ const RoleGroupList = (resolve) => {
 const RoleLevelGroupList = (resolve) => {
     require.ensure(["../views/admin/role/rolelevelgroup"], () => {
         resolve(require("../views/admin/role/rolelevelgroup"));
+    });
+};
+
+const DataruleList = (resolve) => {
+    require.ensure(["../views/admin/role/datarule"], () => {
+        resolve(require("../views/admin/role/datarule"));
     });
 };
 
@@ -195,6 +211,12 @@ const authConfig = (resolve) => {
 const registrationConfig = (resolve) => {
     require.ensure(["../views/admin/config/registration/index"], () => {
         resolve(require("../views/admin/config/registration/index"));
+    });
+};
+
+const dashboardConfig = (resolve) => {
+    require.ensure(["../views/admin/config/dashboard"], () => {
+        resolve(require("../views/admin/config/dashboard"));
     });
 };
 
@@ -394,6 +416,16 @@ export default [
                         name: "role.edit",
                     },
                     {
+                        path: "edit/:roleId/rule",
+                        component: RoleRuleForm,
+                        name: "role.edit.rule",
+                    },
+                    {
+                        path: "edit/:roleId/notification",
+                        component: RoleRuleNotification,
+                        name: "role.edit.notification",
+                    },                    
+                    {
                         path: "group",
                         component: RoleGroupList,
                         name: "role.group.list",
@@ -402,6 +434,11 @@ export default [
                         path: "level-group",
                         component: RoleLevelGroupList,
                         name: "role.levelGroup.list",
+                    },
+                    {
+                        path: "datarule",
+                        component: DataruleList,
+                        name: "role.datarule.list",
                     },
                 ],
             },
@@ -426,6 +463,12 @@ export default [
                         path: "registration",
                         component: registrationConfig,
                         name: "moduser.config.registration",
+                    },
+                    //--- config dashboard
+                    {
+                        path: "dashboard",
+                        component: dashboardConfig,
+                        name: "moduser.config.dashboard",
                     },
                 ],
             },

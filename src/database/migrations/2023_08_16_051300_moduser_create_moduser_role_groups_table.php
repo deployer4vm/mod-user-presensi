@@ -61,5 +61,6 @@ class ModuserCreateModuserRoleGroupsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('moduser_role_groups');
+        $this->dropTablePerTenant('moduser_role_groups');
     }
 }

@@ -37,4 +37,10 @@ class RoleGroup extends BaseModel
     {
         return $this->hasMany(Role::class, 'id', 'role_id');
     }
+    
+    // default data rule
+    public function datarule()
+    {
+        return $this->belongsTo(Datarule::class, 'datarule_id');
+    }
 }

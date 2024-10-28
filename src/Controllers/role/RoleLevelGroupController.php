@@ -1,6 +1,6 @@
 <?php
 
-namespace hpsynapse\moduser\Controllers;
+namespace hpsynapse\moduser\Controllers\role;
 
 // 1. Import level PHP
 
@@ -24,9 +24,9 @@ use hpsynapse\moduser\Facades\RoleRepo;
  * @SuppressWarnings(PHPMD.ShortMethodNames)
  * @SuppressWarnings(PHPMD.StaticAccess)
  */
-class RoleGroupController extends BaseController
+class RoleLevelGroupController extends BaseController
 {
-    private $accessRuleKey = 'moduser.role.group';
+    private $accessRuleKey = 'moduser.role.levelGroup';
 
     private function accessCheck($rw = 'r')
     {
@@ -57,7 +57,7 @@ class RoleGroupController extends BaseController
 
         $this->buildParams();
 
-        $this->setData(RoleRepo::listGroup(
+        $this->setData(RoleRepo::listLevelGroup(
             $this->output['params']['filter'],
             $this->output['params']['query']['offset'],
             $this->output['params']['query']['limit'],
@@ -84,11 +84,11 @@ class RoleGroupController extends BaseController
         $input['tenant_id'] = config('tenant.id',0);
         $input['created_by'] = UserAuth::user('id');
 
-        $data = RoleRepo::createGroup($input);
+        $data = RoleRepo::createLevelGroup($input);
         if ($data) {
             $this->setData($data)
                 ->setMessage(__('alert.update_success', [
-                    'attribute' => __('role.group.data_group.name')
+                    'attribute' => __('role.level_group.data_level.name')
                 ]));
         } else {
             $this->setError(
@@ -117,7 +117,7 @@ class RoleGroupController extends BaseController
         $this->buildParams();
         $this->output['params']['filter'][] = ['id', $id];
 
-        $data = RoleRepo::getGroup($this->output['params']['filter']);
+        $data = RoleRepo::getLevelGroup($this->output['params']['filter']);
         if (!$data) {
             $this->setError(__('lang.data_not_found'));
         } else {
@@ -144,11 +144,11 @@ class RoleGroupController extends BaseController
         $input = $request->all();
         $input['updated_by'] = UserAuth::user('id');
 
-        $data = RoleRepo::updateGroup(['id', $id], $input);
+        $data = RoleRepo::updateLevelGroup(['id', $id], $input);
         if ($data) {
             $this->setData($data)
                 ->setMessage(__('alert.update_success', [
-                    'attribute' => __('role.group.data_group.name')
+                    'attribute' => __('role.level_group.data_level.name')
                 ]));
         } else {
             $this->setError(
@@ -173,9 +173,9 @@ class RoleGroupController extends BaseController
             return $this->done();
         }
 
-        if (RoleRepo::deleteGroup($id)) {
+        if (RoleRepo::deleteLevelGroup($id)) {
             $this->setMessage(__('alert.delete_success', [
-                'attribute' => __('role.group.data_group.name')
+                'attribute' => __('role.level_group.data_level.name')
             ]));
         } else {
             $this->setError(RoleRepo::error());

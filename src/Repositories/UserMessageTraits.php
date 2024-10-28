@@ -2,6 +2,7 @@
 namespace hpsynapse\moduser\Repositories;
 
 use hpsynapse\moduser\Facades\AuthConfig;
+use hpsynapse\moduser\Models\NotificationChannel;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Request;
@@ -340,6 +341,33 @@ trait UserMessageTraits
             $userId, 
             new \hpsynapse\moduser\Notifications\AdminMessage($title,$message,$data)
         );
-    }        
+    }
+    
+    /**
+     * broadcast notifikasi ke channel / topic
+     * 
+     * @param string $channel / topic
+     * @param Notification $notification
+     */
+    public function broadcast(string $channel, Notification $notification)
+    {
+        try {
+            $listNotificationChannel = NotificationChannel::where('channel', $channel)->get();
+
+            if ($listNotificationChannel->isEmpty()) {
+                return false;
+            }
+
+            foreach ($listNotificationChannel as $notifChannel) {
+                $user = User::find($notifChannel->user_id);
+                if ($user) {
+                    $user->notify($notification);
+                }
+            }
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
     
 }

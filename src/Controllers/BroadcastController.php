@@ -19,6 +19,7 @@ use hpsynapse\moduser\Models\NotificationChannel;
 
 use Pusher\Pusher;
 use GuzzleHttp\Client;
+use hpsynapse\moduser\Facades\UserNotifRepo;
 
 class BroadcastController extends BaseController
 {
@@ -43,25 +44,17 @@ class BroadcastController extends BaseController
 
         $input = $request->only(['title', 'description', 'message']);
 
-        // Membuat instance dari PusherChannels
-        $pusherChannels = new PusherChannels();
-        $firebaseChannels = new FirebaseChannels();
-        $whatsappChannels = new WhatsAppChannels();
-
-        // Mengirim notifikasi ke Pusher
-        $notifiable = UserAuth::user(); // Sesuaikan ini dengan notifiable yang sesuai
-        $notification = new \hpsynapse\moduser\Notifications\AdminMessage($input['title'], $input['description'], ['message' => $input['message']]);
-        $pusherChannels->send($notifiable, $notification);
-
-        $whatsappChannels->send($request->title);
-
-        // Generate token FCM
-        $customToken = $firebaseChannels->generateCustomToken(); // Memanggil fungsi generateCustomToken
-
-        dd(NotificationChannel::where('user_id', UserAuth::user('id'))->first());
-
-        // Mengirim notifikasi ke Firebase
-        $notifiable = $customToken; // Menyimpan token FCM pada notifiable (pastikan notifiable memiliki atribut fcm_token)
-        $firebaseChannels->send($notifiable, $notification);
+        $topic = 'webdev.notif.0';
+        UserNotifRepo::broadcast(
+            channel: $topic,
+            notification: new \hpsynapse\moduser\Notifications\WebdevMessage(
+                title: $input['title'],
+                body: $input['description'],
+                data: [
+                    'topic' => $topic,
+                    'message' => $input['message']
+                ]
+            ),
+        );
     }
 }

@@ -32,6 +32,7 @@ class UserSystemRepo extends BaseRepository
 {
     use ApiTokenTraits, UserMessageTraits;
 
+    protected $userRepo;
 
     public function __construct(User $model, UserRepo $userRepo)
     {
@@ -45,6 +46,7 @@ class UserSystemRepo extends BaseRepository
      * ==========================================================================
      */
 
+    protected $dataUserPagination;
     /**
      * 
      * @param $filter array
