@@ -55,27 +55,27 @@
                             <template slot="button-content">
                                 <i class="fi fi-rs-apps"></i><span>{{ Trans.get('lang.menu') }}</span>
                             </template>
-
+                            <!-- Menu : Manage Role Group -->
                             <b-dropdown-item
                                 v-if="UserAuth.hasAccess(accessRuleKey+'.group', 'has_access')"
                                 :to="{name: 'role.group.list'}">
                                 <i class="fi fi-rr-list"></i>
                                 <span> {{ Trans.get('role.group.name') }}</span>
                             </b-dropdown-item>
-
+                            <!-- Menu : Manage Role Level Group -->
                             <b-dropdown-item
                                 v-if="UserAuth.hasAccess(accessRuleKey+'.levelGroup', 'has_access')"
                                 :to="{name: 'role.levelGroup.list'}">
                                 <i class="fi fi-rr-list"></i>
                                 <span> {{ Trans.get('role.level_group.name') }}</span>
                             </b-dropdown-item>
-
-                            <b-dropdown-item
+                            <!-- TO DO : Menu : Manage Datarule -->
+                            <!-- <b-dropdown-item
                                 v-if="UserAuth.hasAccess(accessRuleKey+'.datarule', 'has_access')"
                                 :to="{name: 'role.datarule.list'}">
                                 <i class="fi fi-rr-list"></i>
                                 <span> {{ Trans.get('role.datarule.name') }}</span>
-                            </b-dropdown-item>
+                            </b-dropdown-item> -->
 
                         </b-dropdown>
                         <router-link 
@@ -85,11 +85,6 @@
                             <i class="fi fi-rs-add"></i>
                             <span>{{ Trans.get("role.rolelist.add_new_role") }}</span>
                         </router-link>
-                        <!-- <router-link v-if="UserAuth.hasAccess(accessRuleKey, 'r')" 
-                        class="btn btn-sm btn-secondary w-icon w-md-auto" 
-                        :to="{ name: 'systemuser.role' }">
-                        <i class="fi fi-rs-add"></i>&nbsp; {{ Trans.get("role.systemuser.manage_role_group") }}
-                    </router-link> -->
                     </div>
                 </div>
 
@@ -159,13 +154,9 @@
                     <template v-slot:cell(role_type)="data">                        
                         <b-badge v-if="data.item.role_type==1" variant="outline-info">Standard</b-badge>
                         <b-badge v-else variant="outline-warning">Non-Login role</b-badge>
+                        <b-badge v-if="data.item.is_global==1" variant="outline-warning">Global Role</b-badge>
                     </template>
                     
-                    <template v-slot:cell(is_global)="data">                        
-                        <b-badge v-if="data.item.is_global==1" variant="outline-warning">Default Role</b-badge>
-                        <!-- <b-badge v-else variant="outline-info">Starnda</b-badge> -->
-                    </template>
-
                     <template v-slot:cell(actions)="data">
                         <div class="d-flex align-items-center justify-content-center">
                             <!-- <b-btn variant="default btn-xs icon-btn md-btn-flat" v-b-tooltip.hover title="Edit"><i class="ion ion-md-create"></i></b-btn> -->
@@ -177,50 +168,31 @@
                             </router-link>
                             
                             <template v-if="UserAuth.hasAccess(accessRuleKey, 'u') && data.item.locked_data_mode==0" >
-                                <router-link
+                                <!-- TO DO : Edit Rule dari Role global -->
+                                <!-- <router-link
                                     class="btn btn-dark btn-sm"
                                     :to="{ name: 'role.edit.rule', params: { roleId: data.item.id } }" 
                                     v-if="isOnTenantManager && canEditRoleRule && (data.item.is_global==0 || data.item.global_bypass_rule)"
                                 >
-                                    Manage Rule
-                                </router-link>
-                                <!-- TO DO - Fitur config notifikasi per role -->
+                                    Set Global Rule
+                                </router-link> -->
+                                <!-- TO DO : Fitur config notifikasi per role -->
                                 <!-- <router-link 
                                     class="btn btn-dark btn-sm"
                                     :to="{ name: 'role.edit.notification', params: { roleId: data.item.id } }" 
                                     v-if="canEditNotificationConfig && (data.item.is_global==0 || isOnTenantManager || data.item.global_bypass_notification)"
                                 >
-                                    Manage Notification
+                                    Notification Config
                                 </router-link> -->
                             </template>
 
-                            <!-- DELETE -->
+                            <!-- DELETE ROLE -->
                             <b-btn 
                                 v-if="UserAuth.hasAccess(accessRuleKey, 'd') && data.item.locked_data_mode==0 && (data.item.is_global==0 || isOnTenantManager)"
                                 class="btn btn-danger icon-btn btn-sm" :title="Trans.get('lang.delete')" @click="deleteRole(data.item.id)">
                                 <i class="fi fi-rs-trash"></i>
                             </b-btn>
-
-                            <!-- <b-dropdown
-                                v-if="UserAuth.hasAccess(accessRuleKey, 'u') && data.item.locked_data_mode==0" 
-                                variant="default btn-xs icon-btn md-btn-flat hide-arrow" :right="!isRTL">
-                                <template slot="button-content">
-                                    <i class="ion ion-ios-settings"></i>
-                                </template>
-                                <b-dropdown-item 
-                                    :to="{ name: 'role.edit.rule', params: { roleId: data.item.id } }" 
-                                    v-if="isOnTenantManager && canEditRoleRule && (data.item.is_global==0 || data.item.global_bypass_rule)"
-                                >
-                                    Manage Rule
-                                </b-dropdown-item>
-                                
-                                <b-dropdown-item 
-                                    :to="{ name: 'role.edit', params: { roleId: data.item.id } }" 
-                                    v-if="canEditNotificationConfig && (data.item.is_global==0 || isOnTenantManager || data.item.global_bypass_notification)"
-                                >
-                                    Manage Notification
-                                </b-dropdown-item>
-                            </b-dropdown> -->
+                            
                         </div>
                     </template>
                 </b-table>
@@ -505,15 +477,6 @@
                 },
                 {
                     key: "role_type",
-                    sortable: true,
-                    tdClass: "align-middle",
-                    tdAttr: {
-                        "data-lable": this.Trans.get("")
-                    }
-                },
-                {
-                    key: "is_global",
-                    label: this.Trans.get("role.field_caption.is_global"),
                     sortable: true,
                     tdClass: "align-middle",
                     tdAttr: {

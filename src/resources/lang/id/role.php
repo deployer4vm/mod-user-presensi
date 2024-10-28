@@ -20,8 +20,8 @@ return [
         'global_bypass_notification' => 'Notification bisa diedit di tenant',
         
         'bypass_rule' => 'Replace Rule di tenant',
-        'bypass_datarule' => 'Replace Datarule di tenant',
-        'bypass_dashboard' => 'Replace Dashboard di tenant',
+        'bypass_datarule' => 'Replace Pilihan Datarule di tenant',
+        'bypass_dashboard' => 'Replace Pilihan Dashboard di tenant',
     ],
     'rolelist' => [
         'add_new_role' => 'Tambah Role'

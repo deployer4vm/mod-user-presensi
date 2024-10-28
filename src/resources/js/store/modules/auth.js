@@ -45,7 +45,16 @@ const getters = {
     },
     getGroupApp(state) {
         return state.group_app;
-    }
+    },
+    getApiWebToken(state){
+        var encryptor = new Encryptor({
+            key: 'webauth.876tfvbhju76tfghu765tg273td7237yf732='
+        });
+        
+        return encryptor.encryptSync(
+            '{"token":"' + state.token + '","client_key":"' + globals().AppConfig.client.api_key + '"}'
+        );
+    },
 };
 
 const mutations = {

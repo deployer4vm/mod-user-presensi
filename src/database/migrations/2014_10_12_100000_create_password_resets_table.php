@@ -17,11 +17,13 @@ class CreatePasswordResetsTable extends Migration
     public function up()
     {
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::create('password_resets', function (Blueprint $table) {
-                $table->string('email')->index();
-                $table->string('token');
-                $table->timestamp('created_at')->nullable();
-            });
+            if (!Schema::hasTable('password_resets')) {
+                Schema::create('password_resets', function (Blueprint $table) {
+                    $table->string('email')->index();
+                    $table->string('token');
+                    $table->timestamp('created_at')->nullable();
+                });
+            }
         }
 
         // create table di database/table per-tenant

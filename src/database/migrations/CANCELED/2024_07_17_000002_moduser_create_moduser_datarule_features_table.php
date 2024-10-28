@@ -35,9 +35,7 @@ class ModuserCreateModuserDataruleFeaturesTable extends Migration
                 $table->timestamps();
             });
         }
-        
-        // $this->dropTablePerTenant('moduser_datarule_features');
-        
+                
     }
 
     /**

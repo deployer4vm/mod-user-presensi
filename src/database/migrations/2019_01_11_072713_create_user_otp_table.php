@@ -18,13 +18,15 @@ class CreateUserOtpTable extends Migration
     {
         
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::create('user_otp', function (Blueprint $table) {
-                $table->unsignedInteger('user_id');
-                $table->string('phone');
-                $table->string('token');
-                $table->dateTime('timeout')->nullable();
-                $table->timestamp('created_at')->nullable();
-            });
+            if (!Schema::hasTable('user_otp')) {
+                Schema::create('user_otp', function (Blueprint $table) {
+                    $table->unsignedInteger('user_id');
+                    $table->string('phone');
+                    $table->string('token');
+                    $table->dateTime('timeout')->nullable();
+                    $table->timestamp('created_at')->nullable();
+                });
+            }
         }
 
         // create table di database/table per-tenant

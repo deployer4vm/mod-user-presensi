@@ -255,7 +255,32 @@
                                 "d": 1
                             }
                         },
-                        "children": {
+                        "children": {                            
+                            "can_manage_global_data": {
+                                "acl_caption": {"en":"Can Edit Global User Group","id":"Can Edit Global User Group"},
+                                "acl_description": {"en":"","id":""},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
+                            },
                             "can_edit_locked_data_mode": {
                                 "acl_caption": {"en":"Can Edit 'locked_data_mode'","id":"Bisa edit 'locked_data_mode'"},
                                 "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -463,8 +488,8 @@
                             }
                         }
                     },
-                    "can_edit_global_role": {
-                        "acl_caption": {"en":"Can Edit Global Role","id":"Can Edit Global Role"},
+                    "can_edit_global_data": {
+                        "acl_caption": {"en":"Can Edit Global Data (","id":"Can Edit Global Role"},
                         "acl_description": {"en":"","id":""},
                         "is_navbar": 0,
                         "enable": 1,

@@ -5,7 +5,10 @@ namespace hpsynapse\moduser\Models;
 use App\Base\BaseModel;
 use App\Base\Traits\ModelDataTenant;
 
-class UserDatarule extends BaseModel
+/**
+ * TIDAK JADI DIGUNAKAN
+ */
+class TO_BE_DELETED_UserDatarule extends BaseModel
 {
     use ModelDataTenant;    
     protected $connection = 'perTenant'; 

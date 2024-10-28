@@ -28,4 +28,14 @@ class UserRole extends BaseModel
     {
         return $this->belongsTo('hpsynapse\moduser\Models\Role','role_id');
     }   
+    
+    public function datarule()
+    {
+        return $this->belongsTo(Datarule::class,'datarule_id');
+    }   
+    
+    public function roleGroup()
+    {
+        return $this->belongsTo(RoleGroup::class,'role_group_id');
+    }  
 }

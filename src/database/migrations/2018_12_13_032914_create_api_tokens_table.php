@@ -18,17 +18,19 @@ class CreateApiTokensTable extends Migration
     {
         
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::create('api_tokens', function (Blueprint $table) {
-                $table->bigIncrements('id');
-                $table->string('session_id',191)->nullable();
-                $table->unsignedInteger('user_id')->default(0);
-                $table->tinyInteger('is_mobileapps_token')->default(0);
-                $table->string('device_id')->default('');
-                $table->string('api_token', 150)->unique();
-                $table->string('push_token')->default('');//push notif token
-                $table->tinyInteger('push_type')->default(0);//0 tidak ada push, 1 firebase, 2
-                $table->timestamps();
-            });
+            if (!Schema::hasTable('api_tokens')) {
+                Schema::create('api_tokens', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->string('session_id',191)->nullable();
+                    $table->unsignedInteger('user_id')->default(0);
+                    $table->tinyInteger('is_mobileapps_token')->default(0);
+                    $table->string('device_id')->default('');
+                    $table->string('api_token', 150)->unique();
+                    $table->string('push_token')->default('');//push notif token
+                    $table->tinyInteger('push_type')->default(0);//0 tidak ada push, 1 firebase, 2
+                    $table->timestamps();
+                });
+            }
         }
 
         // create table di database/table per-tenant

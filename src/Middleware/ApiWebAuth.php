@@ -3,14 +3,17 @@
 namespace hpsynapse\moduser\Middleware;
 
 use Closure;
-// use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth;
 use hpsynapse\moduser\Facades\UserAuth;
-use hpsynapse\moduser\Facades\UserRepo;
+// use hpsynapse\moduser\Facades\UserRepo;
+// use hpsynapse\moduser\Models\User;
+use hpsynapse\moduser\Models\ApiToken;
 
 /**
- * 
+ * Untuk handle auth di tampilan web dengan menyertakan syn_api_webauth di GET request.
+ * string syn_api_webauth didapatkan dari helper UserAuth.getApiWebToken() di vue
  */
-class WebTokenAuth
+class ApiWebAuth
 {
     /**
      * Handle an incoming request.
@@ -21,8 +24,12 @@ class WebTokenAuth
      */
     public function handle($request, Closure $next)
     {
-        $apiTokenData = $request->input('token');
-        if(!($token = UserRepo::getToken($apiTokenData))){
+        $synApiWebauth=json_decode(UserAuth::decryptCredential($request->input('syn_api_webauth',false),'webauth.876tfvbhju76tfghu765tg273td7237yf732='),true);
+        
+        $request->query->remove('syn_api_webauth');
+        $request->headers->add(['X-Client-Key' => $synApiWebauth['client_key']]);
+                
+        if(!($token = ApiToken::where('api_token',$synApiWebauth['token'])->first())){
             $isApi = $request->wantsJson() || $request->ajax();
             if ($isApi) {
                 return response()->json([
@@ -41,10 +48,10 @@ class WebTokenAuth
                 );
             }
         }
-        
-        $request->query->remove('token');
 
-        UserAuth::setUser($token['user_id'],$apiTokenData);
+        Auth::setUser($token);
+        UserAuth::setInit(true);
+    
         return $next($request);
     }
     

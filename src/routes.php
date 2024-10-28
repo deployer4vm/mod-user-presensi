@@ -11,7 +11,6 @@ $group = [
 if(request()->getHost()=='localhost'){
     $group['domain'] = config('AppConfig.client.endpoint.'.config('AppConfig.system.mode').'.domain');
 }
-
 Route::group($group, function(){
     //VerificationController (web only, ga ada di api)
     Route::get('/emailverify', 'Auth\VerificationController@verify')->name('auth.emailVerification');

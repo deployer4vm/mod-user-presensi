@@ -24,8 +24,8 @@ class Datarule extends BaseModel
      */
     protected $guarded = ['id','created_at'];
         
-    public function userDatarule()
+    public function userRole()
     {
-        return $this->belongsTo(UserDatarule::class,'id','datarule_id');
+        return $this->hasMany(UserRole::class,'datarule_id','id');
     }   
 }

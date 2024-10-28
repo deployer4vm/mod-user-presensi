@@ -7,7 +7,7 @@
     
                     <!-- Role Name -->
                     <b-form-group :label="Trans.get('role.field_caption.name')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
-                        <b-input :disabled="isDisabled" :state="$v.data.formData.form.name.$error ? false : null" @change="$v.data.formData.form.name.$touch()" v-model="data.formData.form.name" @blur="formatRoleCodeFromRoleName" />
+                        <b-input :disabled="isDisabled || !canEditData" :state="$v.data.formData.form.name.$error ? false : null" @change="$v.data.formData.form.name.$touch()" v-model="data.formData.form.name" @blur="formatRoleCodeFromRoleName" />
                         <invalid-tooltip :inputItem="$v.data.formData.form.name" :fieldName="Trans.get('role.field_caption.name')" />
                     </b-form-group>
     
@@ -33,23 +33,24 @@
                     </b-form-group>
     
                     <!-- Role Type -->
-                    <b-form-group v-if="canEditRoleType" :label="Trans.get('role.field_caption.role_type')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
-                        <b-select  :disabled="isDisabled" v-model="data.formData.form.role_type" :options="selectRoleType" class="form-control"/>
+                    <b-form-group :label="Trans.get('role.field_caption.role_type')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                        <b-select :disabled="isDisabled || !canEditRoleType" v-model="data.formData.form.role_type" :options="selectRoleType" class="form-control"/>
                     </b-form-group>
     
                     <!--  -->
 
                     <!-- Select Dashboard -->
-                    <b-form-group v-if="canEditDashboard" :label="Trans.get('role.field_caption.dashboard_type')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
-                        <b-select :disabled="isDisabled" v-model="data.formData.form.dashboard_type" :options="selectDashboard" class="form-control"/>
+                    <b-form-group :label="Trans.get('role.field_caption.dashboard_type')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                        <b-select :disabled="isDisabled || !canEditDashboard" v-model="data.formData.form.dashboard_type" :options="selectDashboard" class="form-control"/>
                     </b-form-group>
-                    <!-- bypass_datarule -->
+                    
+                    <!-- bypass_dashboard -->
                     <b-form-group 
                         :label="Trans.get('role.field_caption.bypass_dashboard')" 
                         label-align-md="right" 
                         label-class="pr-md-5" 
                         :label-cols-md="5"
-                        v-if="canEditGlobalRole && data.formData.form.is_global"
+                        v-if="canEditGlobalData && data.formData.form.is_global"
                     >
                         <b-select 
                             v-model="data.formData.form.bypass_dashboard" 
@@ -58,34 +59,51 @@
                         />
                     </b-form-group>
     
-                    <!-- Select Datarule -->
-                    <b-form-group v-if="isDataruleEnabled && canEditDatarule" :label="Trans.get('role.field_caption.datarule_id')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
-                        <b-select :disabled="isDisabled" v-model="data.formData.form.datarule_id" :options="selectDatarule" class="form-control"/>
-                    </b-form-group>                    
-                    <!-- bypass_datarule -->
-                    <b-form-group 
-                        :label="Trans.get('role.field_caption.bypass_datarule')" 
-                        label-align-md="right" 
-                        label-class="pr-md-5" 
-                        :label-cols-md="5"
-                        v-if="canEditGlobalRole && data.formData.form.is_global"
-                    >
-                        <b-select 
-                            v-model="data.formData.form.bypass_datarule" 
-                            :options="selectBypass" 
-                            class="form-control"
-                        />
-                    </b-form-group>
+                    <!-- Select Datarule isDataruleEnabled -->
+                    <template v-if="false">
+                        <b-form-group :label="Trans.get('role.field_caption.datarule_id')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
+                            <b-select :disabled="isDisabled || !canEditDatarule" v-model="data.formData.form.datarule_id" :options="selectDatarule" class="form-control"/>
+                        </b-form-group>       
+                        <!-- TO DO : khusus edit, pilihan replace semua datarule user custom di user role atau tidak -->
+                        <!-- <b-form-group 
+                            :label="Trans.get('role.field_caption.bypass_datarule')" 
+                            label-align-md="right" 
+                            label-class="pr-md-5" 
+                            :label-cols-md="5"
+                            v-if="canEditGlobalData && data.formData.form.is_global"
+                        >
+                            <b-select 
+                                v-model="data.formData.form.bypass_datarule" 
+                                :options="selectBypass" 
+                                class="form-control"
+                            />
+                        </b-form-group>             -->
+
+                        <!-- GLOBAL bypass_datarule -->
+                        <b-form-group 
+                            :label="Trans.get('role.field_caption.bypass_datarule')" 
+                            label-align-md="right" 
+                            label-class="pr-md-5" 
+                            :label-cols-md="5"
+                            v-if="canEditGlobalData && data.formData.form.is_global"
+                        >
+                            <b-select 
+                                v-model="data.formData.form.bypass_datarule" 
+                                :options="selectBypass" 
+                                class="form-control"
+                            />
+                        </b-form-group>
+                    </template>
 
                     <!--  -->
 
                     <!-- Locked Data -->
                     <b-form-group v-if="canEditLockedDataMode" :label="Trans.get('role.field_caption.locked_data_mode')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
-                        <b-select v-model="data.formData.form.locked_data_mode" :options="selectLockedDataMode" class="form-control"/>
+                        <b-select :disabled="!canEditData" v-model="data.formData.form.locked_data_mode" :options="selectLockedDataMode" class="form-control"/>
                     </b-form-group>
 
                     <!-- GLOBA CONFIG -->
-                    <div class="border rounded mx-2 my-3 pt-3 px-3" v-if="canEditGlobalRole">             
+                    <div class="border rounded mx-2 my-3 pt-3 px-3" v-if="canEditGlobalData">             
 
                         <!-- is_global -->
                         <b-form-group
@@ -175,7 +193,7 @@
                 </b-card-body>
             </b-card>            
                     
-            <div class="my-3 row">
+            <div class="my-3 row" v-if="data.formData.form.role_type==1">
                 <div class="col">                    
                     <h5>
                         Rule
@@ -188,7 +206,7 @@
                         label-align-md="right" 
                         label-class="pr-md-5" 
                         :label-cols-md="5"
-                        v-if="canEditGlobalRole && data.formData.form.is_global"
+                        v-if="canEditGlobalData && data.formData.form.is_global"
                     >
                         <b-select 
                             v-model="data.formData.form.bypass_rule" 
@@ -201,10 +219,11 @@
 
             <roleform-rule
                 :roleLoaded="triggerRuleLoad"
+                :ruleData="ruleData"
                 :roleSaved="triggerRuleSave"
                 @onRuleReady="save()"
-                v-if="pageLoaded"
             />
+            <!-- v-if="pageLoaded" -->
         
             <div class="text-right mt-3">
                 <b-btn variant="primary w-icon" @click="prepareSave">
@@ -256,13 +275,13 @@ export default {
             {text:'Global',value:1},
         ],
         selectGlobalBypass: [
-            {text:'Diedit di Tenant Manager',value:0},
-            {text:'Bisa bypass di tenant',value:1},
-            {text:'Bisa bypass di tenant (dengan ACL)',value:2}, // moduser.role.can_bypass_global
+            {text:'Diedit dari Tenant Manager saja',value:0},
+            {text:'Bisa diedit dari tenant',value:1},
+            {text:'Bisa diedit dari tenant (khusus user dengan hak akses)',value:2}, // moduser.role.can_bypass_global
         ],         
         selectBypass: [
-            {text:'Tidak direplace',value:0},
-            {text:'Replace',value:1},
+            {text:'Tidak di-replace',value:0},
+            {text:'Di-replace',value:1},
         ],
         selectDatarule: [
             {text:'Default Datarule',value:0},
@@ -271,16 +290,13 @@ export default {
             {text:'Default Dashboard',value:0},
         ],       
         selectTenant: [],
-        selectRoleType: [
-            {text:'',value:0},
-            {text:'',value:1},
-        ],
         //
         disabledModuleAccess: {},
         rulePerModule: {},
         levelOption: [],
         tenantOption: [],
         // tenantGroupOption: [],
+        ruleData:null,
         triggerRuleLoad:null,
         triggerRuleSave:null
     }),
@@ -336,39 +352,47 @@ export default {
         isDisabled() {
             return this.data.formData.form.locked_data_mode == 2;
         },
-        needBypassOnly() {
-            return this.data.formData.form.is_global == 1 && !isOnTenantManager;
+        // untuk detek global data bukan
+        canEditData() {
+            return this.data.formData.form.is_global == 0 || isOnTenantManager;
         },
         //
         canEditRoleCode() {
-            return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_code') || this.UserAuth.isWebdev();
+            return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_code') || this.UserAuth.isWebdev());
         },
         canEditRoleType() {
-            return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_type') || this.UserAuth.isWebdev();
+            return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_type') || this.UserAuth.isWebdev());
         },        
         canEditRoleGroupId() {
-            return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_group_id') || this.UserAuth.isWebdev();
+            return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_role_group_id') || this.UserAuth.isWebdev());
         },
         canEditLevel() {
-            return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_level') || this.UserAuth.isWebdev();
+            return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_level') || this.UserAuth.isWebdev());
         },
-        //
-        canEditGlobalRole() {
-            return isOnTenantManager && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_global_role') || this.UserAuth.isWebdev());
+        canEditRule() {
+            return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_rule') || this.UserAuth.isWebdev());
         },
+        // apakah bisa edit data-data role global (khusus di tenant manager)
+        canEditGlobalData() {
+            return isOnTenantManager && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_global_data') || this.UserAuth.isWebdev());
+        },
+        // khusus di tenant - apakah punya akses untuk edit/manage global role 
         canBypassGlobal() {
             return this.UserAuth.hasAccess(this.accessRuleKey + '.can_bypass_global') || this.UserAuth.isWebdev();
         },
         //
-        canEditLockedDataMode() {
-            return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_locked_data_mode') || this.UserAuth.isWebdev();
+        canEditRuleGlobal() {
+            return this.canEditRule && (this.canEditData || (this.data.formData.form.global_bypass_rule==1 || (this.data.formData.form.global_bypass_rule==2 && this.canBypassGlobal)));
         },
-        //
         canEditDashboard() {
-            return !this.needBypassOnly || (this.data.formData.form.global_bypass_dashboard==1 || (this.data.formData.form.global_bypass_dashboard==2 && this.canBypassGlobal))
+            return this.canEditData || (this.data.formData.form.global_bypass_dashboard==1 || (this.data.formData.form.global_bypass_dashboard==2 && this.canBypassGlobal));
         },
         canEditDatarule() {
-            return !this.needBypassOnly || (this.data.formData.form.global_bypass_datarule==1 || (this.data.formData.form.global_bypass_datarule==2 && this.canBypassGlobal))
+            return this.canEditData || (this.data.formData.form.global_bypass_datarule==1 || (this.data.formData.form.global_bypass_datarule==2 && this.canBypassGlobal));
+        },
+        //
+        canEditLockedDataMode() {
+            return this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_locked_data_mode') || this.UserAuth.isWebdev();
         },
     },
     methods: {
@@ -395,9 +419,10 @@ export default {
                     });
 
                     //init rule di component rule
-                    this.triggerRuleLoad = res.rule;                    
-
                     this.pageLoaded = true;
+                    this.ruleData = res.rule;  
+                    this.triggerRuleLoad = true;     
+
                     this.initView();
                     this.Web.setLoadingPage(false);
                 })
@@ -411,6 +436,7 @@ export default {
             this.Repo('moduserRoleGroup')
                 .readList({saveState:false})
                 .then((res) => {
+                    this.selectRoleGroup = [{text: '-- Ungrouped --', value: 0}];
                     if (res.count == 0) {
                         this.Web.showAlert({
                             title: this.Trans.get("alert.info_title"),
@@ -418,7 +444,6 @@ export default {
                             type: "info",
                         });
                     }else{
-                        this.selectRoleGroup = [{text: '-- Ungrouped --', value: 0},]
                         res.data.forEach((v,i) => {
                             this.listRoleGroup[v.id] = v;
                             this.selectRoleGroup.push({
@@ -445,6 +470,7 @@ export default {
             this.Repo('moduserRoleDatarule')
                 .readList({saveState:false})
                 .then((res) => {
+                    this.selectDatarule = [{text: 'Default Datarule', value: 0}];
                     if (res.count == 0) {
                         this.Web.showAlert({
                             title: this.Trans.get("alert.info_title"),
@@ -452,7 +478,6 @@ export default {
                             type: "info",
                         });
                     }else{
-                        this.selectDatarule = [{text: 'Default Datarule', value: 0},]
                         res.data.forEach((v,i) => {
                             this.listDatarule[v.id] = v;
                             this.selectDatarule.push({
@@ -482,14 +507,14 @@ export default {
             this.Repo('moduserConfigDashboard')
                 .readList({saveState:false})
                 .then((res) => {
+                    this.selectDashboard = [{text: 'Default Dashboard', value: 0}];
                     if (res.count == 0) {
                         this.Web.showAlert({
                             title: this.Trans.get("alert.info_title"),
                             text: this.Trans.get("lang.no_data"),
                             type: "info",
                         });
-                    }else{
-                        this.selectDashboard = [{text: 'Default Dashboard', value: 0},]
+                    }else{                        
                         res.data.forEach((v,i) => {
                             this.listDashboard[v.id] = v;
                             this.selectDashboard.push({
@@ -562,8 +587,8 @@ export default {
             this.data.formData.form.role_code = this.data.formData.form.role_code.replace(/[^a-zA-Z0-9_]/g, "_");
         },
         prepareSave() {
-            this.data.formData.form.role_group_code = this.listRoleGroup[this.data.formData.form.role_group_id]?this.listRoleGroup[this.data.formData.form.role_group_id].code:'';
-            this.data.formData.form.datarule_code = this.listDatarule[this.data.formData.form.datarule_id]?this.listDatarule[this.data.formData.form.datarule_id].code:'';
+            // this.data.formData.form.role_group_code = this.listRoleGroup[this.data.formData.form.role_group_id]?this.listRoleGroup[this.data.formData.form.role_group_id].code:'';
+            // this.data.formData.form.datarule_code = this.listDatarule[this.data.formData.form.datarule_id]?this.listDatarule[this.data.formData.form.datarule_id].code:'';
             
             // trigger rule save di component rule
             this.triggerRuleSave = true;
@@ -669,6 +694,7 @@ export default {
         if (this.isAdd) {
             this.data.formData.isAdd = true;
             this.pageLoaded = true;
+            this.data.formData.form = JSON.parse(JSON.stringify(this.data.formData.formEmpty));
             this.initView();
         }else{
             this.data.formData.isAdd = false;

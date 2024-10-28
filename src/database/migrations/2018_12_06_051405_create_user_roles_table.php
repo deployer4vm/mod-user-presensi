@@ -17,14 +17,16 @@ class CreateUserRolesTable extends Migration
     public function up()
     {
         if(config('AppConfig.system.multitenant.active',false) && $this->tenantMigrateMode()==false){
-            Schema::create('user_roles', function (Blueprint $table) {
-                $table->increments('id');
-                $table->unsignedInteger('user_id');
-                $table->unsignedInteger('role_id');
-                $table->tinyInteger('has_auth_grant')->default(0);
-                $table->tinyInteger('is_main_role')->default(1);
-                $table->timestamps();
-            });
+            if (!Schema::hasTable('user_roles')) {
+                Schema::create('user_roles', function (Blueprint $table) {
+                    $table->increments('id');
+                    $table->unsignedInteger('user_id');
+                    $table->unsignedInteger('role_id');
+                    $table->tinyInteger('has_auth_grant')->default(0);
+                    $table->tinyInteger('is_main_role')->default(1);
+                    $table->timestamps();
+                });
+            }
         }
         
         // create table di database/table per-tenant

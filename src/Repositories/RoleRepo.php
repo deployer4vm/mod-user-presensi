@@ -190,7 +190,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             }
         }
 
-        // jika bukan global tenant berarti create role seperti di tenant biasa
+        // jika bukan global role berarti create role seperti di tenant biasa
         if($createOnTenant){
             unset($data['global']);
             $data['is_global'] = 0;
@@ -216,6 +216,8 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
      * 
      *      role_code       jika
      *      rule            jika ada
+     *      datarule_id
+     *      role_group_id
      * 
      *      --- isian khusus di tenant manager dan is_global=1 :
      *      is_global       *optional,
@@ -229,7 +231,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
      *                          ngereplace
      *                      1 full bypass, jika data sudah ada maka akan direplace
      *                          dengan value dari rule tm
-     *                      --dari form khusus rule nambah 3 opsi :
+     *                      --[NEXT DEV] dari form khusus rule nambah 3 opsi :
      *                      2 mode add, hanya menambah acl (has_accss,c,r,u,d) 
      *                          yg diceklis
      *                      3 mode uncek, hanya me-uncek acl (has_accss,c,r,u,d) 
@@ -241,7 +243,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
      *      bypass_datarule     0/1, def 0, akan bypass role di seluruh tenant atau tidak
      *      bypass_dashboard    0/1, def 0, akan bypass role di seluruh tenant atau tidak
      * 
-     *      global          *optional Array
+     *      global          *optional Array, 
      *          tenant_id                       tenant id
      *          global_bypass_rule
      *          global_bypass_datarule
@@ -295,14 +297,14 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
                 // - unset dari global role jadi role biasa
                 if($oldRole['is_global'] || (array_key_exists('is_global',$data) && $data['is_global'])){
 
-                    $this->updateRoleSetGlobalConfig($data,$oldRole);
+                    $return = $this->updateRoleSetGlobalConfig($data,$oldRole);
                     $updateOnTenant = false;                 
                     
                 }
             }
         }
 
-        // jika bukan global tenant atau jika di tenant
+        // jika bukan global role atau jika di tenant
         if($updateOnTenant){
             
             if(array_key_exists('rule',$data))
@@ -316,6 +318,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
                 $data['global_bypass_dashboard'],
                 $data['global_bypass_notification']
             );
+
             $return = $this->_update(new Role, $where, $data);
             if(!$return)
                 return false;//throw new \Exception($this->errorFull()); 
@@ -347,14 +350,15 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             'bypass_notification'=>isset($data['bypass_notification'])&&$data['bypass_notification']?1:0,
         ];
         unset($data['bypass_rule'],$data['bypass_datarule'],$data['bypass_dashboard'],$data['bypass_notification']);
-        
+        $isUnsetGlobal = false;
+
         // jika sebelumnya memang role global, maka use case :
         // - tidak edit global config
         // - edit global config
         // - unset dari global role jadi role biasa
         if($oldRole['is_global']){
                         
-            // jika unset
+            // jika unset global (mengubah role global jadi tidak global)
             if(array_key_exists('is_global',$data) && $data['is_global']==0){
                 $data['global'] = [
                     [
@@ -365,12 +369,13 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
                         'global_bypass_notification'=>0,
                     ]
                 ];
+                $isUnsetGlobal = true;
             }               
 
-        // jika sebelumnya bukan global role maka ini 
+        // jika sebelumnya bukan global role maka ini :
         // - set role global baru
         }else{
-            // jika tidak menyertakan
+            // jika tidak menyertakan config global maka set default, karena harus menyertakan, minimal untuk default
             if(!array_key_exists('global',$data)){
                 $data['global'] = [
                     [
@@ -396,6 +401,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
                         'global_bypass_notification'=>0,
                     ]
                 ];
+
             $global = $data['global'];
             // set default config
             $data['global_bypass_rule'] = $global[0]['global_bypass_rule'];
@@ -404,6 +410,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             $data['global_bypass_notification'] = $global[0]['global_bypass_notification'];                    
             unset($data['global'],$global[0]);
             if(empty($global))$global=[];
+
         // jika tidak edit global config
         }else{
             $data['global_bypass_rule'] = $oldRole['global_bypass_rule'];
@@ -413,7 +420,7 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             $global = false;
         }
         
-        if(array_key_exists('rule',$data) && $tmpBypass['ypass_rule']<=2)
+        if(array_key_exists('rule',$data) && $tmpBypass['bypass_rule']<=2)
             $data['rule'] = $this->formatRule($data['rule']);
         
         // update main role (tenant manager role)
@@ -421,17 +428,57 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
         if(!$return)
             return false;//throw new \Exception($this->errorFull()); 
 
-        // create global per tenant
-        $this->updateGlobalRole($data,$global,$oldRole,$tmpBypass);
+        if($isUnsetGlobal){
+            $this->updateUnGlobalRole($oldRole['role_code']);
+        }else{
+            // create global per tenant
+            $this->updateGlobalRole($data,$global,$oldRole,$tmpBypass);
+        }
 
+        return $return;
     }
 
     /**
-     * @param Array
-     * @param Array|false   $globalConfig   false jika tidak edit global, 
+     * ubah global role menjadi bukan global role
+     */
+    private function updateUnGlobalRole($roleCode)
+    {
+        
+        $tenantList = Tenant::listTenant([],0,0);
+
+        foreach ($tenantList['data'] as $value) {
+
+            $curRole = (new Role())->setTenantId($value['id'])
+                ->where('role_code',$roleCode)
+                ->update([                    
+                    'is_global' => 0,
+                    'global_type' => 0,
+                    'global_bypass_rule'=>0,
+                    'global_bypass_datarule'=>0,
+                    'global_bypass_dashboard'=>0,
+                    'global_bypass_notification'=>0,
+                    
+                ]);
+        }
+        
+        DbConfig::deleteGlobalConfig(
+            'role.config.global.item.'.$roleCode
+        );
+    }
+
+    /**
+     * Update Role-Role global di tenant
+     * 
+     * @param Array         $mainRole       record role di Tenant manager yang diupdate
+     * @param Array|False   $globalConfig   false jika tidak edit global, 
      *                                      empty array jika unset
-     * @param Array|False       false jika create role baru
-     * @param Array             Array
+     * @param Array|False   $oldRole        false jika create role baru
+     *                                      record role di tenant manager sebelum diupdate
+     * @param Array         $baypassConfig  Array config bypass, tiap
+     *          bypass_rule
+     *          bypass_datarule
+     *          bypass_dashboard
+     *          bypass_notification
      */
     private function updateGlobalRole($mainRole,$globalConfig,$oldRole=false,$bypassConfig=[])
     {
@@ -439,10 +486,10 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
         $isRoleCodeChanged = false;
         $isEditGlobal = is_array($globalConfig);
 
-        // jika update role existing
+        // jika update role existing di tenant manager
         if($oldRole){
-
-            $isNewData = false;
+            
+            $isNewData = false;            
 
             // jika ganti role code
             if($mainRole['role_code'] != $oldRole['role_code']){
@@ -452,18 +499,20 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             // jika tidak ganti role code
             }else{
                 $roleCode = $mainRole['role_code'];
-            }
+
+            }            
 
             // get config lama
-            $oldConfig = DbConfig::listGlobalConfig('role.config.global.item.'.$oldRole['role_code'],true);
+            $oldConfig = DbConfig::listGlobalConfig('role.config.global.item.'.$oldRole['role_code'],true,true);
             
         // jika create new role
         }else{
 
             $isNewData = true;
-
+            
             $oldConfig = [];
             $roleCode = $mainRole['role_code'];
+
         }
 
         $tenantList = Tenant::listTenant([],0,0);
@@ -475,13 +524,16 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
                 if($value['tenant_id'])
                     $globalPerTenant[$value['tenant_id']] = $value;
         
-        foreach ($tenantList['data'] as $key => $value) {
-
+        foreach ($tenantList['data'] as $value) {
+            if(!Tenant::dbExists($value['id']))continue;
+            
             $curRole = (new Role())->setTenantId($value['id'])
                 ->where('role_code',$roleCode)
                 ->first();
 
             $data = $mainRole;
+
+            $data['tenant_id'] = $value['id'];
 
             if($isEditGlobal){
                 // jika ada custom config global per tenant
@@ -509,16 +561,16 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
                 }
             }
 
-            // jika role sudah ada
+            // jika role di tenant sudah ada
             if($curRole){
 
-                // TO DO : SOON - cek mode bypass rulee 2,3 dan 4
+                // TO DO : SOON - cek mode bypass rule 2,3 dan 4
                 
-                // jika rule tidak di bypass/replace
+                // jika rule tidak di-bypass/replace
                 if($bypassConfig['bypass_rule']==0)
                     unset($data['rule']);
                 
-                // jika datarule tidak di bypass/replace
+                // jika datarule tidak di-bypass/replace
                 if($bypassConfig['bypass_datarule']==0)
                     unset($data['datarule_id'],$data['datarule_code']);
 
@@ -537,12 +589,16 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
                         $value['id']
                     );
 
+                
+            // jika role di tenant belum ada maka langsung create saja
             }else{
+
                 $tmpRole = (new Role())->setTenantId($value['id'])
                     ->create($data);
             }
             
         }
+        
     }
 
     /**

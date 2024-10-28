@@ -15,7 +15,7 @@ use hpsynapse\moduser\Facades\RoleRepo;
 
 use hpsynapse\moduser\Models\ApiToken;
 use hpsynapse\moduser\Models\User;
-use hpsynapse\moduser\Models\DataruleFeature;
+// use hpsynapse\moduser\Models\DataruleFeature;
 
 
 /**
@@ -383,8 +383,8 @@ class UserAuth
             'hashed_pin'=>$tmpUser->pin,
             'is_h2h_token'=>$this->isH2H(),
             'userId'=>$tmpUserId,
-            'userData'=>$this->userData,
             'userPin'=>$tmpUser?$tmpUser->toArray():[],
+            'userData'=>$this->userData,
         ]);
         return false;
     }
@@ -472,67 +472,137 @@ class UserAuth
      */
 
     protected $tmpDatarule = [];
-    protected $tmpDataruleFeature = [];
+    protected $tmpDataruleFeature = []; // feature
     protected $hasDatarule = false;
 
     /**
+     * inisiasi datarule pertama kali di controller, yang akan dipassing ke filter
      * 
-     * @return False|Array False jika datarule tidak aktif atau jika all access
-     *
+     * @return False|Array      False jika datarule tidak aktif atau jika all access
+     *      -- dari aktif datarule
      *      datarule_type
      *      datarule_subtype
      *      datarule_type_value
      * 
-     *      feature
-     *      feature_config isi config fitur
+     *      feature                     record feature
+     *      feature_config              isi/value config fitur sesuai dengan tipe dan subtipenya
      * 
-     *      filter
      */
-    public function initDatarule($code,$defaultData=[],$autoCreate=false)
+    public function initDatarule($module,$featureCode)
     {
         $return = false;
         if($this->isDataruleActive() && $this->getDataruleType()){
             $return = $this->userRole[$this->userRoleCode]['datarule_active'];
             
-            $return['feature'] = $this->getDataruleFeature($code,$defaultData,$autoCreate);
+            $return['feature'] = $this->getDataruleFeature($module,$featureCode);
 
-            // jika ada datarule tp selain all access dan user login
-            if($this->getDataruleType()==1){
-                $return['feature_config'] = 
-                    isset($return['feature']['config'][1])
-                    ?$return['feature']['config'][1]
-                    :'';
-                // $return['filter'] = [
-                //     $return['feature']['config']
-                // ];
+            if($return['feature']){
+                
 
-            // jika
+                // jika tipe user login
+                if($this->getDataruleType()==1){
+                    // ambil config fitur tipe 1
+                    $return['feature_config'] = 
+                        isset($return['feature']['config'][1])
+                        ?$return['feature']['config'][1]
+                        :'user_id';
+
+                // jika tipe mod-user
+                }else if($this->getDataruleType()==2){
+                    $return['feature_config']=
+                        isset($return['feature']['config'][$this->datarule()['type']]) && isset($return['feature']['config'][$this->datarule()['type']][$this->datarule()['subtype']])
+                        ?$return['feature']['config'][$this->datarule()['type']][$this->datarule()['subtype']]
+                        :($this->datarule()['subtype']==1?'user_id':'user');
+
+                // jika custom
+                }else{
+                    $fullCode = $module.'_'.$featureCode;
+                    $return['feature_config'] = config(
+                        'AppConfig.datarule.subtype.'.$this->getDataruleSubtype().'.feature_config.'.$fullCode,
+                        config('AppConfig.datarule.subtype.'.$this->getDataruleSubtype().'.default_feature_config',false)
+                    );
+
+                }
             }else{
-                $return['feature_config']=
-                    isset($return['feature']['config'][$this->datarule()['type']]) && isset($return['feature']['config'][$this->datarule()['type']][$this->datarule()['subtype']])
-                    ?$return['feature']['config'][$this->datarule()['type']][$this->datarule()['subtype']]
-                    :'';
-
-                // $return['filter'] = [
-                //     $return['feature']['config']
-                // ];
+                $return['feature_config'] = false;
             }
         }
-
+        
         return $return;
     }
 
     /**
-     * do filter datarule
+     * get record feature
+     * @return False|Array false jika
+     */
+    public function getDataruleFeature($module,$featureCode)
+    {
+        $fullCode = $module.'_'.$featureCode;
+        if(isset($this->tmpDataruleFeature[$fullCode]))
+            return $this->tmpDataruleFeature[$fullCode];
+        
+        $tmpFeature = config('AppConfig.datarule.feature.'.$module.'.'.$featureCode,[]);
+        if($tmpFeature){
+            $this->tmpDataruleFeature[$fullCode] = $tmpFeature;
+        }else{
+            return false;            
+        }
+
+        return $this->tmpDataruleFeature[$fullCode];
+    }
+
+    public function isDataruleActive()
+    {
+        return config('AppConfig.packageLocal.moduser.datarule.enable',0)?true:false;
+    }
+
+    /**
+     * get datarule record dari role aktif user yang sedang login
+     */
+    public function datarule()
+    {
+        return $this->userRole[$this->userRoleCode]['datarule'];
+    }
+
+    /**
+     * get tipe datarule dari user yang login saat ini
+     */
+    public function getDataruleType()
+    {
+        return $this->hasDatarule?$this->datarule()['type']:config('AppConfig.packageLocal.moduser.datarule.default_datarule_type', 0);
+    }
+
+    /**
+     * get subtipe datarule dari user yang login saat ini
+     */
+    public function getDataruleSubtype()
+    {
+        
+        return $this->hasDatarule?$this->datarule()['subtype']:config('AppConfig.packageLocal.moduser.datarule.default_datarule_subtype', 0);
+    }
+
+    /**
+     * do filter datarule (implementasi filter berdasarkan datarule di BaseRepository atau
+     * jika custom maka bisa diimplementasi di repository dengan mem-bypass yg nantinya di BaseRepository)
+     * 
+     * @param $model
+     * @param $activeDataRule       return hasil dari fungsi initDatarule()
+     *          feature             record feature, jika false berarti fitur belum terconfig
+     *          feature_config      config feature nya, jika false berarti fitur belum terconfig
+     *          datarule_type
+     *          datarule_subtype
+     *          datarule_type_value
+     * 
      */
     public function filterDatarule($model,$activeDataRule)
     {        
         // custom
         if($activeDataRule['datarule_type']==3){
             $model = $this->filterDataruleCustom($model,$activeDataRule);
+
         // user id / user login
         }else if($activeDataRule['datarule_type']==1 || ($activeDataRule['datarule_type']==2 && $activeDataRule['datarule_subtype']==1)){
-            $model = $model->addGlobalScope(
+            $model->addGlobalScope(
                 new \hpsynapse\moduser\Models\Scopes\DataruleUser(
                     $activeDataRule['datarule_type_value'],
                     $activeDataRule['feature_config']?$activeDataRule['feature_config']:false
@@ -548,25 +618,25 @@ class UserAuth
 
     private function filterDataruleUser($model,$activeDataRule)
     {
-        // berdasarkan user group id
+        // berdasarkan user group code
         if($activeDataRule['datarule_subtype']==2){
-            $model = $model->addGlobalScope(
+            $model->addGlobalScope(
                 new \hpsynapse\moduser\Models\Scopes\DataruleUserGroup(
                     $activeDataRule['datarule_type_value'],
                     $activeDataRule['feature_config']?$activeDataRule['feature_config']:false
                 )
             );
-        // berdasarkan role id
+        // berdasarkan role code
         }else if($activeDataRule['datarule_subtype']==3){
-            $model = $model->addGlobalScope(
+            $model->addGlobalScope(
                 new \hpsynapse\moduser\Models\Scopes\DataruleRole(
                     $activeDataRule['datarule_type_value'],
                     $activeDataRule['feature_config']?$activeDataRule['feature_config']:false
                 )
             );
-        // berdasarkan role group id
+        // berdasarkan role group code
         }else if($activeDataRule['datarule_subtype']==4){
-            $model = $model->addGlobalScope(
+            $model->addGlobalScope(
                 new \hpsynapse\moduser\Models\Scopes\DataruleRoleGroup(
                     $activeDataRule['datarule_type_value'],
                     $activeDataRule['feature_config']?$activeDataRule['feature_config']:false
@@ -579,55 +649,16 @@ class UserAuth
     
     private function filterDataruleCustom($model,$activeDataRule)
     {
-        $scopeClass = config('AppConfig.packageLocal.moduser.datarule.custom.'.$activeDataRule['datarule_subtype'].'.scope');
-        $model = $model->addGlobalScope(
+        $scopeClass = config('AppConfig.datarule.subtype.'.$activeDataRule['datarule_subtype'].'.scope');
+        
+        $model->addGlobalScope(
             new $scopeClass(
                 $activeDataRule['datarule_type_value'],
                 $activeDataRule['feature_config']?$activeDataRule['feature_config']:false
             )
         );
+
         return $model;
-    }
-
-    /**
-     * get record feature
-     * @return False|Array
-     */
-    public function getDataruleFeature($code,$defaultData=[],$autoCreate=false)
-    {
-        if(isset($this->tmpDataruleFeature[$code]))
-            return $this->tmpDataruleFeature[$code];
-
-        $tmpFeature = DataruleFeature::where('code',$code)->first();
-        if($tmpFeature){
-            $this->tmpDataruleFeature[$code] = $tmpFeature->toArray();
-        }else{
-            if($autoCreate){
-                $defaultData['code'] = $code;
-                $defaultData['tenant_id'] = config('tenant.id',0);
-                DataruleFeature::create($defaultData);
-                $this->tmpDataruleFeature[$code] = DataruleFeature::where('code',$code)->first()->toArray();
-            }else{
-                return false;
-            }
-        }
-
-        return $this->tmpDataruleFeature[$code];
-    }
-
-    public function isDataruleActive()
-    {
-        return config('AppConfig.packageLocal.moduser.datarule.enable',0)?true:false;
-    }
-
-    public function datarule()
-    {
-        return $this->userRole[$this->userRoleCode]['datarule'];
-    }
-
-    public function getDataruleType()
-    {
-        return $this->hasDatarule?$this->datarule()['type']:config('AppConfig.packageLocal.moduser.datarule.default_datarule_type', 0);
     }
 
     /**

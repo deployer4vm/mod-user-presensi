@@ -10,7 +10,7 @@
             </div> -->
     
             <!-- input Rule -->
-            <div class="my-3" v-if="data.formData.form.role_type==1 && canEditRoleRule">
+            <div class="my-3" v-if="data.formData.form.role_type==1">
                 
                 <div class="row">
                     <!-- Looping nama module di sidebar-->
@@ -56,11 +56,11 @@
                                             </div>
                                             <!-- tombol check / uncheck se-module -->
                                             <div>
-                                                <b-btn variant="dark w-icon" size="xs" :disabled="disabledModuleAccess[key]" @click="checkModuleAll(key)">
+                                                <b-btn variant="dark w-icon" size="xs" v-if="!(disabledModuleAccess[key] || isDisabled)" @click="checkModuleAll(key)">
                                                     <i class="fi fi-rs-check-double"></i>
                                                     <span>{{ Trans.get("role.roleform.check_all") }}</span>
                                                 </b-btn>
-                                                <b-btn variant="dark w-icon" size="xs" :disabled="disabledModuleAccess[key]" @click="uncheckModuleAll(key)">
+                                                <b-btn variant="dark w-icon" size="xs" v-if="!(disabledModuleAccess[key] || isDisabled)" @click="uncheckModuleAll(key)">
                                                     <i class="fi fi-rs-trash-can-check"></i>
                                                     <span>{{ Trans.get("role.roleform.uncheck_all") }}</span>
                                                 </b-btn>
@@ -148,7 +148,8 @@ export default {
     name: "pages-role-form-rule",
     props: [
         'roleLoaded',
-        'roleSaved'
+        'roleSaved',
+        'ruleData'
         // 'placeholder',
         // 'noOptions',
         // 'disabled',
@@ -170,7 +171,7 @@ export default {
     watch: {
         'roleLoaded': function(v) { 
             if(v)
-                this.initLoadRole(v);
+                this.initLoadRole(this.ruleData);
         },
         'roleSaved': function(v) {   
             if(v)
@@ -199,7 +200,7 @@ export default {
         //     return this.$store.state.tenant.listTenantGroup;
         // },        
         tenantGroup() {
-            return this.$store.getters.getTenantGroup;
+            return this.$store.getters.getTenantGroup;s
         },
         //
         isDisabled() {
@@ -285,10 +286,9 @@ export default {
                 });
             });
             this.data.formData.form.rule = tmp;
-            this.data.formData.form.formEmpty = JSON.parse(JSON.stringify(tmp));
+            this.data.formData.formEmpty.rule = JSON.parse(JSON.stringify(tmp));
         },
         initLoadRole(rule){
-
             if (rule != null) {
                 var tmp = JSON.parse(JSON.stringify(this.data.formData.formEmpty.rule));
                 _.forEach(this.data.formData.form.rule, (v, k) => {

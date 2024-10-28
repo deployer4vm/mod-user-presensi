@@ -5,7 +5,7 @@ namespace hpsynapse\moduser\Models;
 use App\Base\BaseModel;
 use App\Base\Traits\ModelDataTenant;
 
-class UserRoleGroup extends BaseModel
+class TO_BE_DELETED_UserRoleGroup extends BaseModel
 {
     use ModelDataTenant;    
     protected $connection = 'perTenant'; 

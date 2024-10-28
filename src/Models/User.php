@@ -114,7 +114,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getRoleGroupIsIntegratedAttribute()
     {
-        return UserRoleGroup::where('user_id',$this->id)->whereHas('roleGroup',function($m){
+        return UserRole::where('user_id',$this->id)->whereHas('roleGroup',function($m){
             $m->where('has_model',1)->orWhere('can_selected_on_create',0);
         })->exists();
     }
@@ -124,7 +124,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasManyThrough(
             RoleGroup::class, // table tujuan
-            UserRoleGroup::class, // table transaksi
+            UserRole::class, // table transaksi
             'user_id', // Foreign key on table transaksi (untuk berelasi dengan main model)
             'id', // Foreign key on table tujuan (untuk berelasi dengan table transaksi)
             'id', // Local key on main model table (untuk berelasi dengan table transaksi)

@@ -9,18 +9,18 @@ use Illuminate\Database\Eloquent\Scope;
 use hpsynapse\moduser\Facades\UserAuth;
 
 /**
- * Berdasarkan user group id - scope untuk datarule type = 2, subtype = 2
+ * Berdasarkan user group code - scope untuk datarule type = 2, subtype = 2 (user group code)
  * 
  * data yang dimaksud harus berelasi ke user dengan nama relasi 'user'
  */
 class DataruleUserGroup implements Scope
 {
-    protected $userGroupId=0;
+    protected $userGroupCode='';
     protected $userRelationName='user';
     
-    public function __construct($userGroupId,$userRelationName=false)
+    public function __construct($userGroupCode,$userRelationName=false)
     {
-        $this->userGroupId=$userGroupId;
+        $this->userGroupCode=$userGroupCode;
         $this->userRelationName=$userRelationName?$userRelationName:'user';
     }
 
@@ -30,10 +30,10 @@ class DataruleUserGroup implements Scope
     public function apply(Builder $builder, Model $model): void
     {
         $builder->whereHas($this->userRelationName,function($m){
-            if(is_array($this->userGroupId)){
-                $m->whereIn('user_group_id', $this->userGroupId);
+            if(is_array($this->userGroupCode)){
+                $m->whereIn('user_group_code', $this->userGroupCode);
             }else{
-                $m->where('user_group_id', $this->userGroupId);
+                $m->where('user_group_code', $this->userGroupCode);
             }
         });
     }

@@ -52,9 +52,7 @@ class Role extends BaseModel
 
     
     /**
-     * dashboard : false/record, apakah user ini teringrasi dengan
-     * data eksternal lain, jika ya maka ini bisa digunakan sebagai penanda apakah
-     * user bisa dimanage via fitur manage user atau tidak.
+     * dashboard : 
      * 
      * @return Float path file
      */
@@ -84,7 +82,7 @@ class Role extends BaseModel
         ];
 
         if($this->is_global){
-            $tmpConfig = DbConfig::listGlobalConfig('role.config.global.item.'.$this->role_code,true);
+            $tmpConfig = DbConfig::listGlobalConfig('role.config.global.item.'.$this->role_code,true,true);
             if($tmpConfig)
                 foreach ($tmpConfig as $value) {
                     $return[] = $value;

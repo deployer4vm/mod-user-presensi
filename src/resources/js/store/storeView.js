@@ -144,25 +144,26 @@ const state = {
                 tenant_id: 0,
                 //
                 role_group_id: 0,
-                role_group_code: '',
+                // role_group_code: '',
                 datarule_id: 0,
-                datarule_code: '',
+                // datarule_code: '',
                 dashboard_type:0,
                 //
                 role_code: "",
                 level: 2,
                 role_type: 1,
-                system_user: 0,
+                system_role: 0,
                 name: "",
                 rule: {},
                 locked_data_mode: 0,
-                //
+                // config replace
                 bypass_rule:0,
                 bypass_datarule:0,
                 bypass_dashboard:0,
                 bypass_notification:0,
                 //
                 is_global:0,
+                // global_bypass_* tidak langsung diedit diform, tapi via global
                 global_bypass_rule:0,
                 global_bypass_datarule:0,
                 global_bypass_dashboard:0,
@@ -185,15 +186,15 @@ const state = {
                 tenant_id: 0,
                 //
                 role_group_id: 0,
-                role_group_code: '',
+                // role_group_code: '',
                 datarule_id: 0,
-                datarule_code: '',
+                // datarule_code: '',
                 dashboard_type:0,
                 //
                 role_code: "",
                 level: 2,
                 role_type: 1,
-                system_user: 0,
+                system_role: 0,
                 name: "",
                 rule: {},
                 locked_data_mode: 0,
@@ -204,6 +205,7 @@ const state = {
                 bypass_notification:0,
                 //
                 is_global:0,
+                // global_bypass_* tidak langsung diedit diform, tapi via global
                 global_bypass_rule:0,
                 global_bypass_datarule:0,
                 global_bypass_dashboard:0,

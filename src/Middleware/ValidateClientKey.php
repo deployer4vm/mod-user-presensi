@@ -29,6 +29,7 @@ class ValidateClientKey
             && config('AppConfig.packageLocal.moduser.enable')
             && config('AppConfig.system.has_auth')
         ) {
+            
             $clientKey = $request->header('X-Client-Key');
             $client = UserRepo::getUserSystem(['username', $clientKey]);
             

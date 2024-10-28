@@ -367,7 +367,8 @@ class LoginController extends BaseController
             // api success
             $paramUserLog = [
                 'ip' => request()->ip(),
-                'device_type' => $token['device_type']
+                'authParam' => $authParam,
+                'device_type' => $token['device_type'],
             ];
 
             if (isset($userLogin)) {

@@ -4,7 +4,10 @@ namespace hpsynapse\moduser\Models;
 
 use App\Base\BaseModel;
 
-class DataruleFeature extends BaseModel
+/**
+ * TIDAK JADI DIGUNAKAN
+ */
+class TO_BE_DELETED_DataruleFeature extends BaseModel
 {
 
     /**

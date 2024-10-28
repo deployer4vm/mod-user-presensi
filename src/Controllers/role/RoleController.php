@@ -87,6 +87,10 @@ class RoleController extends BaseController
             //     }
             // // jika di tenant manager
             // }else{
+            //     $filter[] = [
+            //         ['global_type', 0],
+            //         ['OR global_type', 1]
+            //     ];
             //     if(
             //         UserAuth::hasAccess('moduser.role.can_edit_global_role') 
             //         || UserAuth::isWebDev()
@@ -192,7 +196,6 @@ class RoleController extends BaseController
         $input = $request->except([
             'tenant_id',
             'tenant_group_id',
-            'notification',
             'is_global',
             'global',
             'notification',// tidak diset disini

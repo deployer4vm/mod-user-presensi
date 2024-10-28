@@ -18,15 +18,26 @@ class ModuserDataruleIdToModuserRolesTable extends Migration
     {
         
         if (config('AppConfig.system.multitenant.active', false) && $this->tenantMigrateMode() == false) {
+
             if (!Schema::hasColumn('moduser_roles', 'datarule_id')) {
                 Schema::table('moduser_roles', function (Blueprint $table) {
-                    $table->unsignedBigInteger('datarule_id')->default(0)->after('role_group_id');
+                    $table->unsignedInteger('datarule_id')->default(0)->after('role_group_id');
+                });
+            }
+            
+            if (!Schema::hasColumn('moduser_user_roles', 'datarule_id')) {
+                Schema::table('moduser_user_roles', function (Blueprint $table) {
+                    $table->unsignedInteger('datarule_id')->default(0)->after('role_id');
                 });
             }
         }
 
         $this->tablePerTenant('moduser_roles', function (Blueprint $table) {
-            $table->unsignedBigInteger('datarule_id')->default(0)->after('role_group_id');
+            $table->unsignedInteger('datarule_id')->default(0)->after('role_group_id');
+        }, 'datarule_id');
+
+        $this->tablePerTenant('moduser_user_roles', function (Blueprint $table) {
+            $table->unsignedInteger('datarule_id')->default(0)->after('role_id');
         }, 'datarule_id');
         
     }
