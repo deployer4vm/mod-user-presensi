@@ -155,7 +155,9 @@ class RoleRepo extends BaseRepository implements \hpsynapse\moduser\Contracts\Ro
             $this->error = 'Role code already exists';
             return false;
         }
-        $data['rule'] = $this->formatRule($data['rule']);     
+
+        if(isset($data['rule']))
+            $data['rule'] = $this->formatRule($data['rule']);     
 
         $createOnTenant = true;
         // jika multi tenant dan di tenant manager

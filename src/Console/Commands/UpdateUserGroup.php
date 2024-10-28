@@ -53,9 +53,10 @@ class UpdateUserGroup extends Command
             $userRoles = UserRole::with(['role'])->get();
             foreach ($userRoles as $userRole) {
                 // echo $userRole->role->role_group_id.' - ';
-                UserRole::where('id',$userRole->id)->update([
-                    'role_group_id' => $userRole->role->role_group_id
-                ]);
+                if($userRole->role)
+                    UserRole::where('id',$userRole->id)->update([
+                        'role_group_id' => $userRole->role->role_group_id
+                    ]);
             }
             // $this->info('Role Group ID Tenant Manager Updated');
         }
@@ -69,18 +70,19 @@ class UpdateUserGroup extends Command
             $list = Tenant::listTenant($where);
             foreach ($list['data'] as $data) {
                 if (Tenant::dbExists($data['id'])) {
-                    // $this->info('Tenant : '.$data['id']);
+                    $this->info('Processing Tenant : '.$data['id']);
                     Tenant::setActiveTenantById($data['id']);
 
-                    $userRoles = UserRole::with(['role'])->get();
+                    $userRoles = UserRole::onWriteConnection()->with(['role'])->get();
                     foreach ($userRoles as $userRole) {
                         // echo $userRole->tenant_id.' ['.$userRole->role->role_group_id.'] - ';
-                        UserRole::where('id',$userRole->id)->update([
-                            'role_group_id' => $userRole->role->role_group_id
-                        ]);
+                        if($userRole->role)
+                            UserRole::where('id',$userRole->id)->update([
+                                'role_group_id' => $userRole->role->role_group_id
+                            ]);
                     }
 
-                    $this->info('Role Group ID Updated - Tenant : '.$data['id']);
+                    $this->info('SUCCESS - Role Group ID Updated on Tenant : '.$data['id']);
                 }
             }
         }
