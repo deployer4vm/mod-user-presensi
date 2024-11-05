@@ -219,6 +219,11 @@ const dashboardConfig = (resolve) => {
         resolve(require("../views/admin/config/dashboard"));
     });
 };
+const dashboard = (resolve) => {
+    require.ensure(["../views/dashboard/dashboard"], () => {
+        resolve(require("../views/dashboard/dashboard"));
+    });
+};
 
 //style/tampilan auth page
 if (globals().AppConfig.packageLocal.moduser.auth_template.type == 1) {
@@ -339,6 +344,18 @@ export default [
         path: globals().AppConfig.endpoint.admin.auth,
         component: LayoutBlank,
         children: authPage,
+    },
+    // dashboard endpoin
+    {
+        path: globals().AppConfig.endpoint.admin.app,
+        component: () => import("@/layout/" + globals().AppConfig.system.web_admin.layout),
+        children: [
+            {
+                path: "",
+                component: dashboard,
+                name: 'home'
+            },
+        ]
     },
     {
         path: globals().AppConfig.endpoint.admin.moduser,

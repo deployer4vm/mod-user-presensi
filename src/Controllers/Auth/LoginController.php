@@ -180,8 +180,10 @@ class LoginController extends BaseController
      * 
      *      username
      *      password
-     *      role_code       *optional, string role code yg diset sebagai 
-     *                      role code active di session ini
+     *      role_group_code     *optional, string role group code yg diset sebagai 
+     *                          role code active di session ini, akan set
+     *      role_code           *optional, string role code yg diset sebagai 
+     *                          role code active di session ini
      * 
      * 
      *      deviceId

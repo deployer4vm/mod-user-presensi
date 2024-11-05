@@ -576,8 +576,7 @@ class UserAuth
      * get subtipe datarule dari user yang login saat ini
      */
     public function getDataruleSubtype()
-    {
-        
+    {        
         return $this->hasDatarule?$this->datarule()['subtype']:config('AppConfig.packageLocal.moduser.datarule.default_datarule_subtype', 0);
     }
 

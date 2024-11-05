@@ -40,8 +40,17 @@
                     <!--  -->
 
                     <!-- Select Dashboard -->
-                    <b-form-group :label="Trans.get('role.field_caption.dashboard_type')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3">
-                        <b-select :disabled="isDisabled || !canEditDashboard" v-model="data.formData.form.dashboard_type" :options="selectDashboard" class="form-control"/>
+                    <b-form-group 
+                        v-if="canEditDashboardGlobal" 
+                        :label="Trans.get('role.field_caption.dashboard_type')" 
+                        label-align-md="right" label-class="pr-md-3" :label-cols-md="3"
+                    >
+                        <b-select 
+                            :disabled="isDisabled" 
+                            v-model="data.formData.form.dashboard_type" 
+                            :options="selectDashboard" 
+                            class="form-control"
+                        />
                     </b-form-group>
                     
                     <!-- bypass_dashboard -->
@@ -109,7 +118,11 @@
                         <b-form-group
                             :label="Trans.get('role.field_caption.is_global')" label-align-md="right" label-class="pr-md-3" :label-cols-md="3"
                         >
-                            <b-select v-model="data.formData.form.is_global" :options="selectIsGlobal" class="form-control"/>
+                            <b-select 
+                                v-model="data.formData.form.is_global" 
+                                :options="selectIsGlobal" 
+                                class="form-control"
+                            />
                         </b-form-group>
 
                         <hr>
@@ -261,19 +274,12 @@ export default {
         listTenant: [],
         //
         selectRoleGroup: [],
-        selectLockedDataMode: [
-            {text:'Public',value:0},
-            {text:'Tidak bisa didelete',value:1},
-            {text:'Tidak bisa diedit dan didelete',value:2},
-        ],
+        selectLockedDataMode: [],
         selectRoleType: [
             {text:'Standard',value:1},
             {text:'Non-Login role',value:2},
         ],
-        selectIsGlobal: [
-            {text:'Tenant Manager Only',value:0},
-            {text:'Global',value:1},
-        ],
+        selectIsGlobal: [],
         selectGlobalBypass: [
             {text:'Diedit dari Tenant Manager saja',value:0},
             {text:'Bisa diedit dari tenant',value:1},
@@ -286,9 +292,7 @@ export default {
         selectDatarule: [
             {text:'Default Datarule',value:0},
         ],        
-        selectDashboard: [
-            {text:'Default Dashboard',value:0},
-        ],       
+        selectDashboard: [],       
         selectTenant: [],
         //
         disabledModuleAccess: {},
@@ -369,8 +373,8 @@ export default {
         canEditLevel() {
             return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_level') || this.UserAuth.isWebdev());
         },
-        canEditRule() {
-            return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_rule') || this.UserAuth.isWebdev());
+        canEditDashboard() {
+            return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_dashboard') || this.UserAuth.isWebdev());
         },
         // apakah bisa edit data-data role global (khusus di tenant manager)
         canEditGlobalData() {
@@ -381,11 +385,8 @@ export default {
             return this.UserAuth.hasAccess(this.accessRuleKey + '.can_bypass_global') || this.UserAuth.isWebdev();
         },
         //
-        canEditRuleGlobal() {
-            return this.canEditRule && (this.canEditData || (this.data.formData.form.global_bypass_rule==1 || (this.data.formData.form.global_bypass_rule==2 && this.canBypassGlobal)));
-        },
-        canEditDashboard() {
-            return this.canEditData || (this.data.formData.form.global_bypass_dashboard==1 || (this.data.formData.form.global_bypass_dashboard==2 && this.canBypassGlobal));
+        canEditDashboardGlobal() {
+            return this.canEditDashboard && (this.canEditData || (this.data.formData.form.global_bypass_dashboard==1 || (this.data.formData.form.global_bypass_dashboard==2 && this.canBypassGlobal)));
         },
         canEditDatarule() {
             return this.canEditData || (this.data.formData.form.global_bypass_datarule==1 || (this.data.formData.form.global_bypass_datarule==2 && this.canBypassGlobal));
@@ -507,7 +508,10 @@ export default {
             this.Repo('moduserConfigDashboard')
                 .readList({saveState:false})
                 .then((res) => {
-                    this.selectDashboard = [{text: 'Default Dashboard', value: 0}];
+                    this.selectDashboard = [
+                        {text:this.Trans.get("role.label.dashboard_type_0",{},'Sesuai Role Group'),value:0},
+                        {text:this.Trans.get("role.label.dashboard_type_1",{},'Default Dashboard'),value:1},
+                    ];
                     if (res.count == 0) {
                         this.Web.showAlert({
                             title: this.Trans.get("alert.info_title"),
@@ -672,6 +676,18 @@ export default {
 
             this.Web.setBodyWithPadding(false);
             this.Web.setShow("moduser");
+
+            // set lang
+            this.selectIsGlobal = [
+                {text:this.Trans.get("user.label.is_global_0",{},'Data per tenant'),value:0},
+                {text:this.Trans.get("user.label.is_global_1",{},'Data multi tenant (global)'),value:1},
+            ];
+            
+            this.selectLockedDataMode = [
+                {text:this.Trans.get('role.label.locked_data_mode_0',{},'Public'), value:0},
+                {text:this.Trans.get('role.label.locked_data_mode_1',{},'Tidak bisa didelete'), value:1},
+                {text:this.Trans.get('role.label.locked_data_mode_2',{},'Tidak bisa diedit dan didelete'), value:2},
+            ];
         },
     },
     created() {

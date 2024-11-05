@@ -19,4 +19,4 @@ module.exports = function(fs, mix) {
     if (!fs.existsSync(filePath + "profiletab/profile.vue")) {
         mix.copy(filePathVendor + "profiletab/profile.vue", filePath +"profiletab/profile.vue");
     }
-};;
+};

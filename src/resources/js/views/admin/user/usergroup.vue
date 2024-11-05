@@ -107,7 +107,7 @@
                         </template>
 
                         <template v-slot:cell(actions)="row">
-                            <div class="d-flex align-items-center justify-content-center">
+                            <div v-if="row.item.is_global==0 || isOnTenantManager" class="d-flex align-items-center justify-content-center">
                                 <b-btn
                                     v-if="(UserAuth.hasAccess(data.accessRuleKey, 'u') && row.item.locked_data_mode != 2) || UserAuth.isWebdev()"
                                     @click="showForm(false, row.item.id)"
@@ -228,6 +228,22 @@
                     :disabled="isDisabled"
 				/>
             </b-form-group>
+            
+            <!-- is_global -->
+            <b-form-group
+                :label="Trans.get('user.user_group.form_group.field_name.is_global')" 
+                label-align-md="right" 
+                label-class="pr-md-3" 
+                :label-cols-md="3"
+                v-if="isOnTenantManager"
+            >
+                <b-select 
+                    v-model="data.formData.form.is_global" 
+                    :options="selectIsGlobal" 
+                    class="form-control" 
+                    :placeholder="Trans.get('user.user_group.form_group.field_name.is_global')"
+                />
+            </b-form-group>
 
             <!-- locked -->
             <b-form-group
@@ -289,6 +305,7 @@ export default {
 
     data: () => ({
         selectLockedDataMode: [],
+        selectIsGlobal: [],
     }),
 
     watch: {
@@ -651,6 +668,13 @@ export default {
 
             this.Web.setBodyWithPadding(false);
             this.Web.setShow("moduser"); 
+            
+            //init lang
+            
+            this.selectIsGlobal = [
+                {text:this.Trans.get("user.label.is_global_0",{},'Data per tenant'),value:0},
+                {text:this.Trans.get("user.label.is_global_1",{},'Data multi tenant (global)'),value:1},
+            ];
         },        
     },
 

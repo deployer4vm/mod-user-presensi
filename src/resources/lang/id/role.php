@@ -13,7 +13,7 @@ return [
         'dashboard_type' => 'Dashboard',
         'datarule_id' => 'Datarule',
         'tenant_id' => 'Tenant',
-        'is_global' => 'Global Config',
+        'is_global' => 'Global Data',
         'global_bypass_rule' => 'Rule bisa diedit di tenant',
         'global_bypass_datarule' => 'Datarule bisa diedit di tenant',
         'global_bypass_dashboard' => 'Dashboard bisa diedit di tenant',
@@ -52,9 +52,8 @@ return [
 
     // general lavel
     'label' => [
-        'locked_data_mode_0' => 'Public',
-        'locked_data_mode_1' => 'Tidak bisa didelete',
-        'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
+        'dashboard_type_0'=>'Sesuai Role Group',
+        'dashboard_type_1'=>'Default Dashboard',
     ],
 
     // rule group
@@ -68,14 +67,13 @@ return [
                 'has_model' => 'Has Model',
                 'model' => 'Model',
                 'dashboard_type' => 'Tipe Dashboard',
+                'is_global' => 'Global Data',
                 'can_selected_on_create' => 'Bisa Dipilih Saat Create User',
                 'description' => 'Keterangan',
                 'locked_data_mode' => 'Accessibility',
             ],
             'label' => [
-                'locked_data_mode_0' => 'Public',
-                'locked_data_mode_1' => 'Tidak bisa didelete',
-                'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
+                'dashboard_type_0'=>'Default Dashboard',
             ],
         ],
         'table_group' => [
@@ -103,12 +101,10 @@ return [
                 'level_end' => 'Level Akhir',
                 'name' => 'Nama',
                 'description' => 'Keterangan',
+                'is_global' => 'Global Data',
                 'locked_data_mode' => 'Accessibility',
             ],
             'label' => [
-                'locked_data_mode_0' => 'Public',
-                'locked_data_mode_1' => 'Tidak bisa didelete',
-                'locked_data_mode_2' => 'Tidak bisa diedit dan didelete',
             ],
         ],
         'table_level' => [
@@ -141,6 +137,7 @@ return [
                 // 'dashboard_type' => 'Tipe Dashboard',
                 // 'can_selected_on_create' => 'Bisa Dipilih Saat Create User',
                 // 'description' => 'Keterangan',
+                'is_global' => 'Global Data',
                 'locked_data_mode' => 'Accessibility',
             ],
             'label' => [

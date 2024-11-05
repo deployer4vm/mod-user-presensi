@@ -81,6 +81,7 @@ return [
             'field_name' => [
                 'code' => 'Kode',
                 'name' => 'Nama',
+                'is_global' => 'Global Data',
                 'description' => 'Keterangan',
                 'locked_data_mode' => 'Accessibility',
             ],
@@ -101,5 +102,11 @@ return [
                 'description' => 'Masukan keterangan (opsional)...'
             ],
         ],
+    ],
+    // label general
+    'label'=>[
+        // pilihan is_global di data global
+        'is_global_0'=>'Data per tenant',
+        'is_global_1'=>'Data multi tenant (global)',
     ]
 ];

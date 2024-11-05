@@ -1,10 +1,25 @@
-import globals from "@/globals";
+// import globals from "@/globals";
 
 const state = {
     dataNotif: {// general configDb di module ini
         reloadNotif: false,
     },
 
+    /**
+     * DASHBOARD
+     * -------------------------------------------------------------------------
+     */
+    dataDashboard: {
+        needReload:true,//jika true maka saat ke halaman dashboard akan reload data active dashboard
+        activeDashboard:{
+            id:0,
+            tenant:[],
+            template_code:'',
+            feature: {},
+            content: {}
+        },
+        featureData:[]
+    },
     /**
      * CONFIG
      * -------------------------------------------------------------------------
@@ -119,6 +134,7 @@ const state = {
                 code: '',
                 name: '',
                 description: '',
+                is_global:0,
                 locked_data_mode: 0
             },
             formEmpty: {
@@ -126,6 +142,7 @@ const state = {
                 code: '',
                 name: '',
                 description: '',
+                is_global:0,
                 locked_data_mode: 0
             },
         }
@@ -260,6 +277,7 @@ const state = {
                 can_selected_on_create: 1,
                 name: '',
                 description: '',
+                is_global:0,
                 locked_data_mode: 0
 
             },
@@ -272,6 +290,7 @@ const state = {
                 can_selected_on_create: 1,
                 name: '',
                 description: '',
+                is_global:0,
                 locked_data_mode: 0
             },
         }
@@ -302,6 +321,7 @@ const state = {
                 level_end: 99,
                 name: '',
                 description: '',
+                is_global:0,
                 locked_data_mode: 0
 
             },
@@ -312,6 +332,7 @@ const state = {
                 level_end: 99,
                 name: '',
                 description: '',
+                is_global:0,
                 locked_data_mode: 0
             },
         }
@@ -321,6 +342,9 @@ const state = {
 const getters = {  
     dataNotif(state) {
         return state.dataNotif;
+    },  
+    dataDashboard(state) {
+        return state.dataDashboard;
     },
     /**
      * CONFIG
@@ -358,6 +382,9 @@ const getters = {
 const mutations = {
     setDataNotif(state, value) {
         state.dataNotif = value;
+    },
+    setDataDashboard(state, value) {
+        state.dataDashboard = value;
     },
     /**
      * CONFIG

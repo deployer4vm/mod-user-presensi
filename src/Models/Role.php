@@ -54,11 +54,26 @@ class Role extends BaseModel
     /**
      * dashboard : 
      * 
-     * @return Float path file
+     * @return Array dashboard aktif
      */
     public function getDashboardAttribute()
     {
-        return $this->dashboard_type?DbConfig::getGlobalConfig('dashboard.config.item','item.'.$this->dashboard_type,false,false):false;
+        // jika menggunakan config role group
+        if($this->dashboard_type==0){
+            $dashboardId = $this->role_group_id?$this->roleGroup()->first()->dashboard_type:1;
+        }else{
+            $dashboardId = $this->dashboard_type;
+        }
+        $dashboardId=$dashboardId?$dashboardId:1;
+        return DbConfig::getGlobalConfig('dashboard.config.item','item.'.$dashboardId,[
+            'id'=>$dashboardId,
+            'name'=>'Default Dashboard',
+            'description'=>'',
+            'tenant'=>[],
+            'template_code'=>'moduser_defaultBlank',
+            'feature'=>[],
+            'content'=>[]
+        ], $dashboardId==1?true:false, true);
     }
 
     

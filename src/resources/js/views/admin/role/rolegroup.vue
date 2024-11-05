@@ -107,7 +107,7 @@
                         </template>
 
                         <template v-slot:cell(actions)="row">
-                            <div class="d-flex align-items-center justify-content-center">
+                            <div v-if="row.item.is_global==0 || isOnTenantManager" class="d-flex align-items-center justify-content-center">
                                 <b-btn
                                     v-if="(UserAuth.hasAccess(data.accessRuleKey, 'u') && row.item.locked_data_mode != 2) || UserAuth.isWebdev()"
                                     @click="showForm(false, row.item.id)"
@@ -251,18 +251,20 @@
                 />
             </b-form-group>
 
-            <!-- dashboard type -->
-            <b-form-group
-                :label="Trans.get('role.group.data_group.field_name.dashboard_type')"
-                label-align-md="right"
-                label-class="pr-md-3"
-                :label-cols-md="3"
+            <!-- Select Dashboard -->
+            <b-form-group 
+                :label="Trans.get('role.group.data_group.field_name.dashboard_type')" 
+                label-align-md="right" 
+                label-class="pr-md-3" 
+                :label-cols-md="3" 
+                v-if="canEditDashboard"
             >
-                <b-input
-                    type="number"
-                    v-model.trim="data.formData.form.dashboard_type"
-                    :placeholder="Trans.get('role.group.form_group.input_description.dashboard_type')"
-                    :disabled="isDisabled"
+                <b-select 
+                    :disabled="isDisabled" 
+                    v-model="data.formData.form.dashboard_type" 
+                    :options="selectDashboard" 
+                    class="form-control" 
+                    :placeholder="Trans.get('role.group.data_group.field_name.dashboard_type')"
                 />
             </b-form-group>
 
@@ -280,6 +282,22 @@
                         {value: 1, text: Trans.get('lang.yes')}
                     ]"
                     :disabled="isDisabled"
+                />
+            </b-form-group>
+
+            <!-- is_global -->
+            <b-form-group
+                :label="Trans.get('role.group.data_group.field_name.is_global')" 
+                label-align-md="right" 
+                label-class="pr-md-3" 
+                :label-cols-md="3"
+                v-if="isOnTenantManager"
+            >
+                <b-select 
+                    v-model="data.formData.form.is_global" 
+                    :options="selectIsGlobal" 
+                    class="form-control" 
+                    :placeholder="Trans.get('role.group.data_group.field_name.is_global')"
                 />
             </b-form-group>
 
@@ -365,8 +383,9 @@ export default {
 
     data: () => ({
         selectLockedDataMode: [],
+        selectIsGlobal: [],
+        selectDashboard: [],     
     }),
-
     watch: {
         'data.listData.curPage'(v) {
             this.loadList(
@@ -408,8 +427,7 @@ export default {
                 that.loadList(1, val);
             }, 300);
         },
-    },
-
+    },    
     computed: {
         data: {
             get() {
@@ -467,8 +485,15 @@ export default {
                 },
             ];
         },
+        // untuk detek global data bukan
+        canEditData() {
+            return this.data.formData.form.is_global == 0 || isOnTenantManager;
+        },
         canEditLockedDataMode() {
             return this.UserAuth.hasAccess(this.data.accessRuleKey + '.can_edit_locked_data_mode') || this.UserAuth.isWebdev();
+        },        
+        canEditDashboard() {
+            return this.canEditData && (this.UserAuth.hasAccess(this.accessRuleKey + '.can_edit_dashboard') || this.UserAuth.isWebdev());
         },
         isDisabled() {
             return !this.data.formData.isAdd && this.data.formData.form.locked_data_mode == 2;
@@ -711,6 +736,47 @@ export default {
                 },
             });
         },
+             
+        loadDashboard() {         
+            // this.$store.dispatch('userConfig/ssdfsd',{
+            //         saveState:false
+            //     })                
+            this.Repo('moduserConfigDashboard')
+                .readList({saveState:false})
+                .then((res) => {
+                    
+                    this.selectDashboard = [
+                        {text:this.Trans.get("role.group.data_group.label.dashboard_type_0",{},'Default Dashboard'),value:0},
+                    ];
+                    if (res.count == 0) {
+                        this.Web.showAlert({
+                            title: this.Trans.get("alert.info_title"),
+                            text: this.Trans.get("lang.no_data"),
+                            type: "info",
+                        });
+                    }else{                        
+                        res.data.forEach((v,i) => {
+                            this.listDashboard[v.id] = v;
+                            this.selectDashboard.push({
+                                value: v.id,
+                                text: v.name,
+                            });
+                        });
+                    }
+                })
+                .catch((res) => {
+                    this.Web.showAlert({
+                        title: this.Trans.get("alert.warning_title"),
+                        text:
+                            this.Trans.get("alert.read_failed", {
+                                attribute: 'Dashboar'//this.Trans.get('role.datarule.data_datarule.name'),
+                            }) +
+                            "<br>\n" +
+                            res.message,
+                        type: "warning",
+                    });
+                });
+        },
         //
         initView() {
             this.Web.setModule("moduser");
@@ -727,6 +793,19 @@ export default {
 
             this.Web.setBodyWithPadding(false);
             this.Web.setShow("moduser"); 
+
+            // init lang
+            
+            this.selectIsGlobal = [
+                {text:this.Trans.get("user.label.is_global_0",{},'Data per tenant'),value:0},
+                {text:this.Trans.get("user.label.is_global_1",{},'Data multi tenant (global)'),value:1},
+            ];
+            
+            this.selectLockedDataMode = [
+                {text:this.Trans.get('role.label.locked_data_mode_0',{},'Public'), value:0},
+                {text:this.Trans.get('role.label.locked_data_mode_1',{},'Tidak bisa didelete'), value:1},
+                {text:this.Trans.get('role.label.locked_data_mode_2',{},'Tidak bisa diedit dan didelete'), value:2},
+            ];
         },        
     },
 
@@ -742,11 +821,8 @@ export default {
             return false;
         }
 
-        this.selectLockedDataMode = [
-            {text:this.Trans.get('role.group.data_group.label.locked_data_mode_0'), value:0},
-            {text:this.Trans.get('role.group.data_group.label.locked_data_mode_1'), value:1},
-            {text:this.Trans.get('role.group.data_group.label.locked_data_mode_2'), value:2},
-        ];
+
+        this.loadDashboard();
 
         //reload list data
         this.initView();

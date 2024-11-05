@@ -463,6 +463,31 @@
                             }
                         }
                     },
+                    "can_edit_dashboard": {
+                        "acl_caption": {"en":"Can Edit 'Dashboard'","id":"Bisa edit 'Dashboard'"},
+                        "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                        "is_navbar": 0,
+                        "enable": 1,
+                        "tenant_group_id": 0,
+                        "active_acl": {
+                            "has_access": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        },
+                        "acl_config": {
+                            "show": 1,
+                            "crud": {
+                                "c": 0,
+                                "r": 0,
+                                "u": 0,
+                                "d": 0
+                            }
+                        }
+                    },
                     "can_edit_notification_config": {
                         "acl_caption": {"en":"Can Edit 'Notification'","id":"Bisa edit 'Notification'"},
                         "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -590,7 +615,32 @@
                                 "d": 1
                             }
                         },
-                        "children": {
+                        "children": {                            
+                            "can_edit_dashboard": {
+                                "acl_caption": {"en":"Can Edit 'Dashboard'","id":"Bisa edit 'Dashboard'"},
+                                "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
+                                "is_navbar": 0,
+                                "enable": 1,
+                                "tenant_group_id": 0,
+                                "active_acl": {
+                                    "has_access": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                },
+                                "acl_config": {
+                                    "show": 1,
+                                    "crud": {
+                                        "c": 0,
+                                        "r": 0,
+                                        "u": 0,
+                                        "d": 0
+                                    }
+                                }
+                            },
                             "can_edit_locked_data_mode": {
                                 "acl_caption": {"en":"Can Edit 'locked_data_mode'","id":"Bisa edit 'locked_data_mode'"},
                                 "acl_description": {"en":"Khusus yang memiliki akses Update","id":"Khusus yang memiliki akses Update"},
@@ -1085,21 +1135,75 @@
         "default_datarule_type":0
     },
     "dashboard":{
+        "name":"Module User",
+        "path":"vendor/hp-synapse/mod-user/src/resources/js/views",
         "template":{
-            "default":{
-                "code":"default",
+            "moduser_default":{
+                "code":"moduser_default",
                 "view_mode":3,
-                "name":"Default Template",
-                "description":"Default Template"
+                "name":"Default Dashboard",
+                "description":"Default Dashboard",
+                "config":{
+                    "type": "row",
+                    "type_config":10,
+                    "content":[
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        },
+                        {
+                            "type": "content_column",
+                            "type_config":0
+                        }
+                    ]
+                }
+            },
+            "moduser_defaultBlank":{
+                "code":"moduser_defaultBlank",
+                "view_mode":3,
+                "name":"Default Blank Dashboard",
+                "description":"Default Blank Dashboard",
+                "config":{}
             }
         },
         "feature":{
-            "default.welcome":{
-                "code":"default.welcome",
+            "moduser_welcome":{
+                "code":"moduser_welcome",
                 "view_mode":3,
-                "name":"Welcome Headline",
-                "description":"",
-                "default":1
+                "name":"Welcome User",
+                "description":""                
             }
         }
     },

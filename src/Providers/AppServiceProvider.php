@@ -8,6 +8,7 @@ use hpsynapse\moduser\Facades\UserAuth;
 use hpsynapse\moduser\Console\Commands\DefaultSysUser;
 use hpsynapse\moduser\Console\Commands\UpdateRoleFromJson;
 use hpsynapse\moduser\Console\Commands\UpdateUserGroup;
+use hpsynapse\moduser\Console\Commands\GenerateDashboardJs;
 
 // use Illuminate\Support\Facades\Schema;
 
@@ -34,7 +35,8 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 UpdateRoleFromJson::class,
                 DefaultSysUser::class,
-                UpdateUserGroup::class
+                UpdateUserGroup::class,
+                GenerateDashboardJs::class
             ]);
         }
     }
