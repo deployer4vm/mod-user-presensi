@@ -30,11 +30,11 @@ class ModuserAddDeviceConfigToModuser extends Migration
 
         $this->tablePerTenant('moduser_users', function (Blueprint $table) {
             $table->text('device_config')->nullable()->after('device_type'); 
-        }, 'device_type');
+        }, 'device_config',false);
 
         $this->tablePerTenant('moduser_api_tokens', function (Blueprint $table) {
             $table->text('device_config')->nullable()->after('device_type'); 
-        }, 'device_type');
+        }, 'device_config',false);
 
     }
 
