@@ -15,7 +15,7 @@ class ModuserAddDashboardTypeToModuserRoleGroupsTable extends Migration
     public function up(): void
     {
         if (config('AppConfig.system.multitenant.active', false) && $this->tenantMigrateMode() == false) {
-            if (!Schema::hasColumn('moduser_role_groups', 'global_bypass_dashboard')) {
+            if (!Schema::hasColumn('moduser_role_groups', 'dashboard_type')) {
                 Schema::table('moduser_role_groups', function (Blueprint $table) {
                     $table->unsignedTinyInteger('dashboard_type')->default(0)->after('model'); 
                 });
@@ -24,7 +24,7 @@ class ModuserAddDashboardTypeToModuserRoleGroupsTable extends Migration
 
         $this->tablePerTenant('moduser_role_groups', function (Blueprint $table) {
             $table->unsignedTinyInteger('dashboard_type')->default(0)->after('model');             
-        }, 'global_bypass_dashboard');
+        }, 'dashboard_type', false);
 
     }
 
