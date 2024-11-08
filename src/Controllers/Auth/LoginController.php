@@ -179,15 +179,17 @@ class LoginController extends BaseController
      *                      jika menyertakan "auth" maka tidak perlu menyertakan username dan password
      * 
      *      username
-     *      password
+     *      password            encrypted password
      *      role_group_code     *optional, string role group code yg diset sebagai 
-     *                          role code active di session ini, akan set
+     *                          role code active di session ini
      *      role_code           *optional, string role code yg diset sebagai 
      *                          role code active di session ini
      * 
      * 
      *      deviceId
+     * 
      *      pushNotifToken
+     *      pushType
      *      
      * @return Array default synapse api return
      *      data
@@ -208,7 +210,7 @@ class LoginController extends BaseController
     {
         $this->forceApiOutput();
 
-        $authParam = $request->only('username', 'password','role_code', 'auth');
+        $authParam = $request->only('username', 'password','role_code', 'role_group_code', 'auth');
         
         // detek auto login, untuk auto login tidak perlu di masukan ke system blockir
         $notFromAuth = true;
@@ -329,7 +331,13 @@ class LoginController extends BaseController
 
             // $this->output['data']['role'] = UserRepo::listUserRole($user['id']);
             // generate token
-            $token = UserRepo::generateToken($user['id'], $this->output['data']['role_code'], 0, $request->input('deviceId', ''), $pushParam);
+            $token = UserRepo::generateToken(
+                $user['id'], 
+                $this->output['data']['role_code'], 
+                0, 
+                $request->input('deviceId', ''), 
+                $pushParam
+            );
             $this->output['data']['token'] = $token['api_token'];
 
             UserRepo::setApiSessionData($token['api_token'],[

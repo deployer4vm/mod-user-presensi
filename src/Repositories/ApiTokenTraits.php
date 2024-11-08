@@ -95,6 +95,7 @@ trait ApiTokenTraits
         $data['user_id'] = $userId;
         $data['tenant_id'] = config('tenant.id', 0);
         $data['device_type'] = UserAuth::getClient()['device_type'];
+        $data['device_config'] = UserAuth::getClient()['device_config'];
 
         $apiTokenData = ApiToken::create($data);
         return $apiTokenData->toArray();

@@ -270,7 +270,7 @@ export default {
         // form
         listRoleGroup: [],//list rolegroup dengan key "id"
         listDatarule: [],//list rolegroup dengan key "id"
-        listDashboard: [],
+        // listDashboard: [],
         listTenant: [],
         //
         selectRoleGroup: [],
@@ -445,7 +445,7 @@ export default {
                             type: "info",
                         });
                     }else{
-                        res.data.forEach((v,i) => {
+                        _.forEach(res.data, (v, i) => {
                             this.listRoleGroup[v.id] = v;
                             this.selectRoleGroup.push({
                                 value: v.id,
@@ -479,7 +479,7 @@ export default {
                             type: "info",
                         });
                     }else{
-                        res.data.forEach((v,i) => {
+                        _.forEach(res.data, (v, i) => {
                             this.listDatarule[v.id] = v;
                             this.selectDatarule.push({
                                 value: v.id,
@@ -518,9 +518,9 @@ export default {
                             text: this.Trans.get("lang.no_data"),
                             type: "info",
                         });
-                    }else{                        
-                        res.data.forEach((v,i) => {
-                            this.listDashboard[v.id] = v;
+                    }else{                     
+                        _.forEach(res.data, (v, i) => {
+                            // this.listDashboard[v.id] = v;
                             this.selectDashboard.push({
                                 value: v.id,
                                 text: v.name,
@@ -556,7 +556,8 @@ export default {
                         });
                     }else{
                         this.selectTenant = [];// [{text: 'Default Datarule', value: 0},]
-                        res.data.forEach((v,i) => {
+                        
+                        _.forEach(res.data, (v, i) => {
                             this.listTenant[v.id] = v;
                             this.selectTenant.push({
                                 value: v.id,

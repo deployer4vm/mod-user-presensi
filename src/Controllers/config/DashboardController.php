@@ -76,7 +76,7 @@ class DashboardController extends BaseController
         $this->buildParams();
 
         $this->setData([
-            'data'=>DbConfig::listGlobalConfig('dashboard.config.item',true)
+            'data'=>DbConfig::listGlobalConfig('dashboard.config.item',true,true)
         ]);
 
         return $this->done();

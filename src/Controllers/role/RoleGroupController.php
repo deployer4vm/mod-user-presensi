@@ -56,6 +56,11 @@ class RoleGroupController extends BaseController
         }
 
         $this->buildParams();
+        
+        if(!isset($this->output['params']['filter']['append']))
+            $this->output['params']['filter']['append'] = [];
+        
+        $this->output['params']['filter']['append'][] = 'dashboard';
 
         $this->setData(RoleRepo::listGroup(
             $this->output['params']['filter'],

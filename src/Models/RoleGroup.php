@@ -3,6 +3,7 @@
 namespace hpsynapse\moduser\Models;
 
 use App\Base\BaseModel;
+use App\Facades\DbConfig;
 use App\Base\Traits\ModelDataTenant;
 
 class RoleGroup extends BaseModel
@@ -42,5 +43,25 @@ class RoleGroup extends BaseModel
     public function datarule()
     {
         return $this->belongsTo(Datarule::class, 'datarule_id');
+    }
+
+    
+    /**
+     * dashboard : 
+     * 
+     * @return Array dashboard aktif
+     */
+    public function getDashboardAttribute()
+    {
+        $dashboardId=$this->dashboard_type?$this->dashboard_type:1;
+        return DbConfig::getGlobalConfig('dashboard.config.item','item.'.$dashboardId,[
+            'id'=>$dashboardId,
+            'name'=>'Default Dashboard',
+            'description'=>'',
+            'tenant'=>[],
+            'template_code'=>'moduser_defaultBlank',
+            'feature'=>[],
+            'content'=>[]
+        ], $dashboardId==1?true:false, true);
     }
 }

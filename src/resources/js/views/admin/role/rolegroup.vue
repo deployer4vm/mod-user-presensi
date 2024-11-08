@@ -755,8 +755,7 @@ export default {
                             type: "info",
                         });
                     }else{                        
-                        res.data.forEach((v,i) => {
-                            this.listDashboard[v.id] = v;
+                        _.forEach(res.data, (v, i) => {
                             this.selectDashboard.push({
                                 value: v.id,
                                 text: v.name,
@@ -784,11 +783,12 @@ export default {
             this.Web.setNavbarTitle(this.pageTitle);
 
             this.Web.resetBreadcrumb();
-            this.Web.addBreadcrumb(this.Trans.get("lang.home"));
+            this.Web.addBreadcrumb(this.Trans.get("lang.home"),{name:'home'});
             this.Web.addBreadcrumb(this.Trans.get("user.name"));
-            this.Web.addBreadcrumb(this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.role.caption), {
-                name: 'role.list' 
-            });
+            this.Web.addBreadcrumb(
+                this.Trans.chose(this.AppConfig.packageLocal.moduser.access.children.role.caption), 
+                {name: 'role.list'}
+            );
             this.Web.addBreadcrumb(this.pageTitle);
 
             this.Web.setBodyWithPadding(false);

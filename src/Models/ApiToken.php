@@ -32,5 +32,6 @@ class ApiToken extends Authenticatable
      */
     protected $casts = [
         'session_data' => 'array',
+        'device_config' => 'array',
     ];
 }

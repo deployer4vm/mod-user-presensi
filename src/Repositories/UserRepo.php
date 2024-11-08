@@ -302,7 +302,7 @@ class UserRepo extends BaseRepository
      */
     public function isPhoneRegistered($phone, $exceptUserId = false)
     {
-        $user = User::where('phone', $phone);
+        $user = User::where('status',1)->where('phone', $phone);
 
         if ($exceptUserId) {
             $user = $user->where('id', '!=', $exceptUserId);
@@ -542,7 +542,7 @@ class UserRepo extends BaseRepository
      *      profile         Array       record user profile
      *
      */
-    public function register(array $userData, $generateToken = true, $registerBySystem = false)
+    public function register(array $userData, $generateToken = true, $sendActivateionEmail = false)
     {
         $userData = $this->registerFilter($userData);
 
@@ -610,7 +610,7 @@ class UserRepo extends BaseRepository
             return false;
         }
 
-        if ($registerBySystem
+        if ($sendActivateionEmail
             && AuthConfig::isEmailActivationEnabled()
             && isset($userData['email'])
             && !empty($userData['email'])
