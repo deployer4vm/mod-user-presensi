@@ -510,7 +510,7 @@ export default {
                 .then((res) => {
                     this.selectDashboard = [
                         {text:this.Trans.get("role.label.dashboard_type_0",{},'Sesuai Role Group'),value:0},
-                        {text:this.Trans.get("role.label.dashboard_type_1",{},'Default Dashboard'),value:1},
+                        // {text:this.Trans.get("role.label.dashboard_type_1",{},'Default Dashboard'),value:1},
                     ];
                     if (res.count == 0) {
                         this.Web.showAlert({
@@ -519,13 +519,19 @@ export default {
                             type: "info",
                         });
                     }else{                     
+                        var hasNoDefault = true;         
                         _.forEach(res.data, (v, i) => {
                             // this.listDashboard[v.id] = v;
+                            
+                            if(v.id==1)hasNoDefault=false;
                             this.selectDashboard.push({
                                 value: v.id,
                                 text: v.name,
                             });
                         });
+                        
+                        if(hasNoDefault)
+                            this.selectDashboard.spilce(1,0,{text:this.Trans.get("role.group.data_group.label.dashboard_type_0",{},'Default Dashboard'),value:0});
                     }
                 })
                 .catch((res) => {

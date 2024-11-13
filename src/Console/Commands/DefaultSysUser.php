@@ -78,7 +78,7 @@ class DefaultSysUser extends Command
 
         $list = Tenant::listTenant([
             ['status', 1]
-        ]);
+        ],0,0,['id','ESC']);
 
         foreach ($list['data'] as $data) {
             if (Tenant::dbExists($data['id'])) {
@@ -114,6 +114,7 @@ class DefaultSysUser extends Command
                     $newUserTenant->save();
                     $userId = $newUserTenant->id;
                 }
+
                 if (!UserRole::where('user_id', $userId)
                     ->where('role_id', $role['id'])
                     ->count()) {
@@ -125,6 +126,7 @@ class DefaultSysUser extends Command
                         'is_main_role' => 1
                     ]);
                 }
+                
                 $this->info('Copied to Tenant: '.$data['id']);
             }
         }

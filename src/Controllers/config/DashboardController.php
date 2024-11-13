@@ -75,10 +75,24 @@ class DashboardController extends BaseController
 
         $this->buildParams();
 
-        $this->setData([
-            'data'=>DbConfig::listGlobalConfig('dashboard.config.item',true,true)
-        ]);
+        $data = [];
+        $dataConfig = DbConfig::listGlobalConfig('dashboard.config.item',true,true);
+        // filter sesuai config tenant nya
+        foreach ($dataConfig as $value) {
+            if(
+                empty($value['tenant']) 
+                || $value['id']==1 
+                || config('tenant.id',0)==0 
+                || in_array(config('tenant.id'),$value['tenant'])
+            ){
+                $data[] = $value;
+            }
+        }
 
+        $this->setData([
+            'data'=>$data
+        ]);
+        
         return $this->done();
     }
 

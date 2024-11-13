@@ -745,22 +745,24 @@ export default {
                 .readList({saveState:false})
                 .then((res) => {
                     
-                    this.selectDashboard = [
-                        {text:this.Trans.get("role.group.data_group.label.dashboard_type_0",{},'Default Dashboard'),value:0},
-                    ];
+                    this.selectDashboard = [];
                     if (res.count == 0) {
                         this.Web.showAlert({
                             title: this.Trans.get("alert.info_title"),
                             text: this.Trans.get("lang.no_data"),
                             type: "info",
                         });
-                    }else{                        
+                    }else{ 
+                        var hasNoDefault = true;                       
                         _.forEach(res.data, (v, i) => {
+                            if(v.id==1)hasNoDefault=false;
                             this.selectDashboard.push({
                                 value: v.id,
                                 text: v.name,
                             });
                         });
+                        if(hasNoDefault)
+                            this.selectDashboard.unshift({text:this.Trans.get("role.group.data_group.label.dashboard_type_0",{},'Default Dashboard'),value:0});
                     }
                 })
                 .catch((res) => {
