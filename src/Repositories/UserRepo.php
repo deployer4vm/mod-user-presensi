@@ -1314,12 +1314,14 @@ class UserRepo extends BaseRepository
         if(empty($clientData))return $roleData;
         $clientRoles = $this->listUserRole($clientData['id'], ['mainRoleOnly'=>true,'filterByClient'=>false]);
         $firstRole = reset($clientRoles);
-        if (!is_array($firstRole['rule'])) {
-            $firstRole['rule'] = json_decode($firstRole['rule'], true);
-        }
-        if (!empty($firstRole['rule'])) {
-            $newRule = $roleData['rule'] ? array_intersect_key($firstRole['rule'], $roleData['rule']) : $firstRole['rule'];
-            $roleData['rule'] = $newRule;
+        if (isset($firstRole['rule'])) {
+            if (!is_array($firstRole['rule'])) {
+                $firstRole['rule'] = json_decode($firstRole['rule'], true);
+            }
+            if (!empty($firstRole['rule'])) {
+                $newRule = $roleData['rule'] ? array_intersect_key($firstRole['rule'], $roleData['rule']) : $firstRole['rule'];
+                $roleData['rule'] = $newRule;
+            }
         }
         return $roleData;
     }
