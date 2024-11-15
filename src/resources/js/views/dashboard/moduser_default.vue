@@ -1,6 +1,6 @@
 <template>  
     <div>
-        <template v-for="(vContent, iContent) in contentDashboard.content">
+        <template v-for="(vContent, iContent) in contentDashboard">
             <div v-if="vContent.content.length" :key="'row-dashboard-' + iContent" class="row">
                 <template v-for="(featureData, featureIdx) in vContent.content">
                     <div :key="'item-dashboard-' + iContent + '-' + featureIdx" class="col-md my-2">
