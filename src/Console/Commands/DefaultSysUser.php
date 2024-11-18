@@ -78,7 +78,7 @@ class DefaultSysUser extends Command
 
         $list = Tenant::listTenant([
             ['status', 1]
-        ],0,0,['id','ESC']);
+        ],0,0,['id','DESC']);
 
         foreach ($list['data'] as $data) {
             if (Tenant::dbExists($data['id'])) {
