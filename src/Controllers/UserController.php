@@ -45,7 +45,8 @@ class UserController extends BaseController
      */
     public function readList(Request $request)
     {
-        if (!$this->accessCheck('r')) {
+        if (!$this->accessCheck('r') && !UserAuth::hasAccess('moduser.read_access.user', 'has_access')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
@@ -111,7 +112,8 @@ class UserController extends BaseController
      */
     public function readOne(Request $request, $id)
     {
-        if (!$this->accessCheck('r')) {
+        if (!$this->accessCheck('r') && !UserAuth::hasAccess('moduser.read_access.user', 'has_access')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
