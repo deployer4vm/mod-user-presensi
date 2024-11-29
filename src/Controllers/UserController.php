@@ -26,7 +26,7 @@ class UserController extends BaseController
         $hasAccess = true;
         if (!$access) {
             $hasAccess = false;
-            $this->setError(__('alert.access_denied'), false, 403);
+            // $this->setError(__('alert.access_denied'), false, 403);
         }
 
         return $hasAccess;
