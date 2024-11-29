@@ -154,6 +154,7 @@ class UserController extends BaseController
     public function create(Request $request)
     {
         if (!$this->accessCheck('c')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
@@ -207,6 +208,7 @@ class UserController extends BaseController
     public function update(Request $request, $id)
     {
         if (!$this->accessCheck('u')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
