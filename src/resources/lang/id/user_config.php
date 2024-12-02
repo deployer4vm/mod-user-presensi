@@ -76,5 +76,40 @@ return [
                 'tos_content' => 'Masukan konten term of service...'
             ],
         ],
-    ]
+    ],
+
+    // dashboard
+    'form_dashboard' => [
+        'name' => 'Dashboard Config',
+        'label' => [
+            'add_config' => 'Tambah Config',
+            'feature' => 'Feature',
+            'add_feature' => 'Tambah Feature',
+            'content' => 'Content',
+        ],
+        'input_caption' => [
+            'name' => 'Nama Dashboard',
+            'description' => 'Deskripsi',
+            'template' => 'Template',
+            'template_code' => 'Template Code',
+            'tenant' => 'Tenant',
+            // 
+            'type' => 'Tipe',
+            'type_config' => 'Tipe Config',
+            'type_config_options' => [
+                'type_1' => 'Row',
+                'type_2' => 'Column',
+                'type_3' => 'Content Row',
+                'type_4' => 'Content Column',
+            ],
+            'type_content' => 'Tipe Content',
+            'type_content_options' => [
+                'type_1' => 'Content Row',
+                'type_2' => 'Content Column',
+            ],
+            //
+            'content' => 'Content',
+            'feature' => 'Feature',
+        ],
+    ],
 ];

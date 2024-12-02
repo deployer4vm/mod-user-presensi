@@ -214,11 +214,19 @@ const registrationConfig = (resolve) => {
     });
 };
 
-const dashboardConfig = (resolve) => {
-    require.ensure(["../views/admin/config/dashboard"], () => {
-        resolve(require("../views/admin/config/dashboard"));
+//--- dashboard config
+const dashboardConfigList = (resolve) => {
+    require.ensure(["../views/admin/config/dashboard/list"], () => {
+        resolve(require("../views/admin/config/dashboard/list"));
     });
 };
+const dashboardConfigForm = (resolve) => {
+    require.ensure(["../views/admin/config/dashboard/form"], () => {
+        resolve(require("../views/admin/config/dashboard/form"));
+    });
+}
+
+//--- dashboard
 const dashboard = (resolve) => {
     require.ensure(["../views/dashboard/dashboard"], () => {
         resolve(require("../views/dashboard/dashboard"));
@@ -484,8 +492,18 @@ export default [
                     //--- config dashboard
                     {
                         path: "dashboard",
-                        component: dashboardConfig,
+                        component: dashboardConfigList,
                         name: "moduser.config.dashboard",
+                    },
+                    {
+                        path: "dashboard/add",
+                        component: dashboardConfigForm,
+                        name: "moduser.config.dashboard.add",
+                    },
+                    {
+                        path: "dashboard/edit/:id",
+                        component: dashboardConfigForm,
+                        name: "moduser.config.dashboard.edit",
                     },
                 ],
             },

@@ -16,7 +16,9 @@ const state = {
     //
     config: {
         tenantList: []
-    }
+    },
+    //
+    templateList: [],
 };
 
 const getters = {
@@ -29,6 +31,10 @@ const getters = {
     },
     getDashboard(state) {
         return state.dashboardForm;
+    },
+    //
+    getTemplateList(state) {
+        return state.templateList;
     }
 };
 
@@ -42,6 +48,10 @@ const mutations = {
     },
     setDashboard(state, data) {
         state.dashboardForm = data;
+    },
+    //
+    setTemplateList(state, data) {
+        state.templateList = data;
     }
 };
 
@@ -56,11 +66,12 @@ const actions = {
             });
     },
     //
-    listDashboard({ commit, dispatch, state }, params) {
+    listDashboard({ commit, dispatch, state }, params = {}) {
         return globals()
             .LocalApi.get(userApi + "dashboard")
             .then(res => {
-                if (params.saveState == undefined || params.saveState)
+                const saveState = params.saveState !== undefined ? params.saveState : true;
+                if (saveState)
                     commit("setDashboardList", res.data.data);
                 return res.data.data;
             });
@@ -91,6 +102,7 @@ const actions = {
             });
     },
     deleteDashboard({commit, dispatch},params){
+        console.log(params)
         return globals()
             .LocalApi.delete(userApi + "dashboard/" + params.id)
             .then(res => {
@@ -106,9 +118,20 @@ const actions = {
                 return res.data.data;
             });
     },
+    //--- Template
+    listTemplate({ commit, dispatch, state }, params = {}) {
+        return globals()
+            .LocalApi.get(userApi + 'dashboard/template')
+            .then(res => {
+                const saveState = params.saveState !== undefined ? params.saveState : true;
+                if (saveState)
+                    commit("setTemplateList", res.data.data);
+                return res.data.data;
+            });
+    },
 };
 
-const role = {
+const userConfig = {
     namespaced: true,
     state,
     mutations,
@@ -116,4 +139,4 @@ const role = {
     getters
 };
 
-export default role;
+export default userConfig;
