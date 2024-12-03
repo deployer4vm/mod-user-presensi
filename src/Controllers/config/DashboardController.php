@@ -11,6 +11,7 @@ use hpsynapse\moduser\Facades\RoleRepo;
 use App\Base\BaseController;
 use App\Facades\DbConfig;
 use hpsynapse\modcoop\Facades\Master\Config;
+use Illuminate\Support\Facades\File;
 
 class DashboardController extends BaseController
 {
@@ -105,29 +106,40 @@ class DashboardController extends BaseController
      */
     public function create(Request $request)
     {
-        if (!$this->accessCheck('c')) {
-            return $this->done();
-        }
-
+        // if (!$this->accessCheck('c')) {
+        //     return $this->done();
+        // }
+    
         $input = $request->all();
-        $input['tenant_id'] = config('tenant.id',0);
+        $input['tenant_id'] = config('tenant.id', 0);
         $input['created_by'] = UserAuth::user('id');
 
-        $data = RoleRepo::createGroup($input);
-        if ($data) {
-            $this->setData($data)
-                ->setMessage(__('alert.update_success', [
-                    'attribute' => __('role.group.data_group.name')
-                ]));
-        } else {
-            $this->setError(
-                RoleRepo::error(),
-                RoleRepo::errorValidator()
-            );
-        }
+        $getLastConfig = DbConfig::listGlobalConfig('dashboard.config.item', true, true);
 
+        $lastItem = end($getLastConfig);
+        $lastId = $lastItem ? $lastItem['id'] : 0;
+        $nextId = $lastId + 1;
+    
+        $setKey = 'item.' . $nextId;
+
+        DbConfig::setGlobalConfig('dashboard.config.item', $setKey, [
+            'id' => $nextId,
+            'name' => $input['name'],
+            'description' => $input['description'],
+            'tenant' => $input['tenant'] ? $input['tenant'] : [],
+            'template_code' => $input['template_code'],
+            'feature' => $input['feature'] ? $input['feature'] : [],
+            'content' => $input['content'] ? $input['content'] : [],
+        ]);
+    
+        $this->setData($input)
+            ->setMessage(__('alert.create_success', [
+                'attribute' => __('coop_master.form_config_dashboard.name')
+            ]));
+    
         return $this->done();
     }
+
 
     /**
      * Display the specified resource.
@@ -139,17 +151,19 @@ class DashboardController extends BaseController
      */
     public function readOne(Request $request, int $id)
     {
-        if (!$this->accessCheck('r')) {
-            return $this->done();
-        }
+        // if (!$this->accessCheck('r')) {
+        //     return $this->done();
+        // }
         
         $this->buildParams();
         $this->output['params']['filter'][] = ['id', $id];
 
-        $data = RoleRepo::getGroup($this->output['params']['filter']);
+        $data = DbConfig::getGlobalConfig('dashboard.config.item', 'item.'.$id);
         if (!$data) {
             $this->setError(__('lang.data_not_found'));
         } else {
+            if(is_string($data)) 
+                $data = json_decode($data, true);
             $this->setData($data);
         }
 
@@ -166,25 +180,23 @@ class DashboardController extends BaseController
      */
     public function update(Request $request, int $id)
     {
-        if (!$this->accessCheck('u')) {
-            return $this->done();
-        }
+        // if (!$this->accessCheck('u')) {
+        //     return $this->done();
+        // }
 
         $input = $request->all();
         $input['updated_by'] = UserAuth::user('id');
 
-        $data = RoleRepo::updateGroup(['id', $id], $input);
-        if ($data) {
-            $this->setData($data)
-                ->setMessage(__('alert.update_success', [
-                    'attribute' => __('role.group.data_group.name')
-                ]));
-        } else {
-            $this->setError(
-                RoleRepo::error(),
-                RoleRepo::errorValidator()
-            );
-        }
+        $key = 'item.' . $id;
+        DbConfig::setGlobalConfig('dashboard.config.item', $key, [
+            'id' => $id,
+            'name' => $input['name'],
+            'description' => $input['description'],
+            'tenant' => $input['tenant'] ?? [],
+            'template_code' => $input['template_code'],
+            'feature' => $input['feature'] ?? [],
+            'content' => $input['content'] ?? [],
+        ]);
 
         return $this->done();
     }
@@ -198,19 +210,43 @@ class DashboardController extends BaseController
      */
     public function delete(int $id)
     {
-        if (!$this->accessCheck('d')) {
-            return $this->done();
-        }
+        // if (!$this->accessCheck('d')) {
+        //     return $this->done();
+        // }
 
-        if (RoleRepo::deleteGroup($id)) {
+        $configKey = 'dashboard.config.item';
+        $itemKey = 'item.' . $id;
+
+        $data = DbConfig::getGlobalConfig($configKey, $itemKey);
+        if ($data) {
+            DbConfig::deleteGlobalConfig($configKey, $itemKey);
             $this->setMessage(__('alert.delete_success', [
-                'attribute' => __('role.group.data_group.name')
+                'attribute' => __('coop_master.form_config_dashboard.name')
             ]));
         } else {
-            $this->setError(RoleRepo::error());
+            $this->setError(__('lang.data_not_found'));
         }
 
         return $this->done();
     }
+
+    /**
+     * get - /api/user/config/dashboard/template
+     * get template dashboard
+     * 
+     * @param Request $request
+     */
+    public function getTemplateDashboard(Request $request)
+    {
+        $getTemplate = File::exists(base_path('App/MainApp/config/_dashboard.json')) 
+            ? File::get(base_path('App/MainApp/config/_dashboard.json')) 
+            : '[]';
+
+        $data = json_decode($getTemplate, true);
+        $this->setData($data);
+
+        return $this->done();
+    }
+
 
 }

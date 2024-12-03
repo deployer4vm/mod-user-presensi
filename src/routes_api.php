@@ -178,6 +178,9 @@ Route::group($groupUser,function(){
             //update resource
             Route::put('/{id}', 'config\DashboardController@updateConfigDashboard')->name('user.config.dashboard.update');
 
+            //template
+            Route::get('/template', 'config\DashboardController@getTemplateDashboard')->name('user.config.dashboard.template.readList');
+
             //----------
 
             //read list resource
