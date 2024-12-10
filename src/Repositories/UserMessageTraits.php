@@ -198,6 +198,17 @@ trait UserMessageTraits
             return false;
         }
 
+        if(empty($user->otp_channel)){
+            $this->error = 'Channel OTP belum dipilih, silahkan set terlebih dahulu dari menu Profile.';
+            return false;
+        }else if($user->otp_channel==1 && empty($user->email)){
+            $this->error = 'Email belum diset.';
+            return false;
+        }else if(empty($user->phone)){
+            $this->error = 'Nomor telepon belum diset.';
+            return false;
+        }
+
         if(!($otp = $this->generateOTP($user->id,$digit,$tenantId))){
             return false;
         }
