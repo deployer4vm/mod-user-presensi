@@ -21,7 +21,7 @@ export default {
             }
         },
         dashboardTemplate() {            
-            return configDashboard.template[this.UserAuth.getAuthRole()['dashboard']['template_code']]
+            return this.UserAuth.getAuthRole()['dashboard']['template_code']?configDashboard.template[this.UserAuth.getAuthRole()['dashboard']['template_code']]:'';
         },
         featureTemplate() {
             var tmpFeature = {};          
