@@ -204,7 +204,7 @@ trait UserMessageTraits
         }else if($user->otp_channel==1 && empty($user->email)){
             $this->error = 'Email belum diset.';
             return false;
-        }else if(empty($user->phone)){
+        }else if(($user->otp_channel==2||$user->otp_channel==3) && empty($user->phone)){
             $this->error = 'Nomor telepon belum diset.';
             return false;
         }
