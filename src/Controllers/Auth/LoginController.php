@@ -252,7 +252,7 @@ class LoginController extends BaseController
             // system user login check
             $userLogin = UserRepo::systemUserLoginCheck($authParam['username']);
             // jika sudah overlimit maka block
-            if ($userLogin->count > 5 || $userLogin->status == 1) {
+            if ($userLogin && ($userLogin->count > 5 || $userLogin->status == 1)) {
 
                 // update system user login
                 $countUserLogin = $userLogin->count + 1;

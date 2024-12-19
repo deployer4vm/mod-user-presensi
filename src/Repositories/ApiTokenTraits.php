@@ -79,8 +79,16 @@ trait ApiTokenTraits
             ApiToken::where('user_id', $userId)->where('is_permanent', 0)->delete();
             Log::info('Logging out from other device');
         }
+
+        $randomNumber = '';
+        $maxFail=10;//jika sudah 10 kali token duplicate, maka ada error yg lain, TOLAK
+        $failCount=0;
+        do {
+            $data['api_token'] = hash('sha256', 'token' . $userId . '.' . now().'.'.$randomNumber);
+            $randomNumber = rand();
+            $failCount++;
+        } while (ApiToken::where('api_token', $data['api_token'])->exists() && $failCount < $maxFail);
         
-        $data['api_token'] = hash('sha256', 'token' . $userId . '.' . now());
         $data['session_id'] = session()->exists('_token') ? session()->getId() : null;
         $data['is_permanent'] = $isPermanent;
 
