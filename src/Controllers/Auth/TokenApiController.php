@@ -26,7 +26,7 @@ class TokenApiController extends BaseController
      */
     public function validateToken(Request $request)
     {
-        $apiToken = UserRepo::getToken($request->route('token'));        
+        $apiToken = UserRepo::getToken(UserAuth::getToken());
         if($apiToken==false){
             $this->setError(__('lang.data_attribute_not_found',['attribute'=>'Token']));
             return $this->done();

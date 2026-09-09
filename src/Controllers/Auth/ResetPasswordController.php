@@ -2,8 +2,6 @@
 
 namespace hpsynapse\moduser\Controllers\Auth;
 
-use Carbon\Carbon;
-
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Auth;
 
@@ -43,12 +41,7 @@ class ResetPasswordController extends BaseController
         }
 
         // pastikan kode verifikasi sesuai, jika tidak maka tolak
-        if(($resetPassword = UserRepo::varifyResetPasswordToken($data['email'],$data['verifyCode']))){
-            // cek expired (1 jam)
-            if(Carbon::parse($resetPassword['created_at'])->addHour() < now()){
-                UserRepo::deleteResetPasswordToken($data['email']);
-                $data['expired'] = true;
-            }
+        if(UserRepo::varifyResetPasswordToken($data['email'],$data['verifyCode'])){
             $data['user'] = UserRepo::getUser(['email',$data['email']]);
         }else{
             $data['failed'] = true;
@@ -85,9 +78,9 @@ class ResetPasswordController extends BaseController
         // }
         
         $validator = \Validator::make($data, [
-            'email' => 'required|email|max:255',
-            'password' => 'required|min:5|max:255',
-            'password_confirmation' => 'required|min:5|max:255|same:password',
+            'email' => ['required', 'email:rfc', 'max:255', 'not_regex:/[\r\n]/'],
+            'password' => 'required|min:8|max:255',
+            'password_confirmation' => 'required|min:8|max:255|same:password',
         ]);
 
         if ($validator->fails()) {

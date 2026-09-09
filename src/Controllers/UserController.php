@@ -164,7 +164,7 @@ class UserController extends BaseController
 
         $validator = [
             'name' => 'required|min:3|max:255',
-            'password' => 'required|min:5|max:255|same:repassword',
+            'password' => 'required|min:8|max:255|same:repassword',
         ];
 
         if (isset($userData['username']) && $userData['username'] != '') {
@@ -172,7 +172,7 @@ class UserController extends BaseController
         }
 
         if (isset($userData['email']) && $userData['email'] != '') {
-            $validator['email'] = 'required|email|max:255';
+            $validator['email'] = ['required', 'email:rfc', 'max:255', 'not_regex:/[\r\n]/'];
         }
 
         if (!isset($validator['username']) && !isset($validator['email'])) {
@@ -223,7 +223,7 @@ class UserController extends BaseController
             $validator['name'] = 'required|min:3|max:255';
         }
         if (!empty($input['email'])) {
-            $validator['email'] = 'required|email|min:3|max:255';
+            $validator['email'] = ['required', 'email:rfc', 'min:3', 'max:255', 'not_regex:/[\r\n]/'];
         }
         if (!empty($input['phone'])) {
             $validator['phone'] = 'required|min:3|max:255';
@@ -234,7 +234,7 @@ class UserController extends BaseController
         }
         if (!empty($input['password'])) {
             $input['password'] = UserAuth::decryptCredential($input['password']);
-            $validator['password'] = 'min:6';
+            $validator['password'] = 'min:8';
             if (isset($input['repassword'])) {
                 $input['repassword'] = UserAuth::decryptCredential($input['repassword']);
                 $validator['password'] .= '|same:repassword';
@@ -283,17 +283,16 @@ class UserController extends BaseController
      */
     public function uploadAvatar(Request $request)
     {
-        // if(!UserAuth::hasAccess($this->accessRuleKey,'u')){
-        //     $this->setError(__('alert.access_denied'),false,403);
-        //     return $this->done();
-        // }
-
-        if ($request->file('avatar', false) == false) {
-            $this->setError(__('validation.required', ['attribute' => 'Avatar']));
+        $id = (int) $request->route('id');
+        if ($id !== (int) UserAuth::user('id') && !$this->accessCheck('u')) {
+            $this->setError(__('alert.access_denied'), false, 403);
             return $this->done();
         }
 
-        $id = $request->route('id');
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ]);
+
         if (UserRepo::updateUser($id, [
             'avatar' => $request->file('avatar')
         ])) {
@@ -306,12 +305,11 @@ class UserController extends BaseController
 
     public function deleteAvatar(Request $request)
     {
-        // if(!UserAuth::hasAccess($this->accessRuleKey,'u')){
-        //     $this->setError(__('alert.access_denied'),false,403);
-        //     return $this->done();
-        // }
-
-        $id = $request->route('id');
+        $id = (int) $request->route('id');
+        if ($id !== (int) UserAuth::user('id') && !$this->accessCheck('u')) {
+            $this->setError(__('alert.access_denied'), false, 403);
+            return $this->done();
+        }
 
         if (UserRepo::deleteAvatar($id)) {
             $this->setAlert(__('alert.delete_success', ['attribute' => 'Avatar']), 'success');
@@ -385,12 +383,11 @@ class UserController extends BaseController
 
     public function resentVerificationMail(Request $request)
     {
-        // if(!UserAuth::hasAccess($this->accessRuleKey,'u')){
-        //     $this->setError(__('alert.access_denied'),false,403);
-        //     return $this->done();
-        // }
-
-        $id = $request->route('id');
+        $id = (int) $request->route('id');
+        if ($id !== (int) UserAuth::user('id') && !$this->accessCheck('u')) {
+            $this->setError(__('alert.access_denied'), false, 403);
+            return $this->done();
+        }
         if (($userData = UserRepo::getUser(['id', $id])) != false) {
             if (isset($userData['email']) && $userData['email']) {
                 // $to_email = $userData['email'];
@@ -459,14 +456,22 @@ class UserController extends BaseController
         return $this->done();
     }
 
-    public function validatePin(Request $request, $encryptedPin)
+    public function validatePin(Request $request)
     {
         if(!AuthConfig::isPINEnabled()){
             $this->setError('PIN Disabled'); 
             return $this->done();
         }
 
-        $pin = UserAuth::decryptCredential($encryptedPin);
+        $validated = $request->validate([
+            'pin' => ['required', 'string', 'max:1024'],
+        ]);
+        $pin = UserAuth::decryptCredential($validated['pin']);
+
+        if ($pin === false) {
+            $this->setError('PIN keliru');
+            return $this->done();
+        }
 
         if (UserAuth::isPinValid($pin)) {
             $this->setMessage('PIN Sesuai', 'success');
@@ -504,7 +509,7 @@ class UserController extends BaseController
             $validator['name'] = 'required|min:3|max:255';
         }
         if (isset($input['email'])) {
-            $validator['email'] = 'required|email|min:3|max:255';
+            $validator['email'] = ['required', 'email:rfc', 'min:3', 'max:255', 'not_regex:/[\r\n]/'];
         }
         if (isset($input['phone'])) {
             $validator['phone'] = 'required|min:3|max:255';
@@ -583,7 +588,11 @@ class UserController extends BaseController
             return $this->done();
         }
 
-        if(UserRepo::isOTPValid(UserAuth::user('id'),$request->input('token'))){
+        $validated = $request->validate([
+            'token' => ['required', 'digits:' . AuthConfig::OTPDigit()],
+        ]);
+
+        if(UserRepo::isOTPValid(UserAuth::user('id'), $validated['token'])){
             $this->setMessage('OTP valid', 'success');
         }else{
             $this->setError(UserRepo::error());            

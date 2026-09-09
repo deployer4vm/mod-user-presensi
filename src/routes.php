@@ -37,17 +37,17 @@ if(config('AppConfig.system.use_admin_full_vue',1)!=1){
          */
         Route::middleware('auth')->group(function(){
             //Auth/LoginController
-            Route::get('/logout', 'Auth\LoginController@logout')->name('auth.logout');
+            Route::post('/logout', 'Auth\LoginController@logout')->name('auth.logout');
             
             //Auth\TokenApiController
             //ubah role user yang sedang loign
-            Route::get('/change_role/{role_code}', 'UserController@changeRole')->name('auth.changerole'); 
+            Route::post('/change_role/{role_code}', 'UserController@changeRole')->name('auth.changerole');
         });
 
         //LoginController - appCode untuk SSO
         Route::get('/login/{appCode?}', 'Auth\LoginController@login')->name('auth.login');
         Route::post('/login/{appCode?}', 'Auth\LoginController@doLogin');
-        Route::get('/logout/{appCode?}', 'Auth\LoginController@logout')->name('auth.logout');
+        Route::post('/logout/{appCode?}', 'Auth\LoginController@logout')->name('auth.logout');
         // revalidate / cek session untuk SSO
         Route::get('/revalidate/{appCode}', 'Auth\LoginController@revalidate')->name('auth.reValidate');
         

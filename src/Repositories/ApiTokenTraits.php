@@ -5,6 +5,7 @@ namespace hpsynapse\moduser\Repositories;
 use hpsynapse\moduser\Models\ApiToken;
 use Illuminate\Support\Facades\Log;
 use hpsynapse\moduser\Facades\UserAuth;
+use Carbon\Carbon;
 
 trait ApiTokenTraits
 {
@@ -22,8 +23,10 @@ trait ApiTokenTraits
             $lastUpdate = $tokenData['updated_at'];
         }
 
-        //jika sudah melebihi batas waktu
-        if (now() > now()->addHours(config('bssystem.sso.session_lifetime'))) {
+        $expiresAt = Carbon::parse($lastUpdate)->addHours(
+            (int) config('bssystem.sso.session_lifetime', 2)
+        );
+        if (now()->greaterThan($expiresAt)) {
             $this->deleteToken($tokenData['api_token']);
             return false;
         }
@@ -80,14 +83,9 @@ trait ApiTokenTraits
             Log::info('Logging out from other device');
         }
 
-        $randomNumber = '';
-        $maxFail=10;//jika sudah 10 kali token duplicate, maka ada error yg lain, TOLAK
-        $failCount=0;
         do {
-            $data['api_token'] = hash('sha256', 'token' . $userId . '.' . now().'.'.$randomNumber);
-            $randomNumber = rand();
-            $failCount++;
-        } while (ApiToken::where('api_token', $data['api_token'])->exists() && $failCount < $maxFail);
+            $data['api_token'] = bin2hex(random_bytes(32));
+        } while (ApiToken::where('api_token', $data['api_token'])->exists());
         
         $data['session_id'] = session()->exists('_token') ? session()->getId() : null;
         $data['is_permanent'] = $isPermanent;

@@ -150,9 +150,9 @@ class RegisterController extends BaseController
         $validator = Validator::make($userData, [
             'username' => 'required|min:3|max:255',
             'name' => 'required|min:3|max:255',
-            'email' => 'required|email|max:255',
+            'email' => ['required', 'email:rfc', 'max:255', 'not_regex:/[\r\n]/'],
             'phone' => 'max:20',
-            'password' => 'required|min:5|max:255'
+            'password' => 'required|min:8|max:255'
         ]);
 
         if ($validator->fails()) {

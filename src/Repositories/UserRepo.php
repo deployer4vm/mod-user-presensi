@@ -600,8 +600,10 @@ class UserRepo extends BaseRepository
             $this->error = $e->getMessage();
 
             Log::error('moduser UserRepo::register() ERROR');
-            Log::error($userData);
-            Log::error($e);
+            Log::error($e->getMessage(), [
+                'email' => $userData['email'] ?? null,
+                'username' => $userData['username'] ?? null,
+            ]);
 
             // jika sedang dalam transaksi dari parent maka teruskan error nya ke parent transaction nya
             if (!$dontHaveTransactionLevel)
@@ -640,13 +642,13 @@ class UserRepo extends BaseRepository
 
 
         if (!empty($userData['email'])) {
-            $validatorRule['email'] = 'required|email|min:5|max:255';
+            $validatorRule['email'] = ['required', 'email:rfc', 'min:5', 'max:255', 'not_regex:/[\r\n]/'];
         } else {
             $userData['email'] = '';
         }
         if (isset($userData['username']) && $userData['username'] != '') {
             $userData['username'] = str_replace(' ', '', $userData['username']);
-            $validatorRule['username'] = 'required|min:5|max:255';
+            $validatorRule['username'] = 'required|min:3|max:255';
         } else {
             $userData['username'] = '';
         }
@@ -657,10 +659,11 @@ class UserRepo extends BaseRepository
         }
 
         if($userData['user_type']==1){
-            if (!isset($userData['password'])) {
-                $userData['password'] = empty($userData['username']) ? $userData['email'] : $userData['username'];
+            if (!isset($userData['password']) && ($userData['registration_reff'] ?? null) === 3) {
+                $userData['password'] = Str::random(64);
+                $userData['repassword'] = $userData['password'];
             }
-            $validatorRule['password'] = 'required|min:5|max:255';
+            $validatorRule['password'] = 'required|min:8|max:255';
             if (isset($userData['repassword'])) {
                 $validatorRule['password'] .= '|same:repassword';
             } else {
@@ -680,7 +683,9 @@ class UserRepo extends BaseRepository
             }
             $err[] = '</ul>';
             $this->error = implode('', $err);
-            Log::error($userData);
+            Log::warning('User registration validation failed', [
+                'fields' => array_keys($userData),
+            ]);
             return false;
         }
 
@@ -865,10 +870,11 @@ class UserRepo extends BaseRepository
         }
 
         if (!empty($userData['pin'])) {
-            $log['pin'] = $userData['pin'];
             $userData['pin'] = Hash::make($userData['pin']);
-            $log['hashed_pin'] = $userData['pin'];
         }
+
+        $newPassword = $userData['password'] ?? null;
+        unset($userData['password']);
 
         $dontHaveTransactionLevel = !Tenant::dbTransactionLevel();
         if ($dontHaveTransactionLevel)
@@ -911,8 +917,8 @@ class UserRepo extends BaseRepository
                 throw new Exception($this->errorFull());
             }
 
-            if (isset($userData['password']) && $userData['password']) {
-                $this->resetPassword($userId, $userData['password']);
+            if ($newPassword) {
+                $this->resetPassword($userId, $newPassword);
             }
 
             if ($runEvent)
@@ -921,7 +927,7 @@ class UserRepo extends BaseRepository
             if ($dontHaveTransactionLevel)
                 Tenant::dbCommit();
 
-            $log['updated'] = $userData;
+            $log['updated_fields'] = array_keys($userData);
             UserLog::addLog($userId, 'moduser_userrepo', 'update_user', $log);
 
             return true;
@@ -1098,27 +1104,28 @@ class UserRepo extends BaseRepository
 
     public function varifyResetPasswordToken($email, $verifyCode, $delete = false)
     {
-        //jika match
-        if ($this->generateEmailVerfifyCode($email) == $verifyCode) {
+        $passwordReset = PasswordReset::where('tenant_id',config('tenant.id',0))
+            ->where('email', $email)
+            ->where('token', hash('sha256', (string) $verifyCode))
+            ->first();
 
-            $passwordReset = PasswordReset::where('tenant_id',config('tenant.id',0))
-                ->where('email', $email)->where('token', $verifyCode)->first();
-            if (!$passwordReset) {
-                $this->error = __('auth.resetpassword_fail_mailnotfound');
-                return false;
+        if (!$passwordReset || Carbon::parse($passwordReset->created_at)->addHour()->isPast()) {
+            if ($passwordReset) {
+                $passwordReset->delete();
             }
-            $return = $passwordReset->toArray(); 
-            if ($delete) $passwordReset->delete();
-            return $return;
+            $this->error = __('auth.resetpassword_fail_verificationcodeinvalid');
+            return false;
         }
-        $this->error = __('auth.resetpassword_fail_verificationcodeinvalid');
-        return false;
+
+        $return = $passwordReset->toArray();
+        if ($delete) $passwordReset->delete();
+        return $return;
     }
     
     public function deleteResetPasswordToken($email)
     {
         PasswordReset::where('tenant_id',config('tenant.id',0))
-                ->where('email', $email)->first()->delete();
+                ->where('email', $email)->delete();
     }
 
     /**
@@ -1553,6 +1560,12 @@ class UserRepo extends BaseRepository
      */
     public function changeUsersRoleCode($oldRoleCode,$newRoleCode,$tenantId=false)
     {
+        foreach ([$oldRoleCode, $newRoleCode] as $roleCode) {
+            if (!is_string($roleCode) || !preg_match('/\A[A-Za-z0-9_.-]{1,100}\z/D', $roleCode)) {
+                throw new \InvalidArgumentException('Invalid role code.');
+            }
+        }
+
         $model = new User();
 
         if($tenantId!==false)

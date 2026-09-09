@@ -27,7 +27,7 @@ class LoginController extends BaseController
 
     public function __construct()
     {
-        $this->middleware('guest')->except(['logout', 'revalidate']);
+        $this->middleware('guest')->except(['logout', 'apiLogout', 'revalidate']);
     }
 
     // public function username()
@@ -78,8 +78,10 @@ class LoginController extends BaseController
         $authData = $request->only('username', 'password');
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
-            Log::info('Login Failed ! user : "' . $authData['username'] . '" - password : "' . $authData['password'] . '"');
-            Log::info('Too many login attemp');
+            Log::warning('Too many web login attempts', [
+                'username' => $authData['username'],
+                'ip' => $request->ip(),
+            ]);
             return $this->sendLockoutResponse($request);
         }
 
@@ -98,7 +100,7 @@ class LoginController extends BaseController
                 )
             ) {
 
-                //$request->session()->regenerate();
+                $request->session()->regenerate();
                 $this->clearLoginAttempts($request);
                 $userData = Auth::user();
 
@@ -131,7 +133,8 @@ class LoginController extends BaseController
         UserAuth::unsetUser();
         Auth::logout();
 
-        //$request->session()->invalidate();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         $response['backlink'] = $request->input('backlink') ? $request->input('backlink') : config('cur_apps.home_url');
         $response['reff'] = 'logout';
         $response['isLogin'] = 0;
@@ -210,6 +213,16 @@ class LoginController extends BaseController
     {
         $this->forceApiOutput();
 
+        $request->validate([
+            'username' => ['nullable', 'required_without:auth', 'string', 'max:255'],
+            'password' => ['nullable', 'required_without:auth', 'string', 'max:2048'],
+            'auth' => ['nullable', 'string', 'max:4096'],
+            'role_code' => ['nullable', 'string', 'max:100'],
+            'role_group_code' => ['nullable', 'string', 'max:100'],
+            'deviceId' => ['nullable', 'string', 'max:255'],
+            'pushNotifToken' => ['nullable', 'string', 'max:4096'],
+        ]);
+
         $authParam = $request->only('username', 'password','role_code', 'role_group_code', 'auth');
         
         // detek auto login, untuk auto login tidak perlu di masukan ke system blockir
@@ -218,12 +231,10 @@ class LoginController extends BaseController
             $tmpAuth = json_decode(UserAuth::decryptCredential($authParam['auth']), true);
             if (!isset($tmpAuth['username']) || !isset($tmpAuth['password'])) {
                 $this->setError(__('alert.incorect_parameter'));
-                $authParam['decrypted_auth'] = $tmpAuth;
                 // login api failed
                 UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
                     'ip' => request()->ip(),
                     'error' => 'incorect_parameter',
-                    'params' => $authParam,
                 ]);
                 return $this->done();
             }
@@ -236,7 +247,6 @@ class LoginController extends BaseController
             UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
                 'ip' => request()->ip(),
                 'error' => 'incorect_parameter',
-                'params' => $authParam,
             ]);
             return $this->done();
         }
@@ -267,7 +277,7 @@ class LoginController extends BaseController
                 UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
                     'ip' => request()->ip(),
                     'error' => 'ip_blocked',
-                    'params' => $authParam,
+                    'username' => $authParam['username'],
                 ]);
                 $this->setError(__('auth.login.alert.login_blocked'));
                 return $this->done();
@@ -316,7 +326,7 @@ class LoginController extends BaseController
                 UserLog::addLog(UserAuth::user('id'), 'user_auth', 'api_login_failed', [
                     'ip' => request()->ip(),
                     'error' => 'main_role_not_defined',
-                    'params' => $authParam,
+                    'username' => $authParam['username'],
                 ]);
                 return $this->done();
             }
@@ -377,7 +387,7 @@ class LoginController extends BaseController
             // api success
             $paramUserLog = [
                 'ip' => request()->ip(),
-                'authParam' => $authParam,
+                'username' => $authParam['username'],
                 'device_type' => $token['device_type'],
             ];
 
@@ -405,7 +415,7 @@ class LoginController extends BaseController
             'ip' => request()->ip(),
             'error' => 'credentials_failed',
             'error_message' => UserRepo::errorFull(),
-            'params' => $authParam,
+            'username' => $authParam['username'],
         ]);
 
         // $this->setError(__('alert.auth_failed'));
@@ -417,5 +427,19 @@ class LoginController extends BaseController
      * 
      * @param Request $request
      */
-    public function apiLogout(Request $request) {}
+    public function apiLogout(Request $request)
+    {
+        $this->forceApiOutput();
+        $token = UserAuth::getToken();
+
+        if ($token) {
+            if (class_exists(\App\Support\EtaskSession::class)) {
+                \App\Support\EtaskSession::revoke($token);
+            }
+            UserRepo::deleteToken($token);
+        }
+
+        $this->setMessage(__('alert.auth_logout'));
+        return $this->done();
+    }
 }

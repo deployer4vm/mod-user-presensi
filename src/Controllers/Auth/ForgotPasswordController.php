@@ -41,19 +41,19 @@ class ForgotPasswordController extends BaseController
      * @return type
      */
     public function doForgotPassword(Request $request, $apps_code = '')
-    {        
-        $this->output['data']['email'] = $request->input('email');
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email:rfc', 'max:255', 'not_regex:/[\r\n]/'],
+        ]);
+        $this->output['data']['email'] = $validated['email'];
         $this->response = 'auth.forgotpasswordsuccess';
         
         $user = UserRepo::getUser(['email',$this->output['data']['email']]);
         
-        if(!$user || $user['status'] != 1){
-            $this->setError(__('auth.forgotpassword.alert.email_not_registered'));
-            $this->response = redirect(url()->previous())->withInput();
-            return $this->done();            
+        if($user && $user['status'] == 1){
+            UserRepo::sendUserResetPasswordEmail($user['id']);
         }
-        
-        UserRepo::sendUserResetPasswordEmail($user['id']);//,config('cur_apps.id'));
+
         $this->output['message'] = __('auth.forgotpassword.alert.forgot_password_success');
         return $this->done();
     }

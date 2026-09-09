@@ -6,6 +6,8 @@ use hpsynapse\moduser\Models\NotificationChannel;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 use hpsynapse\moduser\Models\User;
 use hpsynapse\moduser\Models\UserOTP;
@@ -39,7 +41,7 @@ trait UserMessageTraits
     public function sendEmail($userId,$email)
     {        
         $user = User::find($userId);
-        if($user)return false;
+        if(!$user)return false;
         Mail::to($user->email)->send($email);
         return true;
     }
@@ -114,7 +116,7 @@ trait UserMessageTraits
             $userData['email'] = $userProfile->email2;
         }
         
-        $userData['verifyCode'] = $this->generateEmailVerfifyCode($userData['email']);
+        $userData['verifyCode'] = Str::random(64);
         $userData['verifyUrl'] = route('auth.emailVerification',[
             'email' => $userData['email'],
             'verifyCode' => $userData['verifyCode']
@@ -155,13 +157,14 @@ trait UserMessageTraits
 
         if($modelEmail->exists()){
             $modelEmail->update([
+                'token' => hash('sha256', $userData['verifyCode']),
                 'created_at' => now()         
             ]);
         }else{
             PasswordReset::create([
                 'tenant_id' => config('tenant.id',0),
                 'email' => $userData['email'],
-                'token' => $userData['verifyCode']            
+                'token' => hash('sha256', $userData['verifyCode'])
             ]);
 
         }
@@ -171,7 +174,7 @@ trait UserMessageTraits
 
     public function generateEmailVerfifyCode($email)
     {
-        return hash('sha256',$email.'somesaltbrooooooo');
+        return hash_hmac('sha256', strtolower($email), (string) config('app.key'));
     }
     
     /**
@@ -261,14 +264,14 @@ trait UserMessageTraits
         // delete otp lama jika ada
         UserOTP::where('user_id',$userId)->delete();
 
-        $otpCode = (int) str_repeat('9',$digit);
-        $otpCode = str_pad(rand(0, $otpCode), $digit, '0', STR_PAD_LEFT);
+        $maxOtp = (int) str_repeat('9', $digit);
+        $otpCode = str_pad((string) random_int(0, $maxOtp), $digit, '0', STR_PAD_LEFT);
         $timeout = now()->addMinutes(AuthConfig::OTPTimeout());
 
         UserOTP::create([
             'tenant_id' => config('tenant.id',0),
             'user_id' => $userId,
-            'token' => $otpCode,
+            'token' => Hash::make($otpCode),
             'channel' => $user->otp_channel,
             'recipient' => $recipient,
             'timeout' => $timeout
@@ -291,9 +294,10 @@ trait UserMessageTraits
     {
         $tenantId = $tenantId?$tenantId:config('tenant.id',0);
     
-        $otpData = UserOTP::where('user_id',$userId) 
-                ->where('tenant_id',$tenantId)       
-                ->where('token',$otpCode)->first();
+        $otpData = UserOTP::where('user_id',$userId)
+                ->where('tenant_id',$tenantId)
+                ->latest('created_at')
+                ->first();
         
         //jika otp valid
         if($otpData){
@@ -304,7 +308,7 @@ trait UserMessageTraits
                 $this->error = 'Invalid OTP';
                 return false;
             }
-            return true;
+            return Hash::check((string) $otpCode, $otpData->token);
         }
 
         $this->error = 'Invalid OTP';

@@ -375,16 +375,12 @@ class UserAuth
         $userId = $userId?$userId:$this->userData['id'];
         $tmpUser = User::select(['pin','id'])->where('id',$userId)->first();
         
-        if(Hash::check($pin,$tmpUser->pin)){
+        if($tmpUser && $tmpUser->pin && Hash::check($pin,$tmpUser->pin)){
             return true;
         }
         UserLog::addLog(UserAuth::user('id'),'USERAUTH','PIN_INVALID',[
-            'pin'=>$pin,
-            'hashed_pin'=>$tmpUser->pin,
             'is_h2h_token'=>$this->isH2H(),
             'userId'=>$tmpUserId,
-            'userPin'=>$tmpUser?$tmpUser->toArray():[],
-            'userData'=>$this->userData,
         ]);
         return false;
     }
@@ -435,7 +431,7 @@ class UserAuth
     public function hasAccess(
         $key,
         $subKey = 'has_access',
-        $defaultAccess = true,
+        $defaultAccess = false,
         $checkWebDev = false
     ) {
         if ($checkWebDev === true && $this->isWebDev()) {

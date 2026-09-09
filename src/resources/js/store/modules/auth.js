@@ -83,7 +83,13 @@ const mutations = {
         state.role_group_code = state.role[roleCode].role_group.code;
     },
     setAuthData(state, userData) {
-        eval('state.' + userData.key + ' = userData.value;');
+        const allowedKeys = [
+            'token', 'userId', 'user', 'role', 'role_code',
+            'role_group', 'role_group_code', 'role_level_group', 'group_app'
+        ];
+        if (allowedKeys.includes(userData.key)) {
+            state[userData.key] = userData.value;
+        }
     },
     setLogout(state) {
         state.token = null;
@@ -239,19 +245,13 @@ const actions = {
     },
     changeRole({ commit, state, dispatch }, roleCode) {
         return globals().LocalApi
-            .get(authPath + "/change_role/" + roleCode).then(res => {
+            .post(authPath + "/change_role/" + roleCode).then(res => {
                 commit("setActiveRoleCode", roleCode);
                 EventBus.$emit('onChangeRole', roleCode);
                 return dispatch("implementAcl");
             });
     },
     logout({ commit, state }) {
-        commit("setLogout");
-
-        //delete autorization nya
-        delete globals().LocalApi.defaults.headers.common['Authorization'];
-        delete globals().LocalApi.defaults.headers.common['Syn-Api-Token'];
-
         let userData = {
             token: state.token,
             user: state.user,
@@ -263,7 +263,15 @@ const actions = {
             role_level_group: state.role_level_group,
             // tenant: state.tenant,
         }
-        EventBus.$emit('onLogout', JSON.parse(JSON.stringify(userData)));
+
+        return globals().LocalApi.post(authPath + "/logout")
+            .catch(() => null)
+            .then(() => {
+                commit("setLogout");
+                delete globals().LocalApi.defaults.headers.common['Authorization'];
+                delete globals().LocalApi.defaults.headers.common['Syn-Api-Token'];
+                EventBus.$emit('onLogout', JSON.parse(JSON.stringify(userData)));
+            });
     },
     //---------------------------------------
     initAuth({ commit, state, dispatch }) { },
