@@ -10,7 +10,7 @@ $groupAuth = [
 ];
 Route::group($groupAuth, function () {
     //Auth/LoginController
-    Route::post('/login', 'Auth\LoginController@apiLogin')->middleware('throttle:5,1')->name('auth.api.login');
+    Route::post('/login', 'Auth\LoginController@apiLogin')->middleware('throttle:auth-login')->name('auth.api.login');
 
     //Auth/RegisterController
     Route::post('/register', 'Auth\RegisterController@apiRegister')->middleware('throttle:3,1')->name('auth.api.register');
